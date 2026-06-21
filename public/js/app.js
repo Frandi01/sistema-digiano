@@ -18,6 +18,7 @@ export const state = { user: null, branches: [], labels: {} };
 const NAV = {
   admin: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
+    ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['seguimientos', 'Seguimientos', 'followups']]],
     ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
     ['Analisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Metricas', 'metrics']]],
     ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
