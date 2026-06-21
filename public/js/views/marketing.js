@@ -173,7 +173,8 @@ export async function renderMarketing() {
         <tbody>${rows || '<tr><td colspan="5"><div class="empty">Sin tareas</div></td></tr>'}</tbody></table>
       </div>`;
 
-    tasksContainer.querySelector('#newMktTask')?.onclick = () => openModal({
+    const newMktTaskBtn = tasksContainer.querySelector('#newMktTask');
+    if (newMktTaskBtn) newMktTaskBtn.onclick = () => openModal({
       title: 'Nueva tarea de marketing',
       body: `<form id="tf"><div class="form-grid">
         <div class="field full"><label>Tipo *</label>
