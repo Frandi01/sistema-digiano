@@ -304,6 +304,7 @@ for (const t of ['tasks', 'campaigns', 'objectives']) {
 }
 addColumn('campaigns', 'priority', "TEXT DEFAULT 'media'");
 addColumn('objectives', 'priority', "TEXT DEFAULT 'media'");
+addColumn('tasks', 'updated_at', 'TEXT');
 // Backfill de username para bases existentes (deriva del email).
 try {
   db.exec("UPDATE users SET username = lower(substr(email,1,instr(email,'@')-1)) WHERE (username IS NULL OR username='') AND email LIKE '%@%'");
