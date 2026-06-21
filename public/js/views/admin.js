@@ -17,9 +17,6 @@ export async function renderApprovals() {
   const cliRows = d.clients.map((c) => `
     <tr><td><b>${esc(c.name)}</b></td><td>${esc(c.phone || '-')}</td><td>${esc(c.created_name || '-')}</td>
     <td><button class="btn green sm" data-app-cli="${c.id}">Aprobar cliente</button></td></tr>`).join('');
-  const invRows = d.inviables.map((t) => `
-    <tr><td><b>${esc(t.client_name || '-')}</b></td><td>${esc(t.assigned_name || '-')}</td><td>${esc(t.reason || '-')}</td>
-    <td><button class="btn green sm" data-app-inv="${t.id}">Aprobar (+1)</button> <button class="btn outline sm" data-rej-inv="${t.id}">Rechazar (-5)</button></td></tr>`).join('');
   const chRows = changes.map((c) => `
     <tr><td><b>${esc(c.summary || c.type)}</b></td><td>${esc(c.client_name || '-')}</td><td>${esc(c.requested_name || '-')}</td>
     <td><button class="btn green sm" data-app-ch="${c.id}">Aprobar</button> <button class="btn outline sm" data-rej-ch="${c.id}">Rechazar</button></td></tr>`).join('');
@@ -32,8 +29,7 @@ export async function renderApprovals() {
   const html =
     block('Movimientos pendientes', ['Tipo', 'Cliente', 'Ramo', 'Cargado por', 'Comision', ''], movRows, 6) +
     block('Cambios de datos pendientes', ['Cambio', 'Cliente', 'Solicitado por', ''], chRows, 4) +
-    block('Clientes nuevos por aprobar', ['Cliente', 'Telefono', 'Creado por', ''], cliRows, 4) +
-    block('Oportunidades inviables en revision', ['Cliente', 'Comercial', 'Motivo', ''], invRows, 4);
+    block('Clientes nuevos por aprobar', ['Cliente', 'Telefono', 'Creado por', ''], cliRows, 4);
 
   return {
     html,
@@ -42,8 +38,6 @@ export async function renderApprovals() {
       act('[data-app-mov]', async (b) => { await api.post('/movements/' + b.dataset.appMov + '/approve'); toast('Aprobado', 'green'); refresh(); });
       act('[data-rej-mov]', async (b) => { await api.post('/movements/' + b.dataset.rejMov + '/reject', { reason: 'Rechazado por admin' }); toast('Rechazado'); refresh(); });
       act('[data-app-cli]', async (b) => { await api.post('/clients/' + b.dataset.appCli + '/approve'); toast('Cliente aprobado', 'green'); refresh(); });
-      act('[data-app-inv]', async (b) => { await api.post('/tasks/' + b.dataset.appInv + '/review', { decision: 'aprobar' }); toast('Inviable aprobado', 'green'); refresh(); });
-      act('[data-rej-inv]', async (b) => { await api.post('/tasks/' + b.dataset.rejInv + '/review', { decision: 'rechazar' }); toast('Inviable rechazado'); refresh(); });
       act('[data-app-ch]', async (b) => { await api.post('/change-requests/' + b.dataset.appCh + '/resolve', { decision: 'aprobar' }); toast('Cambio aprobado', 'green'); refresh(); });
       act('[data-rej-ch]', async (b) => { await api.post('/change-requests/' + b.dataset.rejCh + '/resolve', { decision: 'rechazar' }); toast('Cambio rechazado'); refresh(); });
     },
