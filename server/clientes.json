@@ -1,0 +1,3058 @@
+[
+ {
+  "name": "La Vista Miguel",
+  "tipo": "fisica",
+  "phone": "011-5352-8800",
+  "email": "mlavista@lavistacasal.com.ar",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "AP",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Acc. Personales, Ramo 80, Salud, Motovehículos"
+ },
+ {
+  "name": "Petruccelli Nicolas",
+  "tipo": "fisica",
+  "phone": "0221-15-571-2152",
+  "email": "nicolas_petruccelli@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "AP",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Combinado Familiar, Automotores, Robo, Vida Individual, Acc. Personales, Salud"
+ },
+ {
+  "name": "Bozzano Mauricio Fabian",
+  "tipo": "fisica",
+  "phone": "0221-15-408-1866",
+  "email": "bozzano@shyma.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "AP",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Obligatorio, Vida Individual, Acc. Personales, Ramo 80, Salud"
+ },
+ {
+  "name": "Capasso Natalia Sol",
+  "tipo": "fisica",
+  "phone": "0221-15-497-8047",
+  "email": "capasso.natalia@gmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Riesgos Varios, Vida Individual, Seg. Técnico, Salud"
+ },
+ {
+  "name": "Lucero Marcelo",
+  "tipo": "fisica",
+  "phone": "0221-422-9279",
+  "email": "luceromarcelo128@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Automotores, Robo, Riesgos Varios, Vida Individual, Acc. Personales"
+ },
+ {
+  "name": "Digiano Gustavo Fernando",
+  "tipo": "fisica",
+  "phone": "0221-15-524-0176",
+  "email": "fdigian0@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Hogar",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Robo, Vida Individual, Seg. Técnico, Acc. Personales"
+ },
+ {
+  "name": "Lamberti Daniel Horacio",
+  "tipo": "fisica",
+  "phone": "0221-483-6169",
+  "email": "danilam@speedy.com.ar",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Larrondo Juan Manuel",
+  "tipo": "fisica",
+  "phone": "0221-479-7886",
+  "email": "larrondojm@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Ramo 80, Salud, Motovehículos"
+ },
+ {
+  "name": "Mercuri Raul Alejandro",
+  "tipo": "fisica",
+  "phone": "0221-15-567-7349",
+  "email": "nootiene@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "AP",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Acc. Personales, Salud, Motovehículos"
+ },
+ {
+  "name": "Romero Alejandro Gabriel",
+  "tipo": "fisica",
+  "phone": "0221-15-567-0814",
+  "email": "aromeroarq@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Hogar",
+   "Vida",
+   "AP",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Robo, Vida Individual, Acc. Personales, Salud"
+ },
+ {
+  "name": "Alvarez Gaston Antonio",
+  "tipo": "fisica",
+  "phone": "0221-15-495-4878",
+  "email": "elpelado_73@hotmail.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud, Motovehículos"
+ },
+ {
+  "name": "Alvarez Juan Carlos",
+  "tipo": "fisica",
+  "phone": "0221-470-0288",
+  "email": "alvarez.juancarlos@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Riesgos Varios, Vida Individual, Salud"
+ },
+ {
+  "name": "Andonaire Montoya Lee Tho",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud, Motovehículos"
+ },
+ {
+  "name": "Angulo Karina Leonor",
+  "tipo": "fisica",
+  "phone": "0221-15-675-0908",
+  "email": "ho_gutierrez@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Riesgos Varios, Vida Individual, Salud"
+ },
+ {
+  "name": "Basili Maria Eugenia",
+  "tipo": "fisica",
+  "phone": "0221-451-3909",
+  "email": "derossi.marcela@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Capasso Franco Gabriel",
+  "tipo": "fisica",
+  "phone": "011-15-4159-1115",
+  "email": "fgcapasso@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Casaletti Gustavo Raul",
+  "tipo": "fisica",
+  "phone": "0221-15-590-1873",
+  "email": "gustavoraulcasaletti@gmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Dobler Ricardo German",
+  "tipo": "fisica",
+  "phone": "0221-15-598-4106",
+  "email": "ger.-lp@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud, Motovehículos"
+ },
+ {
+  "name": "Fernandez Florencia Cecil",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Grillo Maximo",
+  "tipo": "fisica",
+  "phone": "0221-15-610-2507",
+  "email": "notieneee@email.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Ramo 80, Salud"
+ },
+ {
+  "name": "Iacono Juan Carlos",
+  "tipo": "fisica",
+  "phone": "011-4299-2843",
+  "email": "juan.iacono1@gmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Mars Optoelectronica S.r.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Automotores, Vida Obligatorio, Acc. Pasajeros"
+ },
+ {
+  "name": "Martin Quinteros Gustavo",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Obligatorio, Vida Individual, Salud"
+ },
+ {
+  "name": "Martire Pascual Rafael",
+  "tipo": "fisica",
+  "phone": "0221-486-1114",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Mauad Sofia Ester",
+  "tipo": "fisica",
+  "phone": "0221-427-1635",
+  "email": "fdigiano@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Int. de Comercio, Salud"
+ },
+ {
+  "name": "Molinari Pablo Roman",
+  "tipo": "fisica",
+  "phone": "0221-15-626-3053",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud, Motovehículos"
+ },
+ {
+  "name": "Porcel De Peralta Hector",
+  "tipo": "fisica",
+  "phone": "0221-453-5294",
+  "email": "benjporcel@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Stelman Ana Maria",
+  "tipo": "fisica",
+  "phone": "0221-15-635-7832",
+  "email": "anamariastelman@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Combinado Familiar, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Adrogue Faiman Ruben Atil",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Arias Maria De Los Angele",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Barbero Hugo Julio",
+  "tipo": "fisica",
+  "phone": "0221-452-6527",
+  "email": "barberohju@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Barzabal Maria Jose",
+  "tipo": "fisica",
+  "phone": "0221-15-555-2312",
+  "email": "mjb7476@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Bauleo Vanesa",
+  "tipo": "fisica",
+  "phone": "011-4633-4371",
+  "email": "chdi72@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Bloise Alejandro Leonardo",
+  "tipo": "fisica",
+  "phone": "011-15-4928-8942",
+  "email": "info@indave.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Browne Maria Cecilia",
+  "tipo": "fisica",
+  "phone": "0221-15-525-3755",
+  "email": "mariacebr@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Calandri Lucas Emmanuel",
+  "tipo": "fisica",
+  "phone": "0221-15-560-4785",
+  "email": "lucascalandri@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Calvanese Delfina",
+  "tipo": "fisica",
+  "phone": "0221-15-621-2755",
+  "email": "ngiaccaglia@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Candia Vera Cornelio",
+  "tipo": "fisica",
+  "phone": "0221-15-524-0844",
+  "email": "candialis@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Capasso Andrea Gisele",
+  "tipo": "fisica",
+  "phone": "0221-15-570-0312",
+  "email": "jonatan_macdougall@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Resp. Civil, Robo, Vida Individual, Acc. Personales"
+ },
+ {
+  "name": "Capasso Matias Gabriel",
+  "tipo": "fisica",
+  "phone": "0221-15-606-1777",
+  "email": "antoniocapasso6161@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Capasso Veronica Cecilia",
+  "tipo": "fisica",
+  "phone": "0221-15-565-0677",
+  "email": "capasso.veronica@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Conrad Kevin",
+  "tipo": "fisica",
+  "phone": "0221-15-635-2109",
+  "email": "kevinconrad08@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Cortes Hugo Alberto",
+  "tipo": "fisica",
+  "phone": "0221-483-8193",
+  "email": "huguito.cortes@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Riesgos Varios, Salud"
+ },
+ {
+  "name": "Cosentino Pedro Luis",
+  "tipo": "fisica",
+  "phone": "0221-451-8270",
+  "email": "pedrolcosentino@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Dagand Omar Luis",
+  "tipo": "fisica",
+  "phone": "0221-15-540-3595",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Denegri Andrea Veronica",
+  "tipo": "fisica",
+  "phone": "0221-452-2373",
+  "email": "denegri@debup.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Denisienia Pablo",
+  "tipo": "fisica",
+  "phone": "0221-15-677-5504",
+  "email": "pablodenisienia@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Diaz Carlos Alberto",
+  "tipo": "fisica",
+  "phone": "0221-15-486-2552",
+  "email": "diazcarlosalberto2@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Digiano Jose Luis",
+  "tipo": "fisica",
+  "phone": "---",
+  "email": "joseluisdigiano@gmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Automotores, Riesgos Varios"
+ },
+ {
+  "name": "Etchetto Carla",
+  "tipo": "fisica",
+  "phone": "0221-15-566-4486",
+  "email": "carlaetchetto@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Etchevest Marcelo Cesar",
+  "tipo": "fisica",
+  "phone": "0221-15-536-9339",
+  "email": "marcelo_et2000@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Farinelli Pablo Sebastian",
+  "tipo": "fisica",
+  "phone": "011-15-3156-3476",
+  "email": "vicky_leyria@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Hogar",
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Incendio, Automotores, Vida Individual"
+ },
+ {
+  "name": "Figueredo Martin Andres",
+  "tipo": "fisica",
+  "phone": "011-15-3651-9474",
+  "email": "mfigueredo@indave.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Francece Sandra Viviana",
+  "tipo": "fisica",
+  "phone": "0221-15-639-9162",
+  "email": "vivifranc@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Garcia Nelly Alfonsina",
+  "tipo": "fisica",
+  "phone": "0221-424-6343",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Gonzalez Fernando Nicolas",
+  "tipo": "fisica",
+  "phone": "011-4846-1830",
+  "email": "lasunicas.sa@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Gonzalez Luis Alberto",
+  "tipo": "fisica",
+  "phone": "011-15-3480-1704",
+  "email": "lasunicas.sa@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Gonzalez Martin Adrian",
+  "tipo": "fisica",
+  "phone": "011-4846-1830",
+  "email": "lasunicas.sa@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Gonzalez Monica Liliana",
+  "tipo": "fisica",
+  "phone": "0221-453-9875",
+  "email": "dispos@ing.unlp.edu.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Gorelik Ricardo Anibal",
+  "tipo": "fisica",
+  "phone": "0221-15-350-0330",
+  "email": "anibalgorelik@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Herdt Claudia Lorena",
+  "tipo": "fisica",
+  "phone": "011-4840-1107",
+  "email": "laralorecavi@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Herrera Estelita Y/o Cuer",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Iacono Sebastian Bruno",
+  "tipo": "fisica",
+  "phone": "011-4556-1654",
+  "email": "sebaiacono@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Ielmini Andrea Lujan",
+  "tipo": "fisica",
+  "phone": "0221-429-0200",
+  "email": "rusolatin@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Indave S.a",
+  "tipo": "juridica",
+  "phone": "011-4216-9518",
+  "email": "lgcapasso@indave.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Obligatorio, Acc. Pasajeros"
+ },
+ {
+  "name": "La Vista Casal S.a.",
+  "tipo": "juridica",
+  "phone": "011-3987-8266",
+  "email": "rrhh@lavistacasal.com.ar",
+  "branches": [
+   "Caucion",
+   "Vida",
+   "Comercio"
+  ],
+  "coberturas": "Caución, Vida Obligatorio, Int. de Comercio, Ramo 80"
+ },
+ {
+  "name": "Laiun & Asociados S.a.",
+  "tipo": "juridica",
+  "phone": "011-15-6337-0014",
+  "email": "tomas.smudt@lfsestudio.com.ar",
+  "branches": [
+   "Caucion",
+   "Vida",
+   "Comercio"
+  ],
+  "coberturas": "Caución, Vida Colectivo, Vida Obligatorio, Int. de Comercio"
+ },
+ {
+  "name": "Larregui Maria Rosario",
+  "tipo": "fisica",
+  "phone": "0221-15-408-2413",
+  "email": "roslarregui@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Las Unicas S.a",
+  "tipo": "juridica",
+  "phone": "011-5352-8800",
+  "email": "lasunicas.sa@gmail.com",
+  "branches": [
+   "Auto",
+   "Vida",
+   "Comercio"
+  ],
+  "coberturas": "Automotores, Vida Obligatorio, Int. de Comercio, Ramo 80"
+ },
+ {
+  "name": "Ligarda Maria Laura",
+  "tipo": "fisica",
+  "phone": "0221-15-537-5143",
+  "email": "lauraligarda@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Llorca Mercedes Laura",
+  "tipo": "fisica",
+  "phone": "0221-15-602-3125",
+  "email": "llorcalaura480@yahoo.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Lopez Lucas Manuel",
+  "tipo": "fisica",
+  "phone": "0221-15-477-4278",
+  "email": "lucaslopezcata@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Lopez Patricia Graciela",
+  "tipo": "fisica",
+  "phone": "02964-15-60-4338",
+  "email": "lopez18patricia@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Lopez Silvia Noemi",
+  "tipo": "fisica",
+  "phone": "0221-472-4345",
+  "email": "isilvia742@yahoo.com.ar",
+  "branches": [
+   "Hogar",
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Combinado Familiar, Automotores, Vida Individual"
+ },
+ {
+  "name": "Lucas Lydia Elba",
+  "tipo": "fisica",
+  "phone": "0221-15-319-1365",
+  "email": "lucas.lydia59@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Lucero Soledad",
+  "tipo": "fisica",
+  "phone": "0221-15-536-4090",
+  "email": "solelucero_62@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Luna Guadalupe Salima",
+  "tipo": "fisica",
+  "phone": "011-15-7062-7609",
+  "email": "psiclophe@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Maccio Gustavo Javier",
+  "tipo": "fisica",
+  "phone": "011-15-5948-3364",
+  "email": "gusti.mac@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Riesgos Varios, Salud"
+ },
+ {
+  "name": "Marino Liliana Maria",
+  "tipo": "fisica",
+  "phone": "0221-15-554-7450",
+  "email": "nootiene@maill.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Martire Nicolas",
+  "tipo": "fisica",
+  "phone": "0221-486-1114",
+  "email": "nicolasmartire@hotmail.com",
+  "branches": [
+   "Auto",
+   "Comercio",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Automotores, Riesgos Varios, Vida Individual, Salud"
+ },
+ {
+  "name": "Maseroni Lorena Flavia",
+  "tipo": "fisica",
+  "phone": "221-609-0505",
+  "email": "lolamaseroni2009@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Meunier Miguel Angel",
+  "tipo": "fisica",
+  "phone": "0221-15-459-3737",
+  "email": "mmeunierfoto@hotmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Montoya Villarreal Juan J",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Pane Osvaldo Nestor Maria",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Riesgos Varios, Salud"
+ },
+ {
+  "name": "Perez Gabriela Alicia",
+  "tipo": "fisica",
+  "phone": "011-15-6337-0015",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Quiñones Recalde Wilfrido",
+  "tipo": "fisica",
+  "phone": "0221-452-1505",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Rivera Ana Lucia",
+  "tipo": "fisica",
+  "phone": "0221-15-531-9154",
+  "email": "anariveratl@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Romero Gabriela Susana",
+  "tipo": "fisica",
+  "phone": "0221-15-400-7520",
+  "email": "gabibeluagus@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Rosa Monica Barbara",
+  "tipo": "fisica",
+  "phone": "011-3987-8266",
+  "email": "lrodriguez@lavistacasal.com.ar",
+  "branches": [
+   "Comercio",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Vida Colectivo, Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Rubio Manuel",
+  "tipo": "fisica",
+  "phone": "011-15-6337-0014",
+  "email": "fernanda.laiun@lfsestudio.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Sansiveri Fabian Roberto",
+  "tipo": "fisica",
+  "phone": "0221-451-9572",
+  "email": "sansiveri@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Sendon Liliana",
+  "tipo": "fisica",
+  "phone": "011-15-5889-2121",
+  "email": "lilisendon@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Tapia Aldo",
+  "tipo": "fisica",
+  "phone": "0221-15-534-1453",
+  "email": "tapialdosolo@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Riesgos Varios, Salud"
+ },
+ {
+  "name": "Tizzano Julio Cesar",
+  "tipo": "fisica",
+  "phone": "0221-457-3052",
+  "email": "juliotizzano@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Varro Ana",
+  "tipo": "fisica",
+  "phone": "0221-15-574-9898",
+  "email": "lmpiccolo92@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Viroche Luciana Florencia",
+  "tipo": "fisica",
+  "phone": "221-424-6343",
+  "email": "silviamartinez65@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Viroche Matias Nicolas",
+  "tipo": "fisica",
+  "phone": "011-15-6611-7751",
+  "email": "silviamartinez65@yahoo.com.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida",
+   "Salud"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual, Salud"
+ },
+ {
+  "name": "Aued Ailen Andrea",
+  "tipo": "fisica",
+  "phone": "0221-15-522-5646",
+  "email": "walkiriailen14@gmail.com",
+  "branches": [
+   "AP",
+   "Salud",
+   "Auto"
+  ],
+  "coberturas": "Acc. Personales, Salud, Motovehículos"
+ },
+ {
+  "name": "Avalos Sanchez Franco Rod",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Robo, Vida Individual, Acc. Personales"
+ },
+ {
+  "name": "Demicheri Franco Constanz",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual"
+ },
+ {
+  "name": "Ferletic Nadia Cristina",
+  "tipo": "fisica",
+  "phone": "296-15-455-5687",
+  "email": "ferleticnadia@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual"
+ },
+ {
+  "name": "Giaccaglia Oscar Fabian",
+  "tipo": "fisica",
+  "phone": "0221-15-434-7107",
+  "email": "fabian.giaccaglia@ce.org.ar",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual"
+ },
+ {
+  "name": "Instituto Para El Crecimi",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Colectivo, Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Intesa Sanpaolo Private A",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Colectivo, Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Pampaco Sa",
+  "tipo": "juridica",
+  "phone": "0221-414-0701",
+  "email": "info@pampaco.com.ar",
+  "branches": [
+   "Auto",
+   "Vida",
+   "AP"
+  ],
+  "coberturas": "Automotores, Vida Obligatorio, Acc. Personales"
+ },
+ {
+  "name": "Ridao Claudia Monica",
+  "tipo": "fisica",
+  "phone": "0221-429-0200",
+  "email": "ogiaccaglia@gmail.com",
+  "branches": [
+   "Comercio",
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Automotores, Vida Individual"
+ },
+ {
+  "name": "Rodriguez Geremias",
+  "tipo": "fisica",
+  "phone": "0221-15-200-5818",
+  "email": "geref0904@gmail.com",
+  "branches": [
+   "Comercio",
+   "Salud",
+   "Auto"
+  ],
+  "coberturas": "Resp. Civil, Salud, Motovehículos"
+ },
+ {
+  "name": "48 Nro. 367 - La Plata -",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Ramo 80"
+ },
+ {
+  "name": "5 N* 1020-cons.de Propiet",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Obligatorio"
+ },
+ {
+  "name": "69 N* 675 1/2 -la Plata-",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Obligatorio"
+ },
+ {
+  "name": "Abransson Gisela Noe N",
+  "tipo": "fisica",
+  "phone": "0221-15-625-9612",
+  "email": "gabransson2@yahoo.com.ar",
+  "branches": [
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Automotores, Vida Individual"
+ },
+ {
+  "name": "Alberto Ayelen Gabriela",
+  "tipo": "fisica",
+  "phone": "0221-491-7166",
+  "email": "nootiene@email.com",
+  "branches": [
+   "Comercio",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Vida Individual"
+ },
+ {
+  "name": "Baleani Nelba Graciela",
+  "tipo": "fisica",
+  "phone": "0221-15-601-4153",
+  "email": "baledure.dgd@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Barreiro Scuffi Micaela",
+  "tipo": "fisica",
+  "phone": "02281-15-57-3275",
+  "email": "micaelabs98@outlook.com",
+  "branches": [
+   "Hogar",
+   "AP"
+  ],
+  "coberturas": "Robo, Acc. Personales"
+ },
+ {
+  "name": "Boff Jorge Roberto",
+  "tipo": "fisica",
+  "phone": "0221-423-5251",
+  "email": "jorgeboff@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Brandolin Marino Juan Pab",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Capasso Maria Laura",
+  "tipo": "fisica",
+  "phone": "011-15-5389-7435",
+  "email": "mlkapasso@hotmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Caro Quintero Maximiliano",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Centro De Rehabilitacion",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio"
+  ],
+  "coberturas": "Resp. Civil, Int. de Comercio"
+ },
+ {
+  "name": "Cesario Matias Gabriel",
+  "tipo": "fisica",
+  "phone": "0221-15-494-3622",
+  "email": "manascesario@hotmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Colmegna Luis Jose",
+  "tipo": "fisica",
+  "phone": "011-15-4143-2619",
+  "email": "luisjosecolmegna@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Consorcio De Copropietari",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Hogar"
+  ],
+  "coberturas": "Resp. Civil, Incendio"
+ },
+ {
+  "name": "Consorcio De Propietarios",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Obligatorio"
+ },
+ {
+  "name": "Consorcio Propietarios Ed",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Ramo 80"
+ },
+ {
+  "name": "Cortalezzi Juan Manuel",
+  "tipo": "fisica",
+  "phone": "011-15-4149-6606",
+  "email": "cortalezzi@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Denisienia Maria Victoria",
+  "tipo": "fisica",
+  "phone": "0221-15-677-5504",
+  "email": "denisieniapablo@gmail.com",
+  "branches": [
+   "Vida",
+   "Comercio"
+  ],
+  "coberturas": "Vida Individual, Seg. Técnico"
+ },
+ {
+  "name": "Di Giovan Battista Ileana",
+  "tipo": "fisica",
+  "phone": "011-15-6275-0205",
+  "email": "iliana.digiovan@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Digiano Ana",
+  "tipo": "fisica",
+  "phone": "0221-15-591-6726",
+  "email": "digiano.ana@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Ente Administrador Del Po",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Ferritti Ana Maria",
+  "tipo": "fisica",
+  "phone": "0221-15-523-8453",
+  "email": "anaferritti@hotmail.com",
+  "branches": [
+   "Vida",
+   "Comercio"
+  ],
+  "coberturas": "Vida Individual, Int. de Comercio"
+ },
+ {
+  "name": "Fittipaldi Maria Catalina",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Gaetani Angela",
+  "tipo": "fisica",
+  "phone": "011-4853-4388",
+  "email": "nprado@lavistacasal.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Ghisolfi Florencia Soleda",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Comercio",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Vida Individual"
+ },
+ {
+  "name": "Gonzalez Brisa Agustina",
+  "tipo": "fisica",
+  "phone": "0221-15-304-3491",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Gutierrez Claudia Cecilia",
+  "tipo": "fisica",
+  "phone": "0221-15-575-7589",
+  "email": "claudiaguti@hotmail.com",
+  "branches": [
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Automotores, Vida Individual"
+ },
+ {
+  "name": "Laiun Maria Fernanda",
+  "tipo": "fisica",
+  "phone": "011-5352-8800",
+  "email": "flaiun@lvlestudio.com.ar",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Lopez Marcela Liliana",
+  "tipo": "fisica",
+  "phone": "011-15-3810-5223",
+  "email": "mlscafati@gmail.com",
+  "branches": [
+   "Comercio",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Vida Individual"
+ },
+ {
+  "name": "Luquez Hector Juan",
+  "tipo": "fisica",
+  "phone": "011-15-5062-6523",
+  "email": "juanmartinluquez@yahoo.com.ar",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Mac Dougall Jonatan David",
+  "tipo": "fisica",
+  "phone": "0221-15-639-5753",
+  "email": "jonatan@rapicuotas.com.ar",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Marozzi Marina Daniela",
+  "tipo": "fisica",
+  "phone": "0221-15-595-6588",
+  "email": "mbmartinez1953@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Martinez Maria Silvia",
+  "tipo": "fisica",
+  "phone": "0221-424-6343",
+  "email": "silviamartinez65@yahoo.com.ar",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Medica Schmidt Federico A",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Auto",
+   "Vida"
+  ],
+  "coberturas": "Automotores, Vida Individual"
+ },
+ {
+  "name": "Mitsui Plastics, Inc",
+  "tipo": "juridica",
+  "phone": "011-4853-4388",
+  "email": "vcoralfrutos@lavistacasal.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Novum Energy S.a.",
+  "tipo": "juridica",
+  "phone": "011-4853-4388",
+  "email": "bborrelli@lavistacasal.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Oms Paloma Isabel",
+  "tipo": "fisica",
+  "phone": null,
+  "email": "palomaoms@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Pelleriti Andrea Veronica",
+  "tipo": "fisica",
+  "phone": "011-3987-8266",
+  "email": "apillescas@lavistacasal.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Perez Diez Maria Camila",
+  "tipo": "fisica",
+  "phone": "02314-15-57-7156",
+  "email": "camiperezdiez@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Piccolo Jenaro",
+  "tipo": "fisica",
+  "phone": "0221-15-453-2077",
+  "email": "fdigiano@hotmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Pistilli Agustin",
+  "tipo": "fisica",
+  "phone": "0221-15-561-3517",
+  "email": "pistilliagustin@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Piñeyro Manuel",
+  "tipo": "fisica",
+  "phone": "011-15-4026-1589",
+  "email": "manuchuk@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Pocetti Silvana Gabriela",
+  "tipo": "fisica",
+  "phone": "011-15-5822-0537",
+  "email": "silvanajustargentina@hotmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Pultrone Cecilia",
+  "tipo": "fisica",
+  "phone": "011-15-5874-5385",
+  "email": "cecilia_pultrone@hotmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Combinado Familiar, Vida Individual"
+ },
+ {
+  "name": "Romero Mercedes Magali",
+  "tipo": "fisica",
+  "phone": "0221-15-649-5328",
+  "email": "mercedesmagaliromero@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Salas Juana Mariela",
+  "tipo": "fisica",
+  "phone": "0221-15-609-8531",
+  "email": "juanamarielasalas@gmail.com",
+  "branches": [
+   "Comercio",
+   "AP"
+  ],
+  "coberturas": "Resp. Civil, Acc. Personales"
+ },
+ {
+  "name": "Sam Business Development",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Silva Yesenia Dalila",
+  "tipo": "fisica",
+  "phone": "0221-15-488-0202",
+  "email": "consorcios.lp@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Smudt Tomas",
+  "tipo": "fisica",
+  "phone": "011-15-5484-7933",
+  "email": "dafne.deliodoukas@lfs.tax",
+  "branches": [
+   "Comercio",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Vida Individual"
+ },
+ {
+  "name": "Suarez Santiago Javier",
+  "tipo": "fisica",
+  "phone": "0221-410-8604",
+  "email": "ruben.dirosa@pampaco.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio, Ramo 80"
+ },
+ {
+  "name": "Tamburrini Lucas Ezequiel",
+  "tipo": "fisica",
+  "phone": "0221-15-596-1310",
+  "email": "lucasezequieltamburrini@gmail.com",
+  "branches": [
+   "Hogar",
+   "AP"
+  ],
+  "coberturas": "Robo, Acc. Personales"
+ },
+ {
+  "name": "Vargas Srehnisky Camila",
+  "tipo": "fisica",
+  "phone": "02901-15-51-9267",
+  "email": "vargascamila96@gmail.com",
+  "branches": [
+   "Hogar",
+   "Vida"
+  ],
+  "coberturas": "Incendio, Vida Individual"
+ },
+ {
+  "name": "Vilas Boas Viana Julia",
+  "tipo": "fisica",
+  "phone": "03446-15-61-6073",
+  "email": "julia.vilas19@gmail.com",
+  "branches": [
+   "Hogar",
+   "AP"
+  ],
+  "coberturas": "Incendio, Acc. Personales"
+ },
+ {
+  "name": "Villamil Karen Daiana",
+  "tipo": "fisica",
+  "phone": "011-15-4219-7000",
+  "email": "karen.villamil2225@gmail.com",
+  "branches": [
+   "Comercio",
+   "Vida"
+  ],
+  "coberturas": "Resp. Civil, Vida Individual"
+ },
+ {
+  "name": "118 Nro.1622 La Plata Con",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "54 Nro 541 Consorcio De P",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Alo Juan Pablo",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Alvares Brito Cecilia",
+  "tipo": "fisica",
+  "phone": "0221-15-304-3491",
+  "email": "ceciliaalvarezbrito@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Anaís Elena Waissbluth Vi",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Andreone Mabel Griselda",
+  "tipo": "fisica",
+  "phone": "0221-496-2875",
+  "email": "af0333405@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Aranda Jara Arnaldo",
+  "tipo": "fisica",
+  "phone": "0221-484-2126",
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Araya Riobo Adrian Yves",
+  "tipo": "fisica",
+  "phone": "0221-15-671-7533",
+  "email": "a.araya.r@hotmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Arroyos Del Este Sa",
+  "tipo": "juridica",
+  "phone": "011-4853-4388",
+  "email": "administracion@lavistacasal.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Artigas Francisco",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Bacigaluppe Maria Paula",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Bego Studio",
+  "tipo": "juridica",
+  "phone": "011-3987-8266",
+  "email": "francisco@bego-studio.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Brandwaiman Judith Elena",
+  "tipo": "fisica",
+  "phone": "-0-0",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Busico Magdalena",
+  "tipo": "fisica",
+  "phone": "03388-15-43-6210",
+  "email": "maguibusico@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Camara De Prov. De Prot.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Cambium Asset Management",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Cammertoni Mauricio Humbe",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Capasso Jose",
+  "tipo": "fisica",
+  "phone": "0221-453-2704",
+  "email": "administracion@indave.com.ar",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Centro Argentino De Ingen",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Chambouleyron Florencia L",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Choqueticlla Aylen Sofia",
+  "tipo": "fisica",
+  "phone": "011-15-5311-0022",
+  "email": "aylenchoqueticlla009@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Chunga Temoche Jose Simon",
+  "tipo": "fisica",
+  "phone": null,
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Cid Maria Victoria",
+  "tipo": "fisica",
+  "phone": "0221-15-655-1575",
+  "email": "cidvictoria598@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Cocha Marcelo Gustavo",
+  "tipo": "fisica",
+  "phone": "0221-15-617-9955",
+  "email": "marcelococha@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Cons. De Prop.: 9 N* 665",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Cons.de Prop.50 N* 832",
+  "tipo": "juridica",
+  "phone": "0221-424-3343",
+  "email": "matuselba@hotmail.com",
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Consorcio 69 Nro 690",
+  "tipo": "juridica",
+  "phone": "0221-15-571-2152",
+  "email": "nicolas_petruccelli@hotmail.com",
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Consorcio Propietarios De",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Consorcio Propietarios Di",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Constructora Etcheverry S",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Coppola Marta Maria Laura",
+  "tipo": "fisica",
+  "phone": "011-4291-0505",
+  "email": "marta.coppola@speedy.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Das Neves Leticia",
+  "tipo": "fisica",
+  "phone": "011-15-3791-1076",
+  "email": "leticianvv07@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "De Brito Ferreira Edna",
+  "tipo": "fisica",
+  "phone": "0221-15-620-1488",
+  "email": "adnabrittoo@hotmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "De Medicos Antroposoficos",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Della Rocca Keyla",
+  "tipo": "fisica",
+  "phone": "0221-15-503-8228",
+  "email": "keyy.dellarocca2004@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Dg 80 N 952 Consorcio De",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Distribuidora Cientifica",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Domini Silvia Alicia",
+  "tipo": "fisica",
+  "phone": "011-4503-3086",
+  "email": "sdomini@tenaris.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Dos Santos Maia Thiago",
+  "tipo": "fisica",
+  "phone": "011-15-7640-2762",
+  "email": "thiagosmaia@live.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Dumon Maria Carolina",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Ecifin Sa",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Ecifin Sociedad Anonima",
+  "tipo": "juridica",
+  "phone": "011-15-3987-8266",
+  "email": "secretaria@lavistacasal.com.ar",
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Eco Energy Cdl Op Ltd Suc",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Etchebehere Ariel David",
+  "tipo": "fisica",
+  "phone": "011-15-4160-9429",
+  "email": "ariel.etchebehere@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Fernandez Jorge Ricardo",
+  "tipo": "fisica",
+  "phone": "011-15-5713-4816",
+  "email": "fernandezjorge.r@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Gomez Sofia",
+  "tipo": "fisica",
+  "phone": "03446-15-65-6225",
+  "email": "sofiig2013@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Gp Arquitectura Sa",
+  "tipo": "juridica",
+  "phone": "0221-427-4169",
+  "email": "francisco@gonzalezpoggi.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Graciano Corina",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Grigera Mercedes Aurora",
+  "tipo": "fisica",
+  "phone": "0221-472-4345",
+  "email": "isilvia742@yahoo.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Grupo Gu Ita S.r.l.",
+  "tipo": "juridica",
+  "phone": "011-15-6176-3499",
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Hernandez Florencia",
+  "tipo": "fisica",
+  "phone": "0221-15-303-2080",
+  "email": "hernandezflorencia112@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Hidalgo Maria Luz",
+  "tipo": "fisica",
+  "phone": null,
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Ibarra Sarabia Kevin Akza",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Iloland Producciones S.r.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Jacinto Rosana Lucia",
+  "tipo": "fisica",
+  "phone": "011-15-4405-8574",
+  "email": "natalias_prado@hotmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Kambri Sociedad Anonima",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Karen Alejandra Bustillos",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Laicon S.a.",
+  "tipo": "juridica",
+  "phone": "0221-453-0185",
+  "email": "martinpicasso64@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Laiun & Aosicados S.a.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Laiún, Fernández Sabella",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Landa Betanzos Marcos Ant",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Las Unicas S.a.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Luna Cielo",
+  "tipo": "fisica",
+  "phone": "0221-480-2742",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Lvc & Asociados",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Malkine De Carvalho Clara",
+  "tipo": "fisica",
+  "phone": "61-8236-3666",
+  "email": "claramalkine@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Martinez Bayarres Valeria",
+  "tipo": "fisica",
+  "phone": "011-5352-8800",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Masiosare S.r.l",
+  "tipo": "juridica",
+  "phone": "011-4853-4388",
+  "email": "administracion@lavistacasal.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Masiosare S.r.l.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Meridium Sociedad Anonima",
+  "tipo": "juridica",
+  "phone": "011-4816-7000",
+  "email": "compras@meridum.com.ar",
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Meriles Maira Giuliana",
+  "tipo": "fisica",
+  "phone": "0221-15-359-9757",
+  "email": "maymeriles299@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Meza Mirian Noemi",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Monteiro Salles Ferreira",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Nardoia Francisco Antonio",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Novum Energy S.a",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Novum Energy Sa",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Oliveira Santos Anna Luiz",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Olivos Grafica Srl",
+  "tipo": "juridica",
+  "phone": null,
+  "email": "compras@imgraf.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Omega Centauri S.a",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Peri Emiliano Damian",
+  "tipo": "fisica",
+  "phone": "0221-15-601-1388",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Pesce Pablo Luis",
+  "tipo": "fisica",
+  "phone": "0221-15-560-9522",
+  "email": "papesce@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Piana Zabaleta Rosario",
+  "tipo": "fisica",
+  "phone": "02920-15-67-1020",
+  "email": "ropianazabaleta@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Piñeyro Laura",
+  "tipo": "fisica",
+  "phone": "011-15-4076-7966",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Piñeyro Leonardo Marcelo",
+  "tipo": "fisica",
+  "phone": "011-15-2735-5583",
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Puntin Emanuel Julian",
+  "tipo": "fisica",
+  "phone": null,
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Qm Pharma Quality Medicin",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Redes Jose Mercedes",
+  "tipo": "fisica",
+  "phone": "0221-15-560-5489",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Rodriguez Vasquez Carlos",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Auto"
+  ],
+  "coberturas": "Motovehículos"
+ },
+ {
+  "name": "Rollan Maria Cristina",
+  "tipo": "fisica",
+  "phone": "0221-421-3722",
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Ryll Irmgard Rosa",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Salguero Ernesto Ramon",
+  "tipo": "fisica",
+  "phone": "0221-451-3489",
+  "email": "ernestodeloberia@yahoo.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Salguero Pacheco Maria Ca",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Hogar"
+  ],
+  "coberturas": "Incendio"
+ },
+ {
+  "name": "Santi Valeria Raquel",
+  "tipo": "fisica",
+  "phone": "0221-15-625-3284",
+  "email": "valeria.r.santi@gmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Santiso Brenda Agustina",
+  "tipo": "fisica",
+  "phone": "0221-15-504-7889",
+  "email": "brendasantiso96@gmail.com",
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Solorzano Bonilla Camila",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Sosa Estela Mabel",
+  "tipo": "fisica",
+  "phone": "0221-496-2198",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Vida Obligatorio"
+ },
+ {
+  "name": "Spicoli Andres Fernando",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Testa Valeria Elizabeth",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Toledo Elvio Abel",
+  "tipo": "fisica",
+  "phone": "221-15-111-1111",
+  "email": "datorres@fedpat.com.ar",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Torres Arascuñaga Manuel",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Trend Capital",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Trend Capital S.a",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Trend Securities S.a.",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Caucion"
+  ],
+  "coberturas": "Caución"
+ },
+ {
+  "name": "Urcioulli Junior Mario Lu",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "AP"
+  ],
+  "coberturas": "Acc. Personales"
+ },
+ {
+  "name": "Urquiza Daniel Fabian",
+  "tipo": "fisica",
+  "phone": "0221-15-611-6394",
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Vazquez David Jose",
+  "tipo": "fisica",
+  "phone": "0221-15-440-5844",
+  "email": "davovazquez2007@hotmail.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Vergniaud Sosa Lorena Mai",
+  "tipo": "fisica",
+  "phone": null,
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Vulcano Fernando Enrique",
+  "tipo": "fisica",
+  "phone": null,
+  "email": "atencion@digianoasesores.com",
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ },
+ {
+  "name": "Zannini Esteban Julian",
+  "tipo": "fisica",
+  "phone": "0221-15-545-0840",
+  "email": null,
+  "branches": [
+   "Vida"
+  ],
+  "coberturas": "Ramo 80"
+ }
+]

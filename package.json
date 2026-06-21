@@ -1,0 +1,17 @@
+{
+  "name": "sistema-digiano",
+  "version": "1.0.0",
+  "description": "Sistema de gestion interna para Digiano Asesores (oficina de seguros)",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node --no-warnings server/index.js",
+    "dev": "node --no-warnings --watch server/index.js",
+    "seed": "node --no-warnings server/seed.js",
+    "import": "node --no-warnings server/import-clientes.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "license": "UNLICENSED"
+}
