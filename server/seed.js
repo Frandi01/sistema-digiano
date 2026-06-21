@@ -57,8 +57,21 @@ export function ensureSeed() {
   const scoreStmt = db.prepare('INSERT OR IGNORE INTO score_config (key,points,label) VALUES (?,?,?)');
   for (const [key, points, label] of DEFAULT_SCORE) scoreStmt.run(key, points, label);
 
+  // Migración idempotente: crear usuario Juliana si no existe.
+  const juliana = db.prepare("SELECT id FROM users WHERE username='juliana'").get();
+  if (!juliana) {
+    try {
+      db.prepare(
+        `INSERT INTO users (name,username,email,password_hash,role,active,must_change_password) VALUES (?,?,?,?,?,1,1)`
+      ).run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword('Digiano2026'), 'marketing');
+      console.log('  Usuario Juliana (marketing) creado.');
+    } catch (e) { console.warn('  No se pudo crear usuario Juliana:', e.message); }
+  }
+
   const count = db.prepare('SELECT COUNT(*) n FROM users').get().n;
-  if (count > 0) return; // ya sembrado
+  // Considerar "ya sembrado" si hay más usuarios que los que acabamos de migrar
+  const hasOtherUsers = db.prepare("SELECT COUNT(*) n FROM users WHERE username != 'juliana'").get().n;
+  if (hasOtherUsers > 0) return; // ya sembrado
 
   console.log('Sembrando datos iniciales...');
 
@@ -69,6 +82,7 @@ export function ensureSeed() {
   const adminId = insUser.run('Franco Digiano', 'admin', 'admin@digiano.com', hashPassword('Digiano2026'), 'admin', 0).lastInsertRowid;
   const lucianoId = insUser.run('Luciano', 'luciano', 'luciano@digiano.com', hashPassword('Digiano2026'), 'comercial', 1).lastInsertRowid;
   const nataliaId = insUser.run('Natalia', 'natalia', 'natalia@digiano.com', hashPassword('Digiano2026'), 'siniestros', 1).lastInsertRowid;
+  insUser.run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword('Digiano2026'), 'marketing', 1).lastInsertRowid;
 
   // ---- Cartera real de clientes ----
   const n = importClients(adminId);
