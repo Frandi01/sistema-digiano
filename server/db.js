@@ -20,9 +20,9 @@ db.exec(`
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
+  email TEXT UNIQUE,             -- opcional (login es por username)
   password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK(role IN ('admin','comercial','siniestros','marketing')),
+  role TEXT NOT NULL,            -- validado en la capa de aplicacion (api.js)
   active INTEGER NOT NULL DEFAULT 1,
   must_change_password INTEGER NOT NULL DEFAULT 1,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
@@ -328,37 +328,55 @@ CREATE TABLE IF NOT EXISTS marketing_tasks (
 );
 `);
 
-// Migración: ampliar CHECK de role en bases existentes para incluir 'marketing'.
-// SQLite no permite ALTER COLUMN, así que se recrea la tabla si el esquema es el viejo.
+// Migración: quitar el CHECK del campo role (los roles se validan en la capa de
+// aplicacion, ver api.js). Asi agregar roles nuevos no requiere recrear la tabla.
+// Tambien se libera email de NOT NULL (es opcional al crear usuarios desde el panel).
+// SQLite no permite ALTER COLUMN, asi que se recrea la tabla si el esquema viejo
+// todavia tiene el CHECK sobre role.
+// IMPORTANTE: se sigue el procedimiento oficial de SQLite (crear tabla nueva,
+// copiar, DROP de la vieja, RENAME de la nueva). NO se renombra 'users' a un
+// nombre temporal: hacerlo provoca que SQLite reescriba las claves foraneas de
+// las demas tablas (sessions, clients, etc.) apuntandolas al nombre temporal,
+// que luego deja de existir. Al renombrar 'users_new' (a la que nada referencia)
+// hacia 'users', las FK ajenas siguen apuntando a 'users' y quedan intactas.
 try {
   const schema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
-  if (schema && schema.sql && !schema.sql.includes("'marketing'")) {
-    db.exec(`
-      PRAGMA foreign_keys = OFF;
-      BEGIN;
-      ALTER TABLE users RENAME TO _users_old;
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('admin','comercial','siniestros','marketing')),
-        active INTEGER NOT NULL DEFAULT 1,
-        must_change_password INTEGER NOT NULL DEFAULT 1,
-        failed_attempts INTEGER NOT NULL DEFAULT 0,
-        locked_until TEXT,
-        last_login TEXT,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        username TEXT
-      );
-      INSERT INTO users SELECT * FROM _users_old;
-      DROP TABLE _users_old;
-      COMMIT;
-      PRAGMA foreign_keys = ON;
-    `);
-    console.log('  Migración: columna role de users actualizada para incluir marketing.');
+  if (schema && schema.sql && /CHECK\s*\(\s*role/i.test(schema.sql)) {
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('BEGIN');
+    try {
+      db.exec(`
+        CREATE TABLE users_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          email TEXT UNIQUE,
+          password_hash TEXT NOT NULL,
+          role TEXT NOT NULL,
+          active INTEGER NOT NULL DEFAULT 1,
+          must_change_password INTEGER NOT NULL DEFAULT 1,
+          failed_attempts INTEGER NOT NULL DEFAULT 0,
+          locked_until TEXT,
+          last_login TEXT,
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          username TEXT
+        )`);
+      // Columnas explicitas: robusto ante diferencias de orden entre bases.
+      db.exec(`INSERT INTO users_new
+        (id,name,email,password_hash,role,active,must_change_password,failed_attempts,locked_until,last_login,created_at,username)
+        SELECT id,name,email,password_hash,role,active,must_change_password,failed_attempts,locked_until,last_login,created_at,username
+        FROM users`);
+      db.exec('DROP TABLE users');
+      db.exec('ALTER TABLE users_new RENAME TO users');
+      db.exec('COMMIT');
+      console.log('  Migracion: CHECK de role eliminado (validacion movida a la app).');
+    } catch (inner) {
+      db.exec('ROLLBACK');
+      throw inner;
+    } finally {
+      db.exec('PRAGMA foreign_keys = ON');
+    }
   }
-} catch (e) { console.warn('  Migración role users:', e.message); }
+} catch (e) { console.warn('  Migracion role users:', e.message); }
 
 // Backfill de username para bases existentes (deriva del email).
 try {

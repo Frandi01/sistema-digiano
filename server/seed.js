@@ -57,21 +57,21 @@ export function ensureSeed() {
   const scoreStmt = db.prepare('INSERT OR IGNORE INTO score_config (key,points,label) VALUES (?,?,?)');
   for (const [key, points, label] of DEFAULT_SCORE) scoreStmt.run(key, points, label);
 
-  // Migración idempotente: crear usuario Juliana si no existe.
-  const juliana = db.prepare("SELECT id FROM users WHERE username='juliana'").get();
-  if (!juliana) {
-    try {
-      db.prepare(
-        `INSERT INTO users (name,username,email,password_hash,role,active,must_change_password) VALUES (?,?,?,?,?,1,1)`
-      ).run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword('Digiano2026'), 'marketing');
-      console.log('  Usuario Juliana (marketing) creado.');
-    } catch (e) { console.warn('  No se pudo crear usuario Juliana:', e.message); }
-  }
-
   const count = db.prepare('SELECT COUNT(*) n FROM users').get().n;
-  // Considerar "ya sembrado" si hay más usuarios que los que acabamos de migrar
-  const hasOtherUsers = db.prepare("SELECT COUNT(*) n FROM users WHERE username != 'juliana'").get().n;
-  if (hasOtherUsers > 0) return; // ya sembrado
+  if (count > 0) {
+    // Base ya sembrada: solo asegurar (idempotente) que exista Juliana, para
+    // bases creadas antes de incorporar el rol marketing.
+    const juliana = db.prepare("SELECT id FROM users WHERE username='juliana'").get();
+    if (!juliana) {
+      try {
+        db.prepare(
+          `INSERT INTO users (name,username,email,password_hash,role,active,must_change_password) VALUES (?,?,?,?,?,1,1)`
+        ).run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword('Digiano2026'), 'marketing');
+        console.log('  Usuario Juliana (marketing) creado.');
+      } catch (e) { console.warn('  No se pudo crear usuario Juliana:', e.message); }
+    }
+    return;
+  }
 
   console.log('Sembrando datos iniciales...');
 

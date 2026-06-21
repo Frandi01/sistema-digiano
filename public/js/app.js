@@ -110,7 +110,9 @@ function renderForcedPassword() {
 // ---------- App shell ----------
 function renderApp() {
   const u = state.user;
-  const nav = NAV[u.role];
+  // Fallback defensivo: un rol sin layout definido no debe romper el shell
+  // (si no, el boton de logout nunca se conecta y queda la sesion trabada).
+  const nav = NAV[u.role] || [['Principal', [['dashboard', 'Dashboard', 'dashboard']]]];
   const navHtml = nav.map(([sec, items]) => `
     <div class="section">${sec}</div>
     ${items.map(([route, label, ic]) => `<a href="#/${route}" data-route="${route}">${icons[ic] || ''}<span>${label}</span></a>`).join('')}
