@@ -112,9 +112,9 @@ router.post('/tasks/:id/result', requireAuth, (req, res) => {
     addScore(t.assigned_to, 'cotizacion', 'task', t.id);
     if (t.client_id) timeline(t.client_id, 'cotizacion', `Cotizacion enviada (${t.offer})`, req.user.id, 'task', t.id);
   } else if (result === 'venta_cerrada') {
-    db.prepare("UPDATE tasks SET result=?, result_note=?, status='completada', active=0, completed_at=datetime('now') WHERE id=?")
+    // Queda visible hoy (verde). active=1 hasta que la generacion diaria la reemplace manana.
+    db.prepare("UPDATE tasks SET result=?, result_note=?, status='completada', active=1, completed_at=datetime('now') WHERE id=?")
       .run(result, note || null, t.id);
-    addScore(t.assigned_to, 'cotizacion', 'task', t.id);
     // Genera alta automatica (pendiente de aprobacion del admin).
     const info = db.prepare(
       `INSERT INTO movements (client_id,type,branch,company,premium,commission,note,status,created_by,source_task_id)
@@ -126,16 +126,17 @@ router.post('/tasks/:id/result', requireAuth, (req, res) => {
     addScore(t.assigned_to, 'venta', 'task', t.id);
   } else if (result === 'no_interesado') {
     if (!reason) return res.status(400).json({ error: 'Indique el motivo (precio, ya tiene productor, etc.).' });
-    db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=0, completed_at=datetime('now') WHERE id=?")
+    // Queda visible hoy (rojo suave) con +1 punto por el intento; manana se reemplaza.
+    db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=1, completed_at=datetime('now') WHERE id=?")
       .run(result, reason, note || null, t.id);
+    addScore(t.assigned_to, 'intento', 'task', t.id);
     if (t.client_id) timeline(t.client_id, 'contacto', `Oportunidad cerrada (no interesado: ${reason})`, req.user.id, 'task', t.id);
   } else if (result === 'inviable') {
     if (!reason) return res.status(400).json({ error: 'Indique el motivo de inviabilidad.' });
-    // Va a revision/aprobacion del administrador.
+    // Se cierra sin mas: sale de las tareas de hoy, sin puntos ni revision.
     db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=0, completed_at=datetime('now') WHERE id=?")
       .run(result, reason, note || null, t.id);
-    notifyRole('admin', `Inviable pendiente de revision: tarea de cliente`, '#/aprobaciones');
-    if (t.client_id) timeline(t.client_id, 'tarea', `Marcado inviable (${reason}) - en revision`, req.user.id, 'task', t.id);
+    if (t.client_id) timeline(t.client_id, 'tarea', `Marcado inviable (${reason})`, req.user.id, 'task', t.id);
   }
   audit(req.user.id, 'resultado_comercial', 'task', t.id, `${label}${reason ? ' / ' + reason : ''}`);
   res.json({ ok: true });
@@ -286,12 +287,9 @@ router.get('/approvals', requireAuth, requireRole('admin'), (req, res) => {
     `SELECT c.*, u.name AS created_name FROM clients c LEFT JOIN users u ON u.id=c.created_by
      WHERE c.status='pendiente' ORDER BY c.created_at`
   ).all();
-  const inviables = db.prepare(
-    `SELECT t.*, c.name AS client_name, u.name AS assigned_name FROM tasks t
-     LEFT JOIN clients c ON c.id=t.client_id LEFT JOIN users u ON u.id=t.assigned_to
-     WHERE t.result='inviable' AND t.reason NOT LIKE '%aprobado%' AND t.reason NOT LIKE '%rechazado%'
-     ORDER BY t.completed_at DESC`
-  ).all();
+  // Los inviables ya no requieren revision (se cierran solos). Se conserva el
+  // campo por compatibilidad, siempre vacio.
+  const inviables = [];
   res.json({ movements, clients, inviables });
 });
 
