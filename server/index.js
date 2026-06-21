@@ -6,11 +6,14 @@ import api from './api.js';
 import api2 from './api2.js';
 import api3 from './api3.js';
 import { ensureSeed } from './seed.js';
+import { checkTaskInactivity } from './business.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 
 ensureSeed();
+checkTaskInactivity();
+setInterval(checkTaskInactivity, 6 * 3600 * 1000);
 
 const app = express();
 app.use(express.json());
