@@ -77,6 +77,11 @@ router.put('/users/:id', requireAuth, requireRole('admin'), (req, res) => {
   res.json({ ok: true });
 });
 
+router.post('/score/reset', requireAuth, requireRole('admin'), (req, res) => {
+  db.prepare('DELETE FROM score_events').run();
+  res.json({ ok: true });
+});
+
 router.post('/users/:id/reset-password', requireAuth, requireRole('admin'), (req, res) => {
   const u = db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);
   if (!u) return res.status(404).json({ error: 'No existe.' });
