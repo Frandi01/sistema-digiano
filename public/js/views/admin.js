@@ -181,6 +181,7 @@ export async function renderUsers() {
       });
       root.querySelectorAll('[data-reset]').forEach((b) => b.onclick = async () => { const r = await api.post('/users/' + b.dataset.reset + '/reset-password', {}); toast('Pass reseteada: ' + r.tempPassword, 'green'); });
       root.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = async () => { await api.put('/users/' + b.dataset.toggle, { active: b.dataset.active === '1' ? 0 : 1 }); toast('Usuario actualizado'); refresh(); });
+      root.querySelectorAll('[data-reset-score]').forEach((b) => b.onclick = async () => { if (confirm('Resetear todos los puntos de ' + b.dataset.name + '?')) { await api.post('/score/reset-user/' + b.dataset.resetScore); toast('Puntos reseteados', 'green'); refresh(); } });
     },
   };
 }
