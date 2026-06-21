@@ -9,7 +9,7 @@ import { renderTodayTasks, renderOperativeTasks, renderFollowups, renderMyPerfor
 import { renderClaims, renderClaimDetail } from './views/claims.js';
 import {
   renderApprovals, renderObjectives, renderUsers, renderAudit, renderRanking,
-  renderTrash, renderMetrics, renderAvisosAdmin,
+  renderTrash, renderMetrics, renderAvisosAdmin, renderSupervision, clearSupervisionInterval,
 } from './views/admin.js';
 import { renderCommissionsAdmin, renderMyCommission } from './views/commissions.js';
 
@@ -21,7 +21,7 @@ const NAV = {
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['seguimientos', 'Seguimientos', 'followups']]],
     ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
     ['Analisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Metricas', 'metrics']]],
-    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
+    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
   ],
   comercial: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comision', 'money']]],
@@ -223,6 +223,7 @@ const TITLES = {
   dashboard: 'Dashboard', clientes: 'Clientes', movimientos: 'Altas / Bajas', tareas: 'Tareas operativas',
   'tareas-hoy': 'Tareas de hoy', seguimientos: 'Bandeja de seguimientos', siniestros: 'Siniestros',
   aprobaciones: 'Centro de aprobaciones', campanas: 'Campanas', objetivos: 'Objetivos',
+  supervision: 'Supervision del equipo',
   usuarios: 'Usuarios', auditoria: 'Auditoria', ranking: 'Ranking del equipo', rendimiento: 'Mi rendimiento',
   comisiones: 'Liquidacion de comisiones', 'mi-comision': 'Mi comision', metricas: 'Metricas de conversion',
   avisos: 'Avisos y circulares', papelera: 'Papelera',
@@ -239,6 +240,7 @@ export async function route() {
   document.getElementById('pageTitle').textContent = TITLES[page] || 'Dashboard';
   document.getElementById('sidebar')?.classList.remove('open');
   content.innerHTML = '<div class="empty">Cargando...</div>';
+  clearSupervisionInterval();
 
   // marcar seccion como vista
   if (SEEN_SECTIONS.includes(page)) {
@@ -258,6 +260,7 @@ export async function route() {
       case 'seguimientos': view = await renderFollowups(); break;
       case 'siniestros': view = parts[1] ? await renderClaimDetail(parts[1]) : await renderClaims(); break;
       case 'aprobaciones': view = await renderApprovals(); break;
+      case 'supervision': view = await renderSupervision(); break;
       case 'objetivos': view = await renderObjectives(); break;
       case 'usuarios': view = await renderUsers(); break;
       case 'auditoria': view = await renderAudit(); break;
