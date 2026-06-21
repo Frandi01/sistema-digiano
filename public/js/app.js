@@ -60,9 +60,6 @@ function renderLogin(errMsg) {
           <button class="btn block" type="submit">Ingresar</button>
           <div class="err">${errMsg ? esc(errMsg) : ''}</div>
         </form>
-        <div class="muted" style="font-size:11.5px;text-align:center;margin-top:14px;line-height:1.6">
-          Demo: <b>admin</b> &middot; <b>luciano</b> &middot; <b>natalia</b><br/>Contrasena: <b>Digiano2026</b>
-        </div>
       </div>
     </div>`;
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
