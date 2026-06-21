@@ -12,6 +12,7 @@ import {
   renderTrash, renderMetrics, renderAvisosAdmin, renderSupervision, clearSupervisionInterval,
 } from './views/admin.js';
 import { renderCommissionsAdmin, renderMyCommission } from './views/commissions.js';
+import { renderMarketing } from './views/marketing.js';
 
 export const state = { user: null, branches: [], labels: {} };
 
@@ -21,7 +22,7 @@ const NAV = {
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['seguimientos', 'Seguimientos', 'followups']]],
     ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
     ['Analisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Metricas', 'metrics']]],
-    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
+    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['marketing', 'Marketing', 'megaphone'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
   ],
   comercial: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comision', 'money']]],
@@ -30,6 +31,10 @@ const NAV = {
   siniestros: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['mi-comision', 'Mi comision', 'money']]],
     ['Gestion', [['siniestros', 'Siniestros', 'claims'], ['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements'], ['tareas', 'Tareas', 'tasks']]],
+  ],
+  marketing: [
+    ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
+    ['Mi panel', [['marketing', 'Calendario y tareas', 'megaphone']]],
   ],
 };
 
@@ -224,6 +229,7 @@ const TITLES = {
   'tareas-hoy': 'Tareas de hoy', seguimientos: 'Bandeja de seguimientos', siniestros: 'Siniestros',
   aprobaciones: 'Centro de aprobaciones', campanas: 'Campanas', objetivos: 'Objetivos',
   supervision: 'Supervision del equipo',
+  marketing: 'Marketing',
   usuarios: 'Usuarios', auditoria: 'Auditoria', ranking: 'Ranking del equipo', rendimiento: 'Mi rendimiento',
   comisiones: 'Liquidacion de comisiones', 'mi-comision': 'Mi comision', metricas: 'Metricas de conversion',
   avisos: 'Avisos y circulares', papelera: 'Papelera',
@@ -261,6 +267,7 @@ export async function route() {
       case 'siniestros': view = parts[1] ? await renderClaimDetail(parts[1]) : await renderClaims(); break;
       case 'aprobaciones': view = await renderApprovals(); break;
       case 'supervision': view = await renderSupervision(); break;
+      case 'marketing': view = await renderMarketing(); break;
       case 'objetivos': view = await renderObjectives(); break;
       case 'usuarios': view = await renderUsers(); break;
       case 'auditoria': view = await renderAudit(); break;
