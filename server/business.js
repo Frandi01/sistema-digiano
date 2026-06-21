@@ -1,7 +1,7 @@
 // Logica de negocio central: oportunidades (cross-sell), tareas comerciales
 // diarias (mantener 5 activas) y aplicacion de altas/bajas al perfil del cliente.
 import db from './db.js';
-import { BRANCHES, addScore, audit, timeline } from './helpers.js';
+import { BRANCHES, addScore, audit, timeline, notify, notifyRole } from './helpers.js';
 
 // Prioridad de productos a ofrecer en cross-sell (Hogar es el foco principal,
 // segun la campana "Auto sin Hogar"). ART y Caucion no se ofrecen automaticamente.
@@ -162,3 +162,37 @@ export function applyMovement(mov, actingUserId) {
 }
 
 export { freeSlot };
+
+// Revisa tareas comerciales sin actividad y notifica al asignado y al admin.
+// - no_contactado sin modificación en 24h → alerta
+// - no_respondio / cotizacion_enviada sin modificación en 48h → alerta
+export function checkTaskInactivity() {
+  const FINAL = ['venta_cerrada', 'no_interesado', 'inviable'];
+  const now = Date.now();
+  const tasks = db.prepare(
+    `SELECT t.id, t.title, t.result, t.updated_at, t.assigned_to,
+            c.name AS client_name
+     FROM tasks t LEFT JOIN clients c ON c.id=t.client_id
+     WHERE t.kind='comercial' AND t.active=1 AND COALESCE(t.deleted,0)=0`
+  ).all();
+
+  const admins = db.prepare(`SELECT id FROM users WHERE role='admin' AND active=1`).all();
+
+  for (const t of tasks) {
+    if (FINAL.includes(t.result)) continue;
+    const updMs = t.updated_at ? new Date(t.updated_at).getTime() : 0;
+    const diffH = updMs ? (now - updMs) / 3600000 : 9999;
+
+    let threshold = null;
+    if (!t.result || t.result === 'no_contactado') threshold = 24;
+    else if (t.result === 'no_respondio' || t.result === 'cotizacion_enviada') threshold = 48;
+
+    if (threshold === null || diffH < threshold) continue;
+
+    const label = t.result === 'cotizacion_enviada' ? 'cotización enviada' : t.result === 'no_respondio' ? 'sin respuesta' : 'sin contactar';
+    const msg = `Tarea inactiva (${label}) por más de ${threshold}h: ${t.client_name || t.title}`;
+    notify(t.assigned_to, msg, '#/tareas-hoy');
+    for (const a of admins) notify(a.id, msg + ` (asignada a usuario #${t.assigned_to})`, '#/supervision');
+  }
+  console.log(`[inactividad] Revisión completada: ${tasks.length} tareas evaluadas.`);
+}
