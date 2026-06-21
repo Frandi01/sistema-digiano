@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import api from './api.js';
 import api2 from './api2.js';
 import api3 from './api3.js';
+import apiMarketing from './api-marketing.js';
 import { ensureSeed } from './seed.js';
 import { checkTaskInactivity } from './business.js';
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use('/api', api);
 app.use('/api', api2);
 app.use('/api', api3);
+app.use('/api', apiMarketing);
 
 // Frontend estatico
 const publicDir = path.join(__dirname, '..', 'public');
