@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK(role IN ('admin','comercial','siniestros')),
+  role TEXT NOT NULL CHECK(role IN ('admin','comercial','siniestros','marketing')),
   active INTEGER NOT NULL DEFAULT 1,
   must_change_password INTEGER NOT NULL DEFAULT 1,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
@@ -305,6 +305,61 @@ for (const t of ['tasks', 'campaigns', 'objectives']) {
 addColumn('campaigns', 'priority', "TEXT DEFAULT 'media'");
 addColumn('objectives', 'priority', "TEXT DEFAULT 'media'");
 addColumn('tasks', 'updated_at', 'TEXT');
+
+// ---- Tablas de marketing (idempotentes) ----
+db.exec(`
+CREATE TABLE IF NOT EXISTS marketing_notes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  date TEXT NOT NULL,
+  text TEXT NOT NULL,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS marketing_tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  type TEXT NOT NULL,
+  description TEXT,
+  due_date TEXT,
+  status TEXT NOT NULL DEFAULT 'pendiente' CHECK(status IN ('pendiente','en_progreso','completado')),
+  result_notes TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  completed_at TEXT
+);
+`);
+
+// Migración: ampliar CHECK de role en bases existentes para incluir 'marketing'.
+// SQLite no permite ALTER COLUMN, así que se recrea la tabla si el esquema es el viejo.
+try {
+  const schema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+  if (schema && schema.sql && !schema.sql.includes("'marketing'")) {
+    db.exec(`
+      PRAGMA foreign_keys = OFF;
+      BEGIN;
+      ALTER TABLE users RENAME TO _users_old;
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('admin','comercial','siniestros','marketing')),
+        active INTEGER NOT NULL DEFAULT 1,
+        must_change_password INTEGER NOT NULL DEFAULT 1,
+        failed_attempts INTEGER NOT NULL DEFAULT 0,
+        locked_until TEXT,
+        last_login TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        username TEXT
+      );
+      INSERT INTO users SELECT * FROM _users_old;
+      DROP TABLE _users_old;
+      COMMIT;
+      PRAGMA foreign_keys = ON;
+    `);
+    console.log('  Migración: columna role de users actualizada para incluir marketing.');
+  }
+} catch (e) { console.warn('  Migración role users:', e.message); }
+
 // Backfill de username para bases existentes (deriva del email).
 try {
   db.exec("UPDATE users SET username = lower(substr(email,1,instr(email,'@')-1)) WHERE (username IS NULL OR username='') AND email LIKE '%@%'");
