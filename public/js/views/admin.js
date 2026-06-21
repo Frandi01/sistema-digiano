@@ -162,7 +162,7 @@ export async function renderUsers() {
         body: `<form id="uForm"><div class="form-grid">
           <div class="field full"><label>Nombre *</label><input name="name" required /></div>
           <div class="field"><label>Usuario *</label><input name="username" placeholder="ej. mariap" required /></div>
-          <div class="field"><label>Rol *</label><select name="role"><option value="comercial">Comercial</option><option value="siniestros">Siniestros</option><option value="admin">Administrador</option></select></div>
+          <div class="field"><label>Rol *</label><select name="role"><option value="comercial">Comercial</option><option value="siniestros">Siniestros</option><option value="marketing">Marketing</option><option value="admin">Administrador</option></select></div>
           <div class="field"><label>Email (opcional)</label><input name="email" type="email" /></div>
           <div class="field"><label>Contrasena temporal</label><input name="password" value="Digiano2026" /></div>
         </div><div class="muted" style="font-size:12px">Debera cambiarla en el primer ingreso.</div></form>`,
