@@ -212,8 +212,13 @@ tbody tr.clickable:hover { background: #f7f9fc; cursor: pointer; }
 .tasks-grid { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 980px) { .tasks-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .tasks-grid { grid-template-columns: 1fr; } }
-.task-card { padding: 13px 15px; }
+.task-card { padding: 13px 15px; transition: background .2s; }
 .task-card select { padding: 8px 10px; font-size: 13px; border: 1px solid var(--line); border-radius: 9px; width: 100%; outline: none; }
+.task-card.done-green { background: #f0faf3; box-shadow: inset 0 0 0 1px #bfe6cd; }
+.task-card.done-red { background: #fdf4f2; box-shadow: inset 0 0 0 1px #f0cdc7; }
+.done-label { margin-top: 9px; font-size: 13px; font-weight: 700; padding: 7px 10px; border-radius: 9px; text-align: center; }
+.done-label.green { background: #d8f3e1; color: #1e8a4c; }
+.done-label.red { background: #fbe2de; color: #c0392b; }
 
 /* cajas de dashboard de igual altura (avisos / actividad) */
 .dash-box { height: 360px; display: flex; flex-direction: column; }
