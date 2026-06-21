@@ -335,4 +335,42 @@ router.post('/notifications/read', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+/* =================== SUPERVISION (admin) =================== */
+router.get('/admin/supervision', requireAuth, requireRole('admin'), (req, res) => {
+  const users = db.prepare(`SELECT id, name, role FROM users WHERE role != 'admin' AND active=1`).all();
+  const now = Date.now();
+  const result = users.map((u) => {
+    const session = db.prepare(
+      `SELECT created_at FROM sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 1`
+    ).get(u.id);
+    const tasks = db.prepare(
+      `SELECT t.id, t.title, t.result, t.offer, t.updated_at, t.status,
+              c.name AS client_name
+       FROM tasks t LEFT JOIN clients c ON c.id=t.client_id
+       WHERE t.assigned_to=? AND t.kind='comercial' AND t.active=1 AND COALESCE(t.deleted,0)=0
+       ORDER BY t.created_at`
+    ).all(u.id);
+    const counts = { pendiente: 0, en_progreso: 0, completada: 0 };
+    const FINAL = ['venta_cerrada', 'no_interesado', 'inviable'];
+    for (const t of tasks) {
+      if (FINAL.includes(t.result)) counts.completada++;
+      else if (t.result && t.result !== 'no_contactado') counts.en_progreso++;
+      else counts.pendiente++;
+    }
+    const tasksWithAlert = tasks.map((t) => {
+      const updMs = t.updated_at ? new Date(t.updated_at).getTime() : 0;
+      const diffH = updMs ? (now - updMs) / 3600000 : 9999;
+      const active = !FINAL.includes(t.result);
+      const atrasada = active && diffH > 24;
+      return { ...t, diffH: Math.round(diffH), atrasada };
+    });
+    return {
+      id: u.id, name: u.name, role: u.role,
+      ultima_sesion: session?.created_at || null,
+      counts, tasks: tasksWithAlert,
+    };
+  });
+  res.json({ users: result });
+});
+
 export default router;
