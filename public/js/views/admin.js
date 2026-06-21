@@ -308,3 +308,91 @@ function avisoForm(a, users) {
     },
   });
 }
+
+/* ============ SUPERVISION ============ */
+let _supervisionInterval = null;
+export function clearSupervisionInterval() { clearInterval(_supervisionInterval); _supervisionInterval = null; }
+export async function renderSupervision() {
+  clearSupervisionInterval();
+  const { users } = await api.get('/admin/supervision');
+
+  function tiempoRelativo(isoStr) {
+    if (!isoStr) return 'Nunca';
+    const diff = Date.now() - new Date(isoStr).getTime();
+    const h = Math.floor(diff / 3600000);
+    if (h < 1) return 'Hace menos de 1h';
+    if (h < 24) return `Hace ${h}h`;
+    return `Hace ${Math.floor(h / 24)}d`;
+  }
+
+  const RESULT_LABEL = {
+    no_contactado: 'Sin contactar', no_respondio: 'Sin respuesta', contactado: 'Contactado',
+    cotizacion_enviada: 'Cotiz. enviada', venta_cerrada: 'Venta cerrada',
+    no_interesado: 'No interesado', inviable: 'Inviable',
+  };
+  const FINAL = ['venta_cerrada', 'no_interesado', 'inviable'];
+
+  const cards = users.map((u) => {
+    const taskRows = u.tasks.map((t) => {
+      const estado = RESULT_LABEL[t.result] || 'Sin contactar';
+      const completada = FINAL.includes(t.result);
+      const estadoClass = completada ? 'gray' : t.atrasada ? 'red' : t.result === 'cotizacion_enviada' ? 'orange' : 'blue';
+      const mod = t.updated_at ? tiempoRelativo(t.updated_at) : '—';
+      return `<tr>
+        <td><b>${esc(t.client_name || '-')}</b></td>
+        <td>${esc(t.offer || '-')}</td>
+        <td><span class="badge ${estadoClass}">${esc(estado)}</span>${t.atrasada ? ' <span class="badge red">Atrasada</span>' : ''}</td>
+        <td class="muted">${mod}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="card pad" style="margin-bottom:18px">
+      <div class="row between" style="margin-bottom:12px;align-items:flex-start">
+        <div class="row" style="gap:10px;align-items:center">
+          <div class="avatar" style="width:36px;height:36px;font-size:13px">${initials(u.name)}</div>
+          <div><b style="font-size:15px">${esc(u.name)}</b><br><span class="muted" style="font-size:12px">${esc(u.role)}</span></div>
+        </div>
+        <div class="muted" style="font-size:12px;text-align:right">
+          Ultima sesion<br><b>${tiempoRelativo(u.ultima_sesion)}</b>
+        </div>
+      </div>
+      <div class="row" style="gap:10px;margin-bottom:14px">
+        <div class="card pad" style="flex:1;text-align:center;padding:8px 12px">
+          <div style="font-size:22px;font-weight:700;color:var(--muted)">${u.counts.pendiente}</div>
+          <div class="muted" style="font-size:11px">Pendientes</div>
+        </div>
+        <div class="card pad" style="flex:1;text-align:center;padding:8px 12px">
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">${u.counts.en_progreso}</div>
+          <div class="muted" style="font-size:11px">En progreso</div>
+        </div>
+        <div class="card pad" style="flex:1;text-align:center;padding:8px 12px">
+          <div style="font-size:22px;font-weight:700;color:#22c55e">${u.counts.completada}</div>
+          <div class="muted" style="font-size:11px">Completadas</div>
+        </div>
+      </div>
+      ${u.tasks.length ? `
+        <table style="width:100%">
+          <thead><tr><th>Cliente</th><th>Ramo</th><th>Estado</th><th>Modificada</th></tr></thead>
+          <tbody>${taskRows}</tbody>
+        </table>` : '<div class="empty">Sin tareas activas</div>'}
+    </div>`;
+  }).join('');
+
+  const html = `
+    <div class="row between" style="margin-bottom:16px;align-items:center">
+      <div class="muted" style="font-size:13px">Se actualiza automáticamente cada 30 segundos.</div>
+    </div>
+    ${users.length ? cards : '<div class="empty">Sin usuarios activos</div>'}`;
+
+  return {
+    html,
+    mount: (root) => {
+      _supervisionInterval = setInterval(async () => {
+        try {
+          const v = await renderSupervision();
+          root.innerHTML = v.html;
+        } catch (e) {}
+      }, 30000);
+    },
+  };
+}
