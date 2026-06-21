@@ -155,7 +155,7 @@ export async function renderUsers() {
       <td>${esc(u.username || '-')}</td><td><span class="badge navy">${esc(u.role)}</span></td>
       <td>${u.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
       <td class="muted">${u.last_login ? fmtDateTime(u.last_login) : 'nunca'}</td>
-      <td><button class="btn outline sm" data-reset="${u.id}">Reset pass</button> <button class="btn outline sm" data-toggle="${u.id}" data-active="${u.active}">${u.active ? 'Desactivar' : 'Activar'}</button></td></tr>`).join('');
+      <td><button class="btn outline sm" data-reset="${u.id}">Reset pass</button> <button class="btn outline sm" data-toggle="${u.id}" data-active="${u.active}">${u.active ? 'Desactivar' : 'Activar'}</button> <button class="btn outline sm red" data-reset-score="${u.id}" data-name="${esc(u.name)}">Reset puntos</button></td></tr>`).join('');
   const html = `
     <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Usuarios del sistema</h3><button class="btn" id="newUser">${icons.plus} Nuevo usuario</button></div>
       <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Ultimo ingreso</th><th></th></tr></thead>
