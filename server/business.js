@@ -170,7 +170,7 @@ export function checkTaskInactivity() {
   const FINAL = ['venta_cerrada', 'no_interesado', 'inviable'];
   const now = Date.now();
   const tasks = db.prepare(
-    `SELECT t.id, t.title, t.result, t.updated_at, t.assigned_to,
+    `SELECT t.id, t.title, t.result, COALESCE(t.updated_at, t.created_at) AS last_activity, t.assigned_to,
             c.name AS client_name
      FROM tasks t LEFT JOIN clients c ON c.id=t.client_id
      WHERE t.kind='comercial' AND t.active=1 AND COALESCE(t.deleted,0)=0`
@@ -180,7 +180,7 @@ export function checkTaskInactivity() {
 
   for (const t of tasks) {
     if (FINAL.includes(t.result)) continue;
-    const updMs = t.updated_at ? new Date(t.updated_at).getTime() : 0;
+    const updMs = t.last_activity ? new Date(t.last_activity).getTime() : 0;
     const diffH = updMs ? (now - updMs) / 3600000 : 9999;
 
     let threshold = null;
