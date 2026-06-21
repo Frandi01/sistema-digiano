@@ -25,6 +25,7 @@ export const icons = {
   money: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5A2 2 0 0112 8c1.5 0 2 1 2 1.6 0 1.8-4 .9-4 2.8 0 .7.6 1.6 2 1.6a2 2 0 002.3-1.4"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/></svg>',
   metrics: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V4M4 20h16M8 16l4-5 3 3 5-7"/></svg>',
+  megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l15-6v14L3 13z"/><path d="M3 11v2a2 2 0 002 2h1"/><path d="M18 8a3 3 0 010 6"/></svg>',
 };
 
 export function fmtMoney(n) {
