@@ -257,9 +257,8 @@ router.get('/sections/counts', requireAuth, (req, res) => {
   if (u.role === 'admin') {
     const mv = db.prepare("SELECT COUNT(*) n FROM movements WHERE status='pendiente'").get().n;
     const cls = db.prepare("SELECT COUNT(*) n FROM clients WHERE status='pendiente'").get().n;
-    const inv = db.prepare("SELECT COUNT(*) n FROM tasks WHERE result='inviable' AND COALESCE(deleted,0)=0 AND reason NOT LIKE '%aprobado%' AND reason NOT LIKE '%rechazado%'").get().n;
     const ch = db.prepare("SELECT COUNT(*) n FROM change_requests WHERE status='pendiente'").get().n;
-    c['aprobaciones'] = mv + cls + inv + ch;
+    c['aprobaciones'] = mv + cls + ch;
   }
   // avisos no leidos
   c['avisos'] = avisosForUser(u).filter((a) => !a.leido).length;
