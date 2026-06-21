@@ -98,22 +98,22 @@ router.post('/tasks/:id/result', requireAuth, (req, res) => {
 
   if (result === 'no_contactado' || result === 'no_respondio') {
     // Sigue activa: reaparece manana.
-    db.prepare('UPDATE tasks SET result=?, result_note=?, status=? WHERE id=?')
+    db.prepare("UPDATE tasks SET result=?, result_note=?, status=?, updated_at=datetime('now') WHERE id=?")
       .run(result, note || null, 'pendiente', t.id);
   } else if (result === 'contactado') {
-    db.prepare('UPDATE tasks SET result=?, result_note=?, status=? WHERE id=?')
+    db.prepare("UPDATE tasks SET result=?, result_note=?, status=?, updated_at=datetime('now') WHERE id=?")
       .run(result, note || null, 'en_proceso', t.id);
     addScore(t.assigned_to, 'contacto', 'task', t.id);
     if (t.client_id) timeline(t.client_id, 'contacto', `Contacto comercial realizado (${t.offer})`, req.user.id, 'task', t.id);
   } else if (result === 'cotizacion_enviada') {
     const fu = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-    db.prepare("UPDATE tasks SET result=?, result_note=?, status='en_proceso', active=0, follow_up_date=? WHERE id=?")
+    db.prepare("UPDATE tasks SET result=?, result_note=?, status='en_proceso', active=0, follow_up_date=?, updated_at=datetime('now') WHERE id=?")
       .run(result, note || null, fu, t.id);
     addScore(t.assigned_to, 'cotizacion', 'task', t.id);
     if (t.client_id) timeline(t.client_id, 'cotizacion', `Cotizacion enviada (${t.offer})`, req.user.id, 'task', t.id);
   } else if (result === 'venta_cerrada') {
     // Queda visible hoy (verde). active=1 hasta que la generacion diaria la reemplace manana.
-    db.prepare("UPDATE tasks SET result=?, result_note=?, status='completada', active=1, completed_at=datetime('now') WHERE id=?")
+    db.prepare("UPDATE tasks SET result=?, result_note=?, status='completada', active=1, completed_at=datetime('now'), updated_at=datetime('now') WHERE id=?")
       .run(result, note || null, t.id);
     // Genera alta automatica (pendiente de aprobacion del admin).
     const info = db.prepare(
@@ -127,14 +127,14 @@ router.post('/tasks/:id/result', requireAuth, (req, res) => {
   } else if (result === 'no_interesado') {
     if (!reason) return res.status(400).json({ error: 'Indique el motivo (precio, ya tiene productor, etc.).' });
     // Queda visible hoy (rojo suave) con +1 punto por el intento; manana se reemplaza.
-    db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=1, completed_at=datetime('now') WHERE id=?")
+    db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=1, completed_at=datetime('now'), updated_at=datetime('now') WHERE id=?")
       .run(result, reason, note || null, t.id);
     addScore(t.assigned_to, 'intento', 'task', t.id);
     if (t.client_id) timeline(t.client_id, 'contacto', `Oportunidad cerrada (no interesado: ${reason})`, req.user.id, 'task', t.id);
   } else if (result === 'inviable') {
     if (!reason) return res.status(400).json({ error: 'Indique el motivo de inviabilidad.' });
     // Se cierra sin mas: sale de las tareas de hoy, sin puntos ni revision.
-    db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=0, completed_at=datetime('now') WHERE id=?")
+    db.prepare("UPDATE tasks SET result=?, reason=?, result_note=?, status='completada', active=0, completed_at=datetime('now'), updated_at=datetime('now') WHERE id=?")
       .run(result, reason, note || null, t.id);
     if (t.client_id) timeline(t.client_id, 'tarea', `Marcado inviable (${reason})`, req.user.id, 'task', t.id);
   }
@@ -344,7 +344,8 @@ router.get('/admin/supervision', requireAuth, requireRole('admin'), (req, res) =
       `SELECT created_at FROM sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 1`
     ).get(u.id);
     const tasks = db.prepare(
-      `SELECT t.id, t.title, t.result, t.offer, t.updated_at, t.status,
+      `SELECT t.id, t.title, t.result, t.offer, t.status,
+              COALESCE(t.updated_at, t.created_at) AS last_activity,
               c.name AS client_name
        FROM tasks t LEFT JOIN clients c ON c.id=t.client_id
        WHERE t.assigned_to=? AND t.kind='comercial' AND t.active=1 AND COALESCE(t.deleted,0)=0
@@ -358,7 +359,7 @@ router.get('/admin/supervision', requireAuth, requireRole('admin'), (req, res) =
       else counts.pendiente++;
     }
     const tasksWithAlert = tasks.map((t) => {
-      const updMs = t.updated_at ? new Date(t.updated_at).getTime() : 0;
+      const updMs = t.last_activity ? new Date(t.last_activity).getTime() : 0;
       const diffH = updMs ? (now - updMs) / 3600000 : 9999;
       const active = !FINAL.includes(t.result);
       const atrasada = active && diffH > 24;
