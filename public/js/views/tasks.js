@@ -13,21 +13,26 @@ const refresh = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
 
 export async function renderTodayTasks() {
   const { tasks } = await api.get('/tasks/today');
-  const cards = tasks.map((t) => `
-    <div class="card task-card" data-task="${t.id}">
+  const cards = tasks.map((t) => {
+    const done = t.result === 'venta_cerrada' ? 'green' : t.result === 'no_interesado' ? 'red' : null;
+    return `
+    <div class="card task-card ${done ? 'done-' + done : ''}" data-task="${t.id}">
       <div class="row between" style="gap:10px">
         <b style="font-size:14.5px;line-height:1.2">${esc(t.client_name || 'Cliente')}</b>
-        <span class="badge blue" style="flex:none">${esc(t.offer || '-')}</span>
+        <span class="badge ${done === 'green' ? 'green' : done === 'red' ? 'red' : 'blue'}" style="flex:none">${esc(t.offer || '-')}</span>
       </div>
-      <select class="task-state" data-id="${t.id}" style="margin-top:9px">
-        <option value="">${t.result ? badgeText(t.result) : 'Estado...'}</option>
-        ${STATE_OPTS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
-      </select>
+      ${done
+        ? `<div class="done-label ${done}">${done === 'green' ? '✓ Venta cerrada' : '✕ No interesado'}</div>`
+        : `<select class="task-state" data-id="${t.id}" style="margin-top:9px">
+            <option value="">${t.result ? badgeText(t.result) : 'Estado...'}</option>
+            ${STATE_OPTS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+          </select>`}
       <div class="row" style="gap:6px;margin-top:8px">
         <button class="btn outline sm" data-view="${t.client_id}">Ver cliente</button>
-        <button class="btn outline sm" data-obs="${t.client_id}">Observacion</button>
+        ${done ? '' : `<button class="btn outline sm" data-obs="${t.client_id}">Observacion</button>`}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   const html = `
     <div class="card pad" style="background:linear-gradient(120deg,#1f3864,#2e75b6);color:#fff;margin-bottom:16px">
