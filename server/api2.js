@@ -13,7 +13,7 @@ const router = express.Router();
 router.get('/tasks/today', requireAuth, (req, res) => {
   const userId = req.user.role === 'admin' && req.query.user ? Number(req.query.user) : req.user.id;
   const target = db.prepare('SELECT * FROM users WHERE id=?').get(userId);
-  if (target && target.role === 'comercial') ensureDailyTasks(userId);
+  if (target && (target.role === 'comercial' || target.role === 'admin')) ensureDailyTasks(userId);
   const tasks = db.prepare(
     `SELECT t.*, c.name AS client_name, c.phone, c.email
      FROM tasks t LEFT JOIN clients c ON c.id=t.client_id
