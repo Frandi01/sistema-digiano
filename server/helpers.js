@@ -11,6 +11,7 @@ export const DEFAULT_SCORE = [
   ['venta', 25, 'Venta cerrada / alta lograda'],
   ['baja_recuperada', 30, 'Baja recuperada'],
   ['tarea', 1, 'Tarea completada'],
+  ['intento', 1, 'Intento de contacto'],
   ['inviable_aprobado', 1, 'Inviable aprobado'],
   ['inviable_rechazado', -5, 'Inviable rechazado'],
 ];
