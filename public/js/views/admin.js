@@ -1,4 +1,4 @@
-import { api } from '../api.js';
+﻿import { api } from '../api.js';
 import { icons, esc, fmtMoney, fmtDate, fmtDateTime, toast, openModal, badge, initials, printPDF, printHeader } from '../ui.js';
 import { state } from '../app.js';
 
@@ -267,7 +267,7 @@ export async function renderAvisosAdmin() {
   let users = [];
   try { users = (await api.get('/users')).users.filter((u) => u.active); } catch (e) {}
   const rows = avisos.map((a) => `
-    <tr><td>${a.pinned ? '📌 ' : ''}<b>${esc(a.title)}</b></td><td><span class="badge ${a.priority === 'alta' ? 'red' : 'gray'}">${esc(a.priority)}</span></td>
+    <tr><td>${a.pinned ? 'ðŸ“Œ ' : ''}<b>${esc(a.title)}</b></td><td><span class="badge ${a.priority === 'alta' ? 'red' : 'gray'}">${esc(a.priority)}</span></td>
       <td>${esc(a.audience)}</td><td>${a.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
       <td class="row" style="gap:6px"><button class="btn outline sm" data-edit="${a.id}">Editar</button><button class="btn outline sm" data-toggle="${a.id}" data-active="${a.active}">${a.active ? 'Desactivar' : 'Activar'}</button></td></tr>`).join('');
   const html = `
@@ -337,7 +337,7 @@ export async function renderSupervision() {
       const estado = RESULT_LABEL[t.result] || 'Sin contactar';
       const completada = FINAL.includes(t.result);
       const estadoClass = completada ? 'gray' : t.atrasada ? 'red' : t.result === 'cotizacion_enviada' ? 'orange' : 'blue';
-      const mod = t.updated_at ? tiempoRelativo(t.updated_at) : '—';
+      const mod = t.last_activity ? tiempoRelativo(t.last_activity) : '—';
       return `<tr>
         <td><b>${esc(t.client_name || '-')}</b></td>
         <td>${esc(t.offer || '-')}</td>
@@ -380,7 +380,7 @@ export async function renderSupervision() {
 
   const html = `
     <div class="row between" style="margin-bottom:16px;align-items:center">
-      <div class="muted" style="font-size:13px">Se actualiza automáticamente cada 30 segundos.</div>
+      <div class="muted" style="font-size:13px">Se actualiza automÃ¡ticamente cada 30 segundos.</div>
     </div>
     ${users.length ? cards : '<div class="empty">Sin usuarios activos</div>'}`;
 
@@ -396,3 +396,4 @@ export async function renderSupervision() {
     },
   };
 }
+
