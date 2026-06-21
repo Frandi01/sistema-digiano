@@ -50,6 +50,15 @@ export function ensureDailyTasks(userId) {
        AND due_date IS NOT NULL AND date(due_date) < date('now')`
   ).run(userId);
 
+  // Limpiar resultados de dias anteriores que quedaron visibles (venta cerrada
+  // y no interesado se muestran coloreados solo el dia en que se cerraron).
+  db.prepare(
+    `UPDATE tasks SET active=0
+     WHERE assigned_to=? AND kind='comercial' AND active=1 AND status='completada'
+       AND result IN ('venta_cerrada','no_interesado')
+       AND (completed_at IS NULL OR date(completed_at) < date('now'))`
+  ).run(userId);
+
   // PRIORIDAD 1: reactivar seguimientos vencidos (cotizacion enviada cuyo
   // dia de seguimiento ya llego) para que vuelvan a aparecer en Tareas de hoy.
   db.prepare(
@@ -65,11 +74,13 @@ export function ensureDailyTasks(userId) {
   let need = SLOTS - activeCount;
   if (need <= 0) return;
 
-  // Clientes que ya tienen una tarea comercial sin completar (evita duplicados).
+  // Un cliente que YA tuvo una tarea comercial (de cualquiera, en cualquier estado)
+  // no se vuelve a asignar: evita repetir contactos entre empleados y no recontacta
+  // inviables / no interesados / ventas ya cerradas.
   const busy = new Set(
     db.prepare(
       `SELECT DISTINCT client_id FROM tasks
-       WHERE kind='comercial' AND client_id IS NOT NULL AND status != 'completada' AND COALESCE(deleted,0)=0`
+       WHERE kind='comercial' AND client_id IS NOT NULL AND COALESCE(deleted,0)=0`
     ).all().map((r) => r.client_id)
   );
 
