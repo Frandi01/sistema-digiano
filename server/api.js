@@ -51,7 +51,7 @@ router.get('/users', requireAuth, requireRole('admin'), (req, res) => {
 router.post('/users', requireAuth, requireRole('admin'), (req, res) => {
   const { name, username, email, role, password } = req.body || {};
   if (!name || !username || !role) return res.status(400).json({ error: 'Nombre, usuario y rol son obligatorios.' });
-  if (!['admin', 'comercial', 'siniestros'].includes(role)) return res.status(400).json({ error: 'Rol invalido.' });
+  if (!['admin', 'comercial', 'siniestros', 'marketing'].includes(role)) return res.status(400).json({ error: 'Rol invalido.' });
   const pw = password || 'Digiano2026';
   const strErr = validatePasswordStrength(pw);
   if (strErr) return res.status(400).json({ error: strErr });
