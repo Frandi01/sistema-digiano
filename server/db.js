@@ -378,6 +378,43 @@ try {
   }
 } catch (e) { console.warn('  Migracion role users:', e.message); }
 
+// Reparacion: una migracion anterior (defectuosa) renombro 'users' a un nombre
+// temporal y SQLite reescribio las claves foraneas de las demas tablas hacia
+// '_users_old', que luego se elimino. Eso deja FKs apuntando a una tabla
+// inexistente y rompe cualquier INSERT (notifications, sessions, etc.).
+// Aca se reconstruye cada tabla afectada haciendo que vuelva a apuntar a 'users'.
+try {
+  const broken = db.prepare(
+    "SELECT name, sql FROM sqlite_master WHERE type='table' AND sql LIKE '%_users_old%'"
+  ).all();
+  if (broken.length) {
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('BEGIN');
+    try {
+      for (const t of broken) {
+        const tmp = t.name + '__fix';
+        // Corrige las referencias y renombra la tabla del CREATE a una temporal.
+        let createSql = t.sql.replace(/_users_old/g, 'users');
+        createSql = createSql.replace(
+          new RegExp('CREATE\\s+TABLE\\s+(IF\\s+NOT\\s+EXISTS\\s+)?["\'`]?' + t.name + '["\'`]?', 'i'),
+          'CREATE TABLE "' + tmp + '"'
+        );
+        db.exec(createSql);
+        db.exec(`INSERT INTO "${tmp}" SELECT * FROM "${t.name}"`);
+        db.exec(`DROP TABLE "${t.name}"`);
+        db.exec(`ALTER TABLE "${tmp}" RENAME TO "${t.name}"`);
+      }
+      db.exec('COMMIT');
+      console.log(`  Reparacion: referencias a _users_old corregidas en ${broken.length} tabla(s).`);
+    } catch (inner) {
+      db.exec('ROLLBACK');
+      throw inner;
+    } finally {
+      db.exec('PRAGMA foreign_keys = ON');
+    }
+  }
+} catch (e) { console.warn('  Reparacion _users_old:', e.message); }
+
 // Backfill de username para bases existentes (deriva del email).
 try {
   db.exec("UPDATE users SET username = lower(substr(email,1,instr(email,'@')-1)) WHERE (username IS NULL OR username='') AND email LIKE '%@%'");
