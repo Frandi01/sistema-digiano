@@ -191,7 +191,7 @@ router.get('/clients/:id', requireAuth, (req, res) => {
 });
 
 router.post('/clients', requireAuth, (req, res) => {
-  const { name, phone, email, observations, tags } = req.body || {};
+  const { name, phone, email, observations, tags, branch, policy_number, premium } = req.body || {};
   if (!name) return res.status(400).json({ error: 'El nombre es obligatorio.' });
   // Un comercial crea cliente como pendiente de aprobacion; admin lo aprueba directo.
   const status = req.user.role === 'admin' ? 'aprobado' : 'pendiente';
@@ -199,9 +199,18 @@ router.post('/clients', requireAuth, (req, res) => {
     `INSERT INTO clients (name,phone,email,observations,tags,status,created_by)
      VALUES (?,?,?,?,?,?,?)`
   ).run(name, phone || null, email || null, observations || null, tags || null, status, req.user.id);
-  timeline(info.lastInsertRowid, 'observacion', 'Cliente creado', req.user.id, 'client', info.lastInsertRowid);
-  audit(req.user.id, 'crear_cliente', 'client', info.lastInsertRowid, name);
-  res.json({ id: info.lastInsertRowid, status });
+  const clientId = info.lastInsertRowid;
+  // Si se indico una poliza/ramo, se carga como producto vigente del cliente.
+  if (branch) {
+    db.prepare(
+      `INSERT INTO policies (client_id, branch, policy_number, premium, status, start_date)
+       VALUES (?,?,?,?, 'vigente', date('now'))`
+    ).run(clientId, branch, policy_number || null, premium || 0);
+    timeline(clientId, 'alta', `Alta ${branch}${policy_number ? ' (N° ' + policy_number + ')' : ''}`, req.user.id, 'client', clientId);
+  }
+  timeline(clientId, 'observacion', 'Cliente creado', req.user.id, 'client', clientId);
+  audit(req.user.id, 'crear_cliente', 'client', clientId, name);
+  res.json({ id: clientId, status });
 });
 
 router.put('/clients/:id', requireAuth, (req, res) => {
