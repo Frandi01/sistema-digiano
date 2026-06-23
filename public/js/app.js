@@ -27,6 +27,7 @@ const NAV = {
   comercial: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comision', 'money']]],
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['tareas', 'Tareas operativas', 'tasks'], ['seguimientos', 'Seguimientos', 'followups'], ['siniestros', 'Siniestros', 'claims']]],
+    ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements']]],
   ],
   siniestros: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['mi-comision', 'Mi comision', 'money']]],
@@ -34,6 +35,7 @@ const NAV = {
   ],
   marketing: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
+    ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements']]],
     ['Mi panel', [['marketing', 'Calendario y tareas', 'megaphone']]],
   ],
 };
