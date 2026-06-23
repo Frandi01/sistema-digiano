@@ -16,9 +16,10 @@ export async function renderMovements() {
     </tr>`).join('');
 
   const html = `
-    <div class="card table-card">
+    <a href="#/clientes" class="muted" style="font-size:13px">&larr; Volver a clientes</a>
+    <div class="card table-card" style="margin-top:12px">
       <div class="table-head between">
-        <h3 style="font-size:15px">Movimientos recientes</h3>
+        <h3 style="font-size:15px">Historial de altas y bajas</h3>
         <button class="btn" id="newMov">${icons.plus} Registrar movimiento</button>
       </div>
       <table><thead><tr><th>Tipo</th><th>Cliente</th><th>Ramo</th><th>Compania</th><th>Comision</th><th>Estado</th><th>Origen</th></tr></thead>
