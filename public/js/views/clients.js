@@ -24,9 +24,15 @@ function openClientModal(existing, after) {
         const body = Object.fromEntries(f.entries());
         if (!body.name) return toast('El nombre es obligatorio', 'red');
         try {
-          if (existing) { await api.put('/clients/' + existing.id, body); toast('Cliente actualizado', 'green'); }
-          else { const r = await api.post('/clients', body); toast(r.status === 'pendiente' ? 'Cliente creado (pendiente de aprobacion)' : 'Cliente creado', 'green'); }
-          close(); after && after();
+          if (existing) {
+            await api.put('/clients/' + existing.id, body);
+            toast('Cliente actualizado', 'green');
+          } else {
+            const r = await api.post('/clients', body);
+            toast(r.status === 'pendiente' ? 'Cliente creado (pendiente de aprobacion)' : 'Cliente creado', 'green');
+          }
+          close();
+          if (after) after();
         } catch (e) { toast(e.message, 'red'); }
       };
     },
@@ -73,8 +79,8 @@ export async function renderClients() {
       if (q) q.addEventListener('input', (e) => {
         clearTimeout(t);
         t = setTimeout(async () => {
-          const { clients } = await api.get('/clients?q=' + encodeURIComponent(e.target.value));
-          body.innerHTML = clients.length ? rows(clients) : '<tr><td colspan="5"><div class="empty">Sin resultados</div></td></tr>';
+          const res = await api.get('/clients?q=' + encodeURIComponent(e.target.value));
+          body.innerHTML = res.clients.length ? rows(res.clients) : '<tr><td colspan="5"><div class="empty">Sin resultados</div></td></tr>';
         }, 250);
       });
     },
@@ -84,7 +90,6 @@ export async function renderClients() {
 export async function renderClientDetail(id) {
   const d = await api.get('/clients/' + id);
   const c = d.client;
-  const canEdit = true;
 
   const tlColor = { alta: 'green', baja: 'red', siniestro: 'purple', cotizacion: 'orange', contacto: 'blue' };
   const timeline = d.timeline.length ? d.timeline.map((t) => `
@@ -140,23 +145,26 @@ export async function renderClientDetail(id) {
   return {
     html,
     mount: (root) => {
-      root.querySelector('#editClient').onclick = () => openClientModal(c, () => route());
-      root.querySelector('#addObs').onclick = () => {
+      const eb = root.querySelector('#editClient');
+      if (eb) eb.addEventListener('click', () => openClientModal(c, reRender));
+      const ob = root.querySelector('#addObs');
+      if (ob) ob.addEventListener('click', () => {
         openModal({
-          title: 'Agregar observacion', body: '<div class="field"><textarea id="obsT" rows="3" placeholder="Escribi la observacion..."></textarea></div>',
+          title: 'Agregar observacion',
+          body: '<div class="field"><textarea id="obsT" rows="3" placeholder="Escribi la observacion..."></textarea></div>',
           footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="saveObs">Guardar</button>',
           onMount: (modal, close) => {
             modal.querySelector('#saveObs').onclick = async () => {
               const text = modal.querySelector('#obsT').value.trim();
               if (!text) return;
               await api.post('/clients/' + id + '/observation', { text });
-              toast('Observacion agregada', 'green'); close(); route();
+              toast('Observacion agregada', 'green'); close(); reRender();
             };
           },
         });
-      };
-      root.querySelectorAll('[data-offer]').forEach((btn) => btn.onclick = () => openAltaModal(c, btn.dataset.offer));
-      root.querySelectorAll('[data-claim]').forEach((el) => el.onclick = () => go('#/siniestros/' + el.dataset.claim));
+      });
+      root.querySelectorAll('[data-offer]').forEach((btn) => btn.addEventListener('click', () => openAltaModal(c, btn.dataset.offer)));
+      root.querySelectorAll('[data-claim]').forEach((el) => el.addEventListener('click', () => go('#/siniestros/' + el.dataset.claim)));
     },
   };
 }
@@ -180,12 +188,12 @@ function openAltaModal(client, branch) {
         try {
           const r = await api.post('/movements', body);
           toast(r.status === 'pendiente' ? 'Alta registrada (pendiente de aprobacion)' : 'Alta registrada y perfil actualizado', 'green');
-          close(); route();
+          close(); reRender();
         } catch (e) { toast(e.message, 'red'); }
       };
     },
   });
 }
 
-// helper para re-render de la vista actual
-function route() { window.dispatchEvent(new HashChangeEvent('hashchange')); }
+// Helper para re-renderizar la vista actual.
+function reRender() { window.dispatchEvent(new HashChangeEvent('hashchange')); }
