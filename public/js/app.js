@@ -20,22 +20,22 @@ const NAV = {
   admin: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['seguimientos', 'Seguimientos', 'followups']]],
-    ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
+    ['Gestion', [['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
     ['Analisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Metricas', 'metrics']]],
     ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['marketing', 'Marketing', 'megaphone'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
   ],
   comercial: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comision', 'money']]],
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['tareas', 'Tareas operativas', 'tasks'], ['seguimientos', 'Seguimientos', 'followups'], ['siniestros', 'Siniestros', 'claims']]],
-    ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements']]],
+    ['Gestion', [['clientes', 'Clientes', 'clients']]],
   ],
   siniestros: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['mi-comision', 'Mi comision', 'money']]],
-    ['Gestion', [['siniestros', 'Siniestros', 'claims'], ['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements'], ['tareas', 'Tareas', 'tasks']]],
+    ['Gestion', [['siniestros', 'Siniestros', 'claims'], ['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks']]],
   ],
   marketing: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
-    ['Gestion', [['clientes', 'Clientes', 'clients'], ['movimientos', 'Altas / Bajas', 'movements']]],
+    ['Gestion', [['clientes', 'Clientes', 'clients']]],
     ['Mi panel', [['marketing', 'Calendario y tareas', 'megaphone']]],
   ],
 };
