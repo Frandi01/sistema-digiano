@@ -63,7 +63,7 @@ express.static = (dir) => (req, res, next) => {
   if (!file.startsWith(dir)) return next();
   fs.stat(file, (err, st) => {
     if (err || !st.isFile()) return next();
-    res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
+    res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
     fs.createReadStream(file).pipe(res);
   });
 };
@@ -106,7 +106,7 @@ function augment(res) {
   res.status = (c) => { res.statusCode = c; return res; };
   res.json = (obj) => { res.writeHead(res.statusCode, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
   res.send = (s) => { res.writeHead(res.statusCode, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(s); };
-  res.sendFile = (f) => { fs.readFile(f, (e, d) => { if (e) { res.status(404).end('Not found'); } else { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(d); } }); };
+  res.sendFile = (f) => { fs.readFile(f, (e, d) => { if (e) { res.status(404).end('Not found'); } else { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' }); res.end(d); } }); };
   res._cookies = [];
   res.cookie = (name, val, opts = {}) => {
     let c = `${name}=${val}; Path=${opts.path || '/'}; HttpOnly; SameSite=Lax`;
