@@ -279,11 +279,15 @@ router.post('/sections/seen', requireAuth, (req, res) => {
    ACTIVIDAD RECIENTE (centro de actividad del dashboard)
    ============================================================ */
 router.get('/activity', requireAuth, (req, res) => {
+  // Solo lo esencial: tareas completadas, ventas cerradas y altas de cliente/siniestro.
+  // El historial completo vive en Auditoria.
   const rows = db.prepare(
     `SELECT a.action, a.entity_type, a.entity_id, a.detail, a.created_at, u.name AS user_name
      FROM audit_log a LEFT JOIN users u ON u.id=a.user_id
-     WHERE a.action NOT IN ('login','login_fallido','cambio_password')
-     ORDER BY a.created_at DESC LIMIT 25`
+     WHERE a.action IN ('crear_cliente','crear_siniestro')
+        OR (a.action='estado_tarea' AND a.detail='completada')
+        OR (a.action='resultado_comercial' AND a.detail LIKE 'Venta cerrada%')
+     ORDER BY a.created_at DESC LIMIT 12`
   ).all();
   res.json({ activity: rows });
 });
