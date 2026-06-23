@@ -48,27 +48,35 @@ export async function renderClients() {
     <div class="card table-card">
       <div class="table-head between wrap">
         <div class="search">${icons.search}<input id="cQ" placeholder="Buscar por nombre, telefono o email..." /></div>
-        <button class="btn" id="newClient">${icons.plus} Nuevo cliente</button>
+        <div class="row" style="gap:8px">
+          <button class="btn outline" id="newMov">${icons.movements} Altas / Bajas</button>
+          <button class="btn" id="newClient">${icons.plus} Nuevo cliente</button>
+        </div>
       </div>
       <table><thead><tr><th>Cliente</th><th>Telefono</th><th>Email</th><th>Productos</th><th>Etiquetas</th></tr></thead>
         <tbody id="cBody">${clients.length ? rows(clients) : '<tr><td colspan="5"><div class="empty">Sin clientes</div></td></tr>'}</tbody>
       </table>
     </div>`;
 
+  const reload = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
   return {
     html,
     mount: (root) => {
       const body = root.querySelector('#cBody');
-      root.querySelector('#newClient').onclick = () => openClientModal(null, () => window.dispatchEvent(new HashChangeEvent('hashchange')));
-      body.onclick = (e) => { const tr = e.target.closest('tr[data-id]'); if (tr) go('#/clientes/' + tr.dataset.id); };
+      const newBtn = root.querySelector('#newClient');
+      if (newBtn) newBtn.addEventListener('click', () => openClientModal(null, reload));
+      const movBtn = root.querySelector('#newMov');
+      if (movBtn) movBtn.addEventListener('click', () => go('#/movimientos'));
+      if (body) body.addEventListener('click', (e) => { const tr = e.target.closest('tr[data-id]'); if (tr) go('#/clientes/' + tr.dataset.id); });
+      const q = root.querySelector('#cQ');
       let t;
-      root.querySelector('#cQ').oninput = (e) => {
+      if (q) q.addEventListener('input', (e) => {
         clearTimeout(t);
         t = setTimeout(async () => {
           const { clients } = await api.get('/clients?q=' + encodeURIComponent(e.target.value));
           body.innerHTML = clients.length ? rows(clients) : '<tr><td colspan="5"><div class="empty">Sin resultados</div></td></tr>';
         }, 250);
-      };
+      });
     },
   };
 }
