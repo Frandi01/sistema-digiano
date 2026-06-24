@@ -46,7 +46,7 @@ router.get('/marketing/tasks', requireAuth, isMarketing, (req, res) => {
   const tasks = db.prepare(
     `SELECT t.*, u.name AS created_name FROM marketing_tasks t
      LEFT JOIN users u ON u.id = t.created_by
-     ORDER BY CASE t.status WHEN 'pendiente' THEN 0 WHEN 'en_progreso' THEN 1 ELSE 2 END, t.due_date`
+     ORDER BY CASE t.status WHEN 'pendiente' THEN 0 WHEN 'en_proceso' THEN 1 ELSE 2 END, t.due_date`
   ).all();
   res.json({ tasks });
 });
@@ -71,9 +71,9 @@ router.put('/marketing/tasks/:id', requireAuth, isMarketing, (req, res) => {
   const t = db.prepare('SELECT * FROM marketing_tasks WHERE id=?').get(req.params.id);
   if (!t) return res.status(404).json({ error: 'No existe.' });
   const { status, result_notes } = req.body || {};
-  if (status && !['pendiente', 'en_progreso', 'completado'].includes(status))
+  if (status && !['pendiente', 'en_proceso', 'completada'].includes(status))
     return res.status(400).json({ error: 'Estado invalido.' });
-  const completedAt = status === 'completado' ? new Date().toISOString() : t.completed_at;
+  const completedAt = status === 'completada' ? new Date().toISOString() : t.completed_at;
   db.prepare(
     `UPDATE marketing_tasks SET status=COALESCE(?,status), result_notes=COALESCE(?,result_notes), completed_at=? WHERE id=?`
   ).run(status || null, result_notes || null, completedAt, t.id);
@@ -193,7 +193,7 @@ router.post('/marketing/content/:id/close', requireAuth, isMarketing, (req, res)
        metrics_views=?, metrics_reach=?, metrics_likes=?, metrics_comments=?,
        published_at=COALESCE(published_at, datetime('now')), updated_at=datetime('now') WHERE id=?`
   ).run(views ?? 0, reach ?? 0, likes ?? 0, comments ?? 0, c.id);
-  db.prepare("UPDATE marketing_tasks SET status='completado', completed_at=datetime('now') WHERE type='Cargar metricas' AND status!='completado' AND description LIKE ?").run('%' + c.title + '%');
+  db.prepare("UPDATE marketing_tasks SET status='completada', completed_at=datetime('now') WHERE type='Cargar metricas' AND status!='completada' AND description LIKE ?").run('%' + c.title + '%');
   audit(req.user.id, 'mkt_cierre_publicacion', 'mkt_content', c.id, c.title);
   res.json({ ok: true, pending: false });
 });
@@ -203,16 +203,16 @@ router.get('/marketing/dashboard', requireAuth, isMarketing, (req, res) => {
   const byStatus = db.prepare('SELECT status, COUNT(*) n FROM mkt_content WHERE archived=0 GROUP BY status').all();
   const totals = db.prepare(
     `SELECT COUNT(*) total,
-       SUM(CASE WHEN status='publicado' THEN 1 ELSE 0 END) publicados,
-       SUM(CASE WHEN status='pendiente_metricas' THEN 1 ELSE 0 END) pendientes_metricas,
+       COALESCE(SUM(CASE WHEN status='publicado' THEN 1 ELSE 0 END), 0) publicados,
+       COALESCE(SUM(CASE WHEN status='pendiente_metricas' THEN 1 ELSE 0 END), 0) pendientes_metricas,
        COALESCE(SUM(metrics_views),0) views, COALESCE(SUM(metrics_reach),0) reach,
        COALESCE(SUM(metrics_likes),0) likes, COALESCE(SUM(metrics_comments),0) comments
      FROM mkt_content WHERE archived=0`
   ).get();
-  const tasks = db.prepare("SELECT SUM(CASE WHEN status='completado' THEN 1 ELSE 0 END) completadas, COUNT(*) total FROM marketing_tasks").get();
+  const tasks = db.prepare("SELECT COALESCE(SUM(CASE WHEN status='completada' THEN 1 ELSE 0 END), 0) completadas, COUNT(*) total FROM marketing_tasks").get();
   const byCampaign = db.prepare(
     `SELECT o.id, o.name, COUNT(c.id) contenidos,
-       SUM(CASE WHEN c.status='publicado' THEN 1 ELSE 0 END) publicados,
+       COALESCE(SUM(CASE WHEN c.status='publicado' THEN 1 ELSE 0 END), 0) publicados,
        COALESCE(SUM(c.metrics_views),0) views
      FROM objectives o JOIN mkt_content c ON c.campaign_id=o.id AND c.archived=0
      GROUP BY o.id ORDER BY contenidos DESC LIMIT 10`
