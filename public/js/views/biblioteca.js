@@ -31,7 +31,7 @@ export async function renderBrandLibrary() {
         <button class="btn" id="newLink">${icons.plus} Nuevo enlace</button>
       </div>
     </div>
-    ${sections || '<div class="empty">Sin enlaces todavia. Agrega el primero.</div>'}`;
+    ${sections || '<div class="empty">Todavía no hay enlaces. Agregá el primero.</div>'}`;
 
   return {
     html,
