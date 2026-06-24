@@ -229,11 +229,136 @@ export async function renderMarketing() {
     });
   }
 
+  async function buildPipeline(root) {
+    const { items } = await api.get('/marketing/content');
+    let campaigns = [];
+    try { campaigns = (await api.get('/objectives')).objectives.filter((c) => c.active); } catch (e) {}
+    const byStatus = {}; PIPE.forEach(([k]) => (byStatus[k] = []));
+    items.forEach((it) => (byStatus[it.status] || byStatus.idea).push(it));
+    const card = (it) => `
+      <div class="kb-card" draggable="true" data-id="${it.id}">
+        <div class="kb-title">${esc(it.title)}</div>
+        ${it.campaign_name ? `<div class="kb-camp">🎯 ${esc(it.campaign_name)}</div>` : ''}
+        ${it.format ? `<span class="badge gray" style="margin-top:4px">${esc(it.format)}</span>` : ''}
+        ${it.status === 'pendiente_metricas' ? '<span class="badge orange" style="margin-top:4px">Pend. metricas</span>' : ''}
+        ${it.status === 'publicado' && it.metrics_views != null ? `<div class="muted" style="font-size:11px;margin-top:4px">${it.metrics_views} vistas &middot; ${it.metrics_likes || 0} likes</div>` : ''}
+        ${['programado', 'publicado', 'pendiente_metricas'].includes(it.status) ? `<button class="btn outline sm kb-metric" data-metric="${it.id}" style="margin-top:6px;width:100%">${it.status === 'publicado' ? 'Editar metricas' : 'Cargar metricas'}</button>` : ''}
+        <span class="kb-del" data-del-c="${it.id}" title="Archivar">×</span>
+      </div>`;
+    const cols = PIPE.map(([k, label]) => `
+      <div class="kb-col" data-status="${k}">
+        <div class="kb-col-head">${label} <span class="kb-count">${byStatus[k].length}</span></div>
+        <div class="kb-col-body">${byStatus[k].map(card).join('')}</div>
+      </div>`).join('');
+    const cont = root.querySelector('#pipeContainer');
+    cont.innerHTML = `
+      <div class="card pad">
+        <div class="row between" style="margin-bottom:10px">
+          <h3 style="font-size:15px">Pipeline de contenido</h3>
+          <button class="btn" id="newContent">${icons.plus} Nuevo contenido</button>
+        </div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px">Arrastra las tarjetas entre columnas para cambiar su estado.</div>
+        <div class="kanban">${cols}</div>
+      </div>`;
+    cont.querySelector('#newContent').onclick = () => openContentModal(campaigns, root);
+    cont.querySelectorAll('[data-del-c]').forEach((b) => b.onclick = async (e) => {
+      e.stopPropagation(); if (!confirm('Archivar este contenido?')) return;
+      try { await api.del('/marketing/content/' + b.dataset.delC); buildPipeline(root); } catch (er) { toast(er.message, 'red'); }
+    });
+    cont.querySelectorAll('[data-metric]').forEach((b) => b.onclick = (e) => {
+      e.stopPropagation(); openCloseModal(items.find((x) => x.id == b.dataset.metric), root);
+    });
+    cont.querySelectorAll('.kb-card').forEach((el) => {
+      el.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', el.dataset.id); el.classList.add('dragging'); });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+    });
+    cont.querySelectorAll('.kb-col').forEach((col) => {
+      col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('drop'); });
+      col.addEventListener('dragleave', () => col.classList.remove('drop'));
+      col.addEventListener('drop', async (e) => {
+        e.preventDefault(); col.classList.remove('drop');
+        const id = e.dataTransfer.getData('text/plain');
+        try { await api.put('/marketing/content/' + id, { status: col.dataset.status }); buildPipeline(root); }
+        catch (er) { toast(er.message, 'red'); }
+      });
+    });
+  }
+
+  function openContentModal(campaigns, root) {
+    openModal({
+      title: 'Nuevo contenido',
+      body: `<form id="cf"><div class="form-grid">
+        <div class="field full"><label>Titulo *</label><input name="title" required /></div>
+        <div class="field"><label>Formato</label><select name="format"><option value="">-</option><option>Reel</option><option>Carrusel</option><option>Historia</option><option>Post</option><option>Video</option></select></div>
+        <div class="field"><label>Campaña</label><select name="campaign_id"><option value="">Sin campaña</option>${campaigns.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+        <div class="field full"><label>Descripcion / guion</label><textarea name="description" rows="2"></textarea></div>
+      </div></form>`,
+      footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="cs">Crear</button>',
+      onMount: (modal, close) => modal.querySelector('#cs').onclick = async () => {
+        const fd = Object.fromEntries(new FormData(modal.querySelector('#cf')).entries());
+        if (!fd.title) return toast('Falta el titulo', 'red');
+        try { await api.post('/marketing/content', fd); toast('Contenido creado', 'green'); close(); buildPipeline(root); }
+        catch (e) { toast(e.message, 'red'); }
+      },
+    });
+  }
+
+  function openCloseModal(it, root) {
+    if (!it) return;
+    const m = (v) => (v == null ? '' : v);
+    openModal({
+      title: 'Cerrar publicacion / metricas',
+      body: `<form id="mf">
+        <div class="muted" style="font-size:12.5px;margin-bottom:8px"><b>${esc(it.title)}</b>. Carga las metricas reales. Si las dejas vacias, el contenido queda en <b>Pendiente de metricas</b> y se crea una tarea de seguimiento a 48h.</div>
+        <div class="form-grid">
+          <div class="field"><label>Visualizaciones</label><input name="views" type="number" min="0" value="${m(it.metrics_views)}" /></div>
+          <div class="field"><label>Alcance</label><input name="reach" type="number" min="0" value="${m(it.metrics_reach)}" /></div>
+          <div class="field"><label>Likes</label><input name="likes" type="number" min="0" value="${m(it.metrics_likes)}" /></div>
+          <div class="field"><label>Comentarios</label><input name="comments" type="number" min="0" value="${m(it.metrics_comments)}" /></div>
+        </div></form>`,
+      footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="mcs">Guardar</button>',
+      onMount: (modal, close) => {
+        modal.querySelector('#mcs').addEventListener('click', async () => {
+          const fd = Object.fromEntries(new FormData(modal.querySelector('#mf')).entries());
+          try {
+            const r = await api.post('/marketing/content/' + it.id + '/close', fd);
+            toast(r.pending ? 'Cerrada sin metricas (tarea a 48h creada)' : 'Metricas guardadas', 'green');
+            close(); buildPipeline(root); buildMktDashboard(root);
+          } catch (e) { toast(e.message, 'red'); }
+        });
+      },
+    });
+  }
+
+  async function buildMktDashboard(root) {
+    let d; try { d = await api.get('/marketing/dashboard'); } catch (e) { return; }
+    const t = d.totals || {};
+    const kpi = (label, val, color) => `<div class="card pad" style="flex:1;text-align:center;min-width:104px"><div style="font-size:22px;font-weight:700;color:${color || 'var(--navy)'}">${val ?? 0}</div><div class="muted" style="font-size:11px">${label}</div></div>`;
+    const camps = (d.byCampaign || []).map((c) => `<tr><td>${esc(c.name)}</td><td>${c.contenidos}</td><td>${c.publicados}</td><td>${c.views}</td></tr>`).join('');
+    const cont = root.querySelector('#mktDashContainer');
+    if (!cont) return;
+    cont.innerHTML = `
+      <div class="card pad">
+        <h3 style="font-size:15px;margin-bottom:10px">Resultados de Marketing</h3>
+        <div class="row wrap" style="gap:10px;margin-bottom:12px">
+          ${kpi('Contenidos', t.total)}
+          ${kpi('Publicados', t.publicados, '#27ae60')}
+          ${kpi('Pend. metricas', t.pendientes_metricas, '#e67e22')}
+          ${kpi('Visualizaciones', t.views, '#2e75b6')}
+          ${kpi('Alcance', t.reach, '#2e75b6')}
+          ${kpi('Likes', t.likes, '#8e44ad')}
+        </div>
+        ${camps ? `<table style="width:100%"><thead><tr><th>Campaña</th><th>Contenidos</th><th>Publicados</th><th>Vistas</th></tr></thead><tbody>${camps}</tbody></table>` : '<div class="muted" style="font-size:12.5px">Aun no hay contenido vinculado a campañas.</div>'}
+      </div>`;
+  }
+
   const html = `
     <div class="card pad" style="margin-bottom:18px">
       <h3 style="font-size:15px;margin-bottom:4px">Panel de Marketing</h3>
-      <div class="muted" style="font-size:13px">Calendario de contenido y tareas asignadas.</div>
+      <div class="muted" style="font-size:13px">Pipeline de contenido, calendario y tareas.</div>
     </div>
+    <div id="mktDashContainer" style="margin-bottom:18px"></div>
+    <div id="pipeContainer" style="margin-bottom:18px"><div class="empty">Cargando pipeline...</div></div>
     <div class="card pad" style="margin-bottom:18px" id="calContainer">
       <div class="empty">Cargando calendario...</div>
     </div>
@@ -242,7 +367,9 @@ export async function renderMarketing() {
   return {
     html,
     mount: async (root) => {
-      await Promise.all([buildCalendar(root), buildTasks(root)]);
+      await Promise.all([buildMktDashboard(root), buildPipeline(root), buildCalendar(root), buildTasks(root)]);
     },
   };
 }
+
+const PIPE = [['idea', 'Idea'], ['guion', 'Guion'], ['pend_grabar', 'Pend. grabar'], ['grabado', 'Grabado'], ['editando', 'Editando'], ['revision', 'Revision'], ['programado', 'Programado'], ['publicado', 'Publicado'], ['pendiente_metricas', 'Pend. metricas']];
