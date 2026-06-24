@@ -53,7 +53,7 @@ export async function renderDashboard() {
       <div class="kpi-sub">${sub || ''}</div>
     </div>`;
   const kpis = `
-    ${kpi('objectives', '#2e75b6', 'Objetivo del mes', (o ? o.progress : 0) + '%', '', o ? `${o.done}/${o.target} altas` : 'sin objetivo')}
+    ${kpi('objectives', '#2e75b6', 'Campaña del mes', (o ? o.progress : 0) + '%', '', o ? `${o.done}/${o.target} altas` : 'sin campaña')}
     ${kpi('up', '#27ae60', 'Altas del mes', m.altas, delta(m.altas, pv.altas), m.topBranch ? 'Top: ' + m.topBranch : '')}
     ${kpi('down', '#e74c3c', 'Bajas del mes', m.bajas, delta(m.bajas, pv.bajas, true), '')}
     ${kpi('movements', '#2e75b6', 'Crecimiento neto', (m.net >= 0 ? '+' : '') + m.net, '', 'altas - bajas')}
@@ -62,13 +62,13 @@ export async function renderDashboard() {
     ${kpi('tasks', '#2e75b6', 'Tareas pendientes', k.pendingTasks, '', 'del equipo')}
     ${kpi('claims', '#e67e22', 'Siniestros abiertos', k.openClaims, '', 'en gestion')}`;
 
-  // ---------- Objetivo (hero) ----------
+  // ---------- Campaña (hero) ----------
   const objCard = o ? `
     <div class="card pad obj-hero sp5">
       <div class="row between" style="margin-bottom:10px">
-        <div><div class="kpi-label">Objetivo del mes</div>
+        <div><div class="kpi-label">Campaña actual</div>
           <h2 style="font-size:18px;margin-top:2px">${esc(o.name)} ${o.branch ? `<span class="badge blue">${esc(o.branch)}</span>` : ''}</h2></div>
-        ${d.activeObjectives > 1 ? `<span class="badge navy" title="Objetivos activos">+${d.activeObjectives - 1} objetivos mas</span>` : ''}
+        ${d.activeObjectives > 1 ? `<span class="badge navy" title="Campañas activas">+${d.activeObjectives - 1} campañas mas</span>` : ''}
       </div>
       <div class="obj-body">
         <div class="obj-pct">${o.progress}<small>%</small></div>
@@ -81,7 +81,7 @@ export async function renderDashboard() {
       </div>
       <div class="progress big" style="margin-top:14px"><span style="width:${o.progress}%"></span></div>
       <div class="muted" style="font-size:12px;margin-top:7px">${o.progress}% completado &middot; proyeccion comision ${fmtMoney(o.commissionProjected)}</div>
-    </div>` : `<div class="card pad sp5"><div class="kpi-label">Sin objetivo activo</div><h2 style="font-size:18px">Defini un objetivo del mes</h2>${state.user.role === 'admin' ? '<a class="btn" href="#/objetivos" style="margin-top:10px">Crear objetivo</a>' : ''}</div>`;
+    </div>` : `<div class="card pad sp5"><div class="kpi-label">Sin campaña activa</div><h2 style="font-size:18px">Crea una campaña del mes</h2>${state.user.role === 'admin' ? '<a class="btn" href="#/objetivos" style="margin-top:10px">Crear campaña</a>' : ''}</div>`;
 
   // ---------- Evolucion ----------
   const evoCard = `
