@@ -34,9 +34,10 @@ function delta(cur, prev, invert) {
 export async function renderDashboard() {
   const d = await api.get('/dashboard');
   let avisos = []; let evolution = []; let activity = [];
-  try { avisos = (await api.get('/avisos')).avisos; } catch (e) {}
-  try { evolution = (await api.get('/commissions/evolution')).series; } catch (e) {}
-  try { activity = (await api.get('/activity')).activity; } catch (e) {}
+  const failed = [];
+  try { avisos = (await api.get('/avisos')).avisos; } catch (e) { console.warn('avisos', e); failed.push('avisos'); }
+  try { evolution = (await api.get('/commissions/evolution')).series; } catch (e) { console.warn('evolution', e); failed.push('evolución de comisiones'); }
+  try { activity = (await api.get('/activity')).activity; } catch (e) { console.warn('activity', e); failed.push('actividad reciente'); }
 
   const o = d.objective;
   const m = d.movement;
@@ -57,10 +58,10 @@ export async function renderDashboard() {
     ${kpi('up', '#27ae60', 'Altas del mes', m.altas, delta(m.altas, pv.altas), m.topBranch ? 'Top: ' + m.topBranch : '')}
     ${kpi('down', '#e74c3c', 'Bajas del mes', m.bajas, delta(m.bajas, pv.bajas, true), '')}
     ${kpi('movements', '#2e75b6', 'Crecimiento neto', (m.net >= 0 ? '+' : '') + m.net, '', 'altas - bajas')}
-    ${kpi('money', '#e67e22', 'Comision generada', fmtMoney(m.commission), delta(m.commission, pv.commission), 'este mes')}
-    ${kpi('money', '#8e44ad', 'Comision proyectada', fmtMoney(o ? o.commissionProjected : 0), '', 'fin de mes')}
+    ${kpi('money', '#e67e22', 'Comisión generada', fmtMoney(m.commission), delta(m.commission, pv.commission), 'este mes')}
+    ${kpi('money', '#8e44ad', 'Comisión proyectada', fmtMoney(o ? o.commissionProjected : 0), '', 'fin de mes')}
     ${kpi('tasks', '#2e75b6', 'Tareas pendientes', k.pendingTasks, '', 'del equipo')}
-    ${kpi('claims', '#e67e22', 'Siniestros abiertos', k.openClaims, '', 'en gestion')}`;
+    ${kpi('claims', '#e67e22', 'Siniestros abiertos', k.openClaims, '', 'en gestión')}`;
 
   // ---------- Campaña (hero) ----------
   const objCard = o ? `
@@ -76,18 +77,18 @@ export async function renderDashboard() {
           <div><b>${o.done}/${o.target}</b><span>altas</span></div>
           <div><b>${o.remaining}</b><span>restantes</span></div>
           <div><b>${o.daysLeft}</b><span>dias</span></div>
-          <div><b>${fmtMoney(o.commissionMonth)}</b><span>comision</span></div>
+          <div><b>${fmtMoney(o.commissionMonth)}</b><span>comisión</span></div>
         </div>
       </div>
       <div class="progress big" style="margin-top:14px"><span style="width:${o.progress}%"></span></div>
-      <div class="muted" style="font-size:12px;margin-top:7px">${o.progress}% completado &middot; proyeccion comision ${fmtMoney(o.commissionProjected)}</div>
+      <div class="muted" style="font-size:12px;margin-top:7px">${o.progress}% completado &middot; proyección comisión ${fmtMoney(o.commissionProjected)}</div>
     </div>` : `<div class="card pad sp5"><div class="kpi-label">Sin campaña activa</div><h2 style="font-size:18px">Crea una campaña del mes</h2>${state.user.role === 'admin' ? '<a class="btn" href="#/objetivos" style="margin-top:10px">Crear campaña</a>' : ''}</div>`;
 
   // ---------- Evolucion ----------
   const evoCard = `
     <div class="card pad sp7">
       <div class="row between" style="margin-bottom:4px"><h3 class="card-title">Evolucion de la cartera</h3>
-        <span class="muted" style="font-size:12px">comision computable (sin aguinaldo)</span></div>
+        <span class="muted" style="font-size:12px">comisión computable (sin aguinaldo)</span></div>
       ${evolution.length >= 2 ? lineChart(evolution, { keys: [
         { field: 'computable', color: '#2e75b6', label: 'Computable' },
         ...(state.user.role === 'admin' ? [{ field: 'real_cobrada', color: '#27ae60', label: 'Total recibido' }] : []),
@@ -122,7 +123,7 @@ export async function renderDashboard() {
             <div class="act-text"><b>${esc(a.user_name || 'Sistema')}</b> ${esc(ACT[a.action] || a.action.replace(/_/g, ' '))}${a.detail ? ` <span class="muted">— ${esc(a.detail)}</span>` : ''}</div>
             <div class="act-time">${fmtDateTime(a.created_at)}</div>
           </div>
-        </div>`).join('') : '<div class="empty">Sin actividad reciente</div>'}</div>
+        </div>`).join('') : '<div class="empty">Todavía no hay actividad reciente.</div>'}</div>
     </div>`;
 
   // ---------- Ranking ----------
@@ -137,16 +138,20 @@ export async function renderDashboard() {
           <div class="rank-info">
             <div class="row between"><b>${esc(r.name)}</b><span class="rank-pts">${r.score} pts</span></div>
             <div class="progress" style="margin-top:5px"><span style="width:${r.progress}%"></span></div>
-            <div class="rank-sub">${r.completed}/${r.assigned} tareas &middot; ${r.progress}% cumplimiento</div>
+            <div class="rank-sub">${r.assigned > 0 ? `${r.completed}/${r.assigned} tareas &middot; ${r.progress}% cumplimiento` : 'Sin tareas asignadas en el período'}</div>
           </div>
         </div>`).join('')}</div>
     </div>`;
 
+  const failBanner = failed.length
+    ? `<div class="empty no-print" style="color:#c0392b;text-align:left;margin-bottom:14px">No se pudieron cargar: ${failed.join(', ')}. El resto del panel sí cargó; reintentá para ver esas secciones.</div>`
+    : '';
   const html = `
     ${printHeader('Dashboard General', o ? o.name : '')}
+    ${failBanner}
     <div class="row between no-print" style="margin-bottom:16px">
       <div><h2 style="font-size:20px">Dashboard General</h2>
-        <div class="muted" style="font-size:12px">Ultima actualizacion: ${updated}</div></div>
+        <div class="muted" style="font-size:12px">Última actualización: ${updated}</div></div>
       <button class="btn ghost sm" id="pdfDash">Exportar PDF</button>
     </div>
     <div class="dash-grid">
