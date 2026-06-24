@@ -28,7 +28,7 @@ export async function renderBancoIdeas() {
         <button class="btn" id="newIdea">${icons.plus} Nueva idea</button>
       </div>
     </div>
-    <div class="grid cols-3">${cards || '<div class="empty">Sin ideas todavia. Crea la primera.</div>'}</div>`;
+    <div class="grid cols-3">${cards || '<div class="empty">Todavía no hay ideas. Creá la primera.</div>'}</div>`;
 
   return {
     html,
