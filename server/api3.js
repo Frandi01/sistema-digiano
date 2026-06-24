@@ -5,7 +5,7 @@ import express from './micro.js';
 import db from './db.js';
 import { requireAuth, requireRole } from './auth.js';
 import { audit, notify, notifyRole, addScore, timeline } from './helpers.js';
-import { applyMovement } from './business.js';
+import { applyMovement, generateMarketingBatches } from './business.js';
 
 const router = express.Router();
 const now = () => new Date().toISOString();
@@ -378,11 +378,98 @@ router.put('/campaigns/:id', requireAuth, requireRole('admin'), (req, res) => {
 });
 router.put('/objectives/:id', requireAuth, requireRole('admin'), (req, res) => {
   const b = req.body || {};
-  db.prepare('UPDATE objectives SET name=COALESCE(?,name), branch=?, target=COALESCE(?,target), avg_commission=COALESCE(?,avg_commission), priority=COALESCE(?,priority), start_date=COALESCE(?,start_date), end_date=COALESCE(?,end_date), active=COALESCE(?,active) WHERE id=?')
-    .run(b.name ?? null, b.branch ?? null, b.target ?? null, b.avg_commission ?? null, b.priority ?? null, b.start_date ?? null, b.end_date ?? null,
-      b.active === undefined ? null : (b.active ? 1 : 0), req.params.id);
-  audit(req.user.id, 'editar_objetivo', 'objective', Number(req.params.id), null);
+  const o = db.prepare('SELECT * FROM objectives WHERE id=?').get(req.params.id);
+  if (!o) return res.status(404).json({ error: 'No existe.' });
+  const num = (v) => Number(v) || 0;
+  const campType = b.type === 'marketing' ? 'marketing' : (b.type === 'comercial' ? 'comercial' : (o.type || 'comercial'));
+  const partCom = campType === 'comercial' ? 1 : 0;
+  const partMkt = campType === 'marketing' ? 1 : (b.part_marketing ? 1 : 0);
+  const partAdm = campType === 'comercial' && b.part_admin ? 1 : 0;
+  db.prepare(
+    `UPDATE objectives SET name=COALESCE(?,name), branch=?, target=COALESCE(?,target), priority=COALESCE(?,priority),
+       start_date=COALESCE(?,start_date), end_date=COALESCE(?,end_date), active=COALESCE(?,active),
+       type=?, part_comercial=?, part_marketing=?, part_admin=?,
+       qty_reel=?, qty_carrusel=?, qty_historia=?, qty_linkedin=? WHERE id=?`
+  ).run(b.name ?? null, b.branch ?? null, b.target ?? null, b.priority ?? null,
+    b.start_date ?? null, b.end_date ?? null, b.active === undefined ? null : (b.active ? 1 : 0),
+    campType, partCom, partMkt, partAdm,
+    num(b.qty_reel), num(b.qty_carrusel), num(b.qty_historia), num(b.qty_linkedin), o.id);
+  if (partMkt) { try { generateMarketingBatches(); } catch (e) {} }
+  audit(req.user.id, 'editar_campana', 'objective', o.id, b.name || o.name);
   res.json({ ok: true });
+});
+
+// Duplicar campaña (copia la configuracion; queda activa).
+router.post('/objectives/:id/duplicate', requireAuth, requireRole('admin'), (req, res) => {
+  const o = db.prepare('SELECT * FROM objectives WHERE id=?').get(req.params.id);
+  if (!o) return res.status(404).json({ error: 'No existe.' });
+  const info = db.prepare(
+    `INSERT INTO objectives (name,branch,target,avg_commission,priority,start_date,end_date,active,archived,
+       type,part_comercial,part_marketing,part_admin,qty_reel,qty_carrusel,qty_historia,qty_linkedin)
+     VALUES (?,?,?,?,?,?,?,1,0,?,?,?,?,?,?,?,?)`
+  ).run(o.name + ' (copia)', o.branch, o.target, o.avg_commission || 0, o.priority, o.start_date, o.end_date,
+    o.type || 'comercial', o.part_comercial, o.part_marketing, o.part_admin,
+    o.qty_reel || 0, o.qty_carrusel || 0, o.qty_historia || 0, o.qty_linkedin || 0);
+  if (o.part_marketing) { try { generateMarketingBatches(); } catch (e) {} }
+  audit(req.user.id, 'duplicar_campana', 'objective', info.lastInsertRowid, o.name);
+  res.json({ id: info.lastInsertRowid });
+});
+
+router.post('/objectives/:id/archive', requireAuth, requireRole('admin'), (req, res) => {
+  db.prepare('UPDATE objectives SET archived=1, active=0 WHERE id=?').run(req.params.id);
+  audit(req.user.id, 'archivar_campana', 'objective', Number(req.params.id), null);
+  res.json({ ok: true });
+});
+
+router.post('/objectives/:id/restore', requireAuth, requireRole('admin'), (req, res) => {
+  db.prepare('UPDATE objectives SET archived=0, active=1 WHERE id=?').run(req.params.id);
+  audit(req.user.id, 'restaurar_campana', 'objective', Number(req.params.id), null);
+  res.json({ ok: true });
+});
+
+// Comparador de campañas (ids separados por coma).
+router.get('/objectives/compare', requireAuth, (req, res) => {
+  const ids = String(req.query.ids || '').split(',').map((x) => Number(x)).filter(Boolean);
+  if (!ids.length) return res.json({ campaigns: [] });
+  const out = ids.map((id) => {
+    const o = db.prepare('SELECT * FROM objectives WHERE id=?').get(id);
+    if (!o) return null;
+    const com = db.prepare(
+      `SELECT SUM(CASE WHEN result='venta_cerrada' THEN 1 ELSE 0 END) ventas, COUNT(*) total
+       FROM tasks WHERE kind='comercial' AND COALESCE(deleted,0)=0 AND (campaign_id=? OR (? IS NOT NULL AND offer=?))`
+    ).get(o.id, o.branch, o.branch);
+    const pub = db.prepare(`SELECT COUNT(*) n, COALESCE(SUM(metrics_views),0) views, COALESCE(SUM(metrics_reach),0) reach FROM mkt_content WHERE campaign_id=? AND status='publicado'`).get(o.id);
+    const cont = db.prepare(`SELECT COUNT(*) n FROM mkt_content WHERE campaign_id=? AND archived=0`).get(o.id);
+    return { id: o.id, name: o.name, type: o.type, target: o.target, ventas: com.ventas || 0, tareas_com: com.total || 0,
+      contenidos: cont.n || 0, publicados: pub.n || 0, views: pub.views || 0, reach: pub.reach || 0 };
+  }).filter(Boolean);
+  res.json({ campaigns: out });
+});
+
+// Detalle unificado de una campaña: comercial + marketing + timeline + resumen.
+router.get('/objectives/:id/detail', requireAuth, (req, res) => {
+  const o = db.prepare('SELECT * FROM objectives WHERE id=?').get(req.params.id);
+  if (!o) return res.status(404).json({ error: 'No existe.' });
+  const com = db.prepare(
+    `SELECT COUNT(*) total,
+       SUM(CASE WHEN result='venta_cerrada' THEN 1 ELSE 0 END) ventas,
+       SUM(CASE WHEN result IN ('contactado','cotizacion_enviada','venta_cerrada','no_interesado') THEN 1 ELSE 0 END) contactados,
+       SUM(CASE WHEN result IN ('cotizacion_enviada','venta_cerrada') THEN 1 ELSE 0 END) cotizaciones
+     FROM tasks WHERE kind='comercial' AND COALESCE(deleted,0)=0
+       AND (campaign_id=? OR (? IS NOT NULL AND offer=?))`
+  ).get(o.id, o.branch, o.branch);
+  const content = db.prepare(`SELECT status, COUNT(*) n FROM mkt_content WHERE campaign_id=? AND archived=0 GROUP BY status`).all(o.id);
+  const mktTasks = db.prepare(`SELECT status, COUNT(*) n FROM marketing_tasks WHERE campaign_id=? GROUP BY status`).all(o.id);
+  const published = db.prepare(
+    `SELECT COUNT(*) n, COALESCE(SUM(metrics_views),0) views, COALESCE(SUM(metrics_reach),0) reach,
+       COALESCE(SUM(metrics_likes),0) likes, COALESCE(SUM(metrics_comments),0) comments
+     FROM mkt_content WHERE campaign_id=? AND status='publicado'`
+  ).get(o.id);
+  const timeline = db.prepare(
+    `SELECT a.action, a.detail, a.created_at, u.name AS user_name FROM audit_log a LEFT JOIN users u ON u.id=a.user_id
+     WHERE a.entity_type='objective' AND a.entity_id=? ORDER BY a.created_at DESC LIMIT 50`
+  ).all(o.id);
+  res.json({ objective: o, comercial: com, content, mktTasks, published, timeline });
 });
 
 router.get('/trash', requireAuth, requireRole('admin'), (req, res) => {
