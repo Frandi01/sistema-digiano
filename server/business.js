@@ -98,6 +98,7 @@ export function ensureDailyTasks(userId) {
   const objectives = db.prepare(
     `SELECT id, name, branch FROM objectives
      WHERE active=1 AND COALESCE(deleted,0)=0 AND branch IS NOT NULL
+       AND COALESCE(type,'comercial')='comercial' AND COALESCE(part_comercial,1)=1
        AND date('now') BETWEEN date(start_date) AND date(end_date)
      ORDER BY CASE COALESCE(priority,'media') WHEN 'alta' THEN 0 WHEN 'media' THEN 1 ELSE 2 END, end_date`
   ).all();
@@ -195,4 +196,37 @@ export function checkTaskInactivity() {
     for (const a of admins) notify(a.id, msg + ` (asignada a usuario #${t.assigned_to})`, '#/supervision');
   }
   console.log(`[inactividad] Revisión completada: ${tasks.length} tareas evaluadas.`);
+}
+
+// Genera las tareas de contenido de Juliana por CICLOS SEMANALES mientras la
+// campaña este activa. Cada semana (desde el inicio de la campaña) crea una tanda
+// con las mismas cantidades. Si la campaña termina a mitad de semana, la tanda en
+// curso se conserva y no se generan nuevas. Idempotente: no duplica tandas.
+export function generateMarketingBatches() {
+  const today = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00');
+  const camps = db.prepare(
+    `SELECT id, name, start_date, end_date, qty_reel, qty_carrusel, qty_historia, qty_linkedin
+     FROM objectives
+     WHERE active=1 AND COALESCE(deleted,0)=0 AND COALESCE(part_marketing,0)=1
+       AND (COALESCE(qty_reel,0)+COALESCE(qty_carrusel,0)+COALESCE(qty_historia,0)+COALESCE(qty_linkedin,0)) > 0`
+  ).all();
+  const juli = db.prepare("SELECT id FROM users WHERE role='marketing' AND active=1 ORDER BY id LIMIT 1").get();
+  const exists = db.prepare('SELECT 1 FROM marketing_tasks WHERE campaign_id=? AND week_start=? LIMIT 1');
+  const ins = db.prepare("INSERT INTO marketing_tasks (type,description,status,created_by,campaign_id,auto,week_start) VALUES (?,?, 'pendiente', NULL, ?, 1, ?)");
+  for (const c of camps) {
+    if (!c.start_date || !c.end_date) continue;
+    const end = new Date(c.end_date + 'T00:00:00');
+    const cycle = new Date(c.start_date + 'T00:00:00');
+    for (let k = 0; k < 60; k++) {
+      if (cycle > today) break;
+      if (cycle > end) break;
+      const cs = cycle.toISOString().slice(0, 10);
+      if (!exists.get(c.id, cs)) {
+        const gen = (label, n) => { for (let i = 0; i < (n || 0); i++) ins.run(label, `Campaña: ${c.name} (semana del ${cs})`, c.id, cs); };
+        gen('Crear Reel', c.qty_reel); gen('Publicar Carrusel', c.qty_carrusel); gen('Crear Historia', c.qty_historia); gen('Publicar en LinkedIn', c.qty_linkedin);
+        if (juli) notify(juli.id, `Campaña "${c.name}": tareas de contenido de la semana`, '#/marketing');
+      }
+      cycle.setDate(cycle.getDate() + 7);
+    }
+  }
 }
