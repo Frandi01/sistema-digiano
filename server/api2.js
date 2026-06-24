@@ -72,6 +72,7 @@ router.post('/tasks', requireAuth, (req, res) => {
 router.post('/tasks/:id/status', requireAuth, (req, res) => {
   const t = db.prepare('SELECT * FROM tasks WHERE id=?').get(req.params.id);
   if (!t) return res.status(404).json({ error: 'No existe.' });
+  if (req.user.role !== 'admin' && t.assigned_to !== req.user.id) return res.status(403).json({ error: 'No podés modificar tareas de otro usuario.' });
   const { status, note } = req.body || {};
   if (!['pendiente', 'en_proceso', 'completada'].includes(status)) return res.status(400).json({ error: 'Estado invalido.' });
   const completedAt = status === 'completada' ? new Date().toISOString() : null;
@@ -89,6 +90,7 @@ router.post('/tasks/:id/status', requireAuth, (req, res) => {
 router.post('/tasks/:id/result', requireAuth, (req, res) => {
   const t = db.prepare('SELECT * FROM tasks WHERE id=?').get(req.params.id);
   if (!t || t.kind !== 'comercial') return res.status(404).json({ error: 'Tarea comercial inexistente.' });
+  if (req.user.role !== 'admin' && t.assigned_to !== req.user.id) return res.status(403).json({ error: 'No podés modificar tareas de otro usuario.' });
   const { result, reason, note, premium, company, commission } = req.body || {};
   const valid = ['no_contactado', 'no_respondio', 'contactado', 'cotizacion_enviada', 'venta_cerrada', 'no_interesado', 'inviable'];
   if (!valid.includes(result)) return res.status(400).json({ error: 'Resultado invalido.' });
@@ -384,11 +386,11 @@ router.get('/admin/supervision', requireAuth, requireRole('admin'), (req, res) =
        WHERE t.assigned_to=? AND t.kind='comercial' AND t.active=1 AND COALESCE(t.deleted,0)=0
        ORDER BY t.created_at`
     ).all(u.id);
-    const counts = { pendiente: 0, en_progreso: 0, completada: 0 };
+    const counts = { pendiente: 0, en_proceso: 0, completada: 0 };
     const FINAL = ['venta_cerrada', 'no_interesado', 'inviable'];
     for (const t of tasks) {
       if (FINAL.includes(t.result)) counts.completada++;
-      else if (t.result && t.result !== 'no_contactado') counts.en_progreso++;
+      else if (t.result && t.result !== 'no_contactado') counts.en_proceso++;
       else counts.pendiente++;
     }
     const tasksWithAlert = tasks.map((t) => {
