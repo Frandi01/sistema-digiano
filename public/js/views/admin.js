@@ -1,5 +1,5 @@
 ﻿import { api } from '../api.js';
-import { icons, esc, fmtMoney, fmtDate, fmtDateTime, toast, openModal, badge, initials, printPDF, printHeader } from '../ui.js';
+import { icons, esc, fmtMoney, fmtDate, fmtDateTime, toast, openModal, badge, initials, printPDF, printHeader, emptyState } from '../ui.js';
 import { state } from '../app.js';
 
 const refresh = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -8,38 +8,41 @@ const refresh = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
 export async function renderApprovals() {
   const d = await api.get('/approvals');
   let changes = [];
-  try { changes = (await api.get('/change-requests')).requests; } catch (e) {}
+  try { changes = (await api.get('/change-requests')).requests; } catch (e) { console.warn('change-requests', e); }
 
   const movRows = d.movements.map((m) => `
     <tr><td>${m.type === 'alta' ? '<span class="badge green">Alta</span>' : '<span class="badge red">Baja</span>'}</td>
       <td><b>${esc(m.client_name)}</b></td><td>${esc(m.branch)}</td><td>${esc(m.created_name || '-')}</td><td>${fmtMoney(m.commission)}</td>
-      <td><button class="btn green sm" data-app-mov="${m.id}">Aprobar</button> <button class="btn outline sm" data-rej-mov="${m.id}">Rechazar</button></td></tr>`).join('');
+      <td><button class="btn green sm" data-app-mov="${m.id}" aria-label="Aprobar movimiento de ${esc(m.client_name)}">Aprobar</button> <button class="btn outline sm" data-rej-mov="${m.id}" aria-label="Rechazar movimiento de ${esc(m.client_name)}">Rechazar</button></td></tr>`).join('');
   const cliRows = d.clients.map((c) => `
     <tr><td><b>${esc(c.name)}</b></td><td>${esc(c.phone || '-')}</td><td>${esc(c.created_name || '-')}</td>
-    <td><button class="btn green sm" data-app-cli="${c.id}">Aprobar cliente</button></td></tr>`).join('');
+    <td><button class="btn green sm" data-app-cli="${c.id}" aria-label="Aprobar cliente ${esc(c.name)}">Aprobar cliente</button></td></tr>`).join('');
   const chRows = changes.map((c) => `
     <tr><td><b>${esc(c.summary || c.type)}</b></td><td>${esc(c.client_name || '-')}</td><td>${esc(c.requested_name || '-')}</td>
-    <td><button class="btn green sm" data-app-ch="${c.id}">Aprobar</button> <button class="btn outline sm" data-rej-ch="${c.id}">Rechazar</button></td></tr>`).join('');
+    <td><button class="btn green sm" data-app-ch="${c.id}" aria-label="Aprobar cambio">Aprobar</button> <button class="btn outline sm" data-rej-ch="${c.id}" aria-label="Rechazar cambio">Rechazar</button></td></tr>`).join('');
 
   const block = (title, head, rows, cols) => `
     <div class="card table-card" style="margin-bottom:18px"><div class="table-head"><h3 style="font-size:15px">${title}</h3></div>
       <table><thead><tr>${head.map((h) => `<th>${h}</th>`).join('')}</tr></thead>
-      <tbody>${rows || `<tr><td colspan="${cols}"><div class="empty">Nada pendiente</div></td></tr>`}</tbody></table></div>`;
+      <tbody>${rows || `<tr><td colspan="${cols}"><div class="empty">No hay nada pendiente.</div></td></tr>`}</tbody></table></div>`;
 
   const html =
-    block('Movimientos pendientes', ['Tipo', 'Cliente', 'Ramo', 'Cargado por', 'Comision', ''], movRows, 6) +
+    block('Movimientos pendientes', ['Tipo', 'Cliente', 'Ramo', 'Cargado por', 'Comisión', ''], movRows, 6) +
     block('Cambios de datos pendientes', ['Cambio', 'Cliente', 'Solicitado por', ''], chRows, 4) +
-    block('Clientes nuevos por aprobar', ['Cliente', 'Telefono', 'Creado por', ''], cliRows, 4);
+    block('Clientes nuevos por aprobar', ['Cliente', 'Teléfono', 'Creado por', ''], cliRows, 4);
 
   return {
     html,
     mount: (root) => {
-      const act = (sel, fn) => root.querySelectorAll(sel).forEach((b) => b.onclick = () => fn(b));
-      act('[data-app-mov]', async (b) => { await api.post('/movements/' + b.dataset.appMov + '/approve'); toast('Aprobado', 'green'); refresh(); });
-      act('[data-rej-mov]', async (b) => { await api.post('/movements/' + b.dataset.rejMov + '/reject', { reason: 'Rechazado por admin' }); toast('Rechazado'); refresh(); });
-      act('[data-app-cli]', async (b) => { await api.post('/clients/' + b.dataset.appCli + '/approve'); toast('Cliente aprobado', 'green'); refresh(); });
-      act('[data-app-ch]', async (b) => { await api.post('/change-requests/' + b.dataset.appCh + '/resolve', { decision: 'aprobar' }); toast('Cambio aprobado', 'green'); refresh(); });
-      act('[data-rej-ch]', async (b) => { await api.post('/change-requests/' + b.dataset.rejCh + '/resolve', { decision: 'rechazar' }); toast('Cambio rechazado'); refresh(); });
+      const act = (sel, confirmMsg, fn) => root.querySelectorAll(sel).forEach((b) => b.onclick = async () => {
+        if (confirmMsg && !confirm(confirmMsg)) return;
+        try { await fn(b); refresh(); } catch (e) { toast(e.message, 'red'); }
+      });
+      act('[data-app-mov]', '¿Aprobar este movimiento? Se aplicará al cliente y a la cartera.', async (b) => { await api.post('/movements/' + b.dataset.appMov + '/approve'); toast('Aprobado', 'green'); });
+      act('[data-rej-mov]', '¿Rechazar este movimiento? No se aplicará ningún cambio.', async (b) => { const reason = prompt('Motivo del rechazo (opcional):') || 'Rechazado por admin'; await api.post('/movements/' + b.dataset.rejMov + '/reject', { reason }); toast('Rechazado'); });
+      act('[data-app-cli]', '¿Aprobar este cliente nuevo? Pasará a la cartera activa.', async (b) => { await api.post('/clients/' + b.dataset.appCli + '/approve'); toast('Cliente aprobado', 'green'); });
+      act('[data-app-ch]', '¿Aprobar este cambio de datos? Se aplicará al cliente.', async (b) => { await api.post('/change-requests/' + b.dataset.appCh + '/resolve', { decision: 'aprobar' }); toast('Cambio aprobado', 'green'); });
+      act('[data-rej-ch]', '¿Rechazar este cambio? No se aplicará.', async (b) => { await api.post('/change-requests/' + b.dataset.rejCh + '/resolve', { decision: 'rechazar' }); toast('Cambio rechazado'); });
     },
   };
 }
@@ -66,7 +69,7 @@ export async function renderObjectives(archived = false) {
         <button class="btn outline sm" data-del="${o.id}">Borrar</button>
       </td></tr>`).join('');
   const html = `
-    <div class="card pad" style="margin-bottom:14px"><div class="muted" style="font-size:13px">Las <b>campañas</b> son el motor del sistema: conectan Comercial, Marketing y Administracion. Tocá el nombre para ver el detalle unificado (comercial + marketing + timeline).</div></div>
+    <div class="card pad" style="margin-bottom:14px"><div class="muted" style="font-size:13px">Las <b>campañas</b> son el motor del sistema: conectan Comercial, Marketing y Administración. Tocá el nombre para ver el detalle unificado (comercial + marketing + timeline).</div></div>
     <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">${archived ? 'Campañas archivadas' : 'Campañas'}</h3>
       <div class="row" style="gap:8px;flex-wrap:wrap">
         <button class="btn outline" id="cmpBtn">Comparar seleccionadas</button>
@@ -74,7 +77,7 @@ export async function renderObjectives(archived = false) {
         ${archived ? '' : `<button class="btn" id="newObj">${icons.plus} Nueva campaña</button>`}
       </div></div>
       <table><thead><tr><th></th><th>Nombre</th><th>Tipo</th><th>Areas</th><th>Ramo</th><th>Prioridad</th><th>Periodo</th><th></th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="8"><div class="empty">Sin campañas</div></td></tr>'}</tbody></table></div>`;
+      <tbody>${rows || '<tr><td colspan="8"><div class="empty">Todavía no hay campañas creadas.</div></td></tr>'}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
@@ -126,7 +129,7 @@ export async function renderCampaignDetail(id) {
     `Comercial: ${ventas} ventas sobre ${totalT} tareas` + (o.target ? `, ${pct(ventas, o.target)}% de la meta (${o.target})` : '') + `. ` +
     `Marketing: ${pub.n || 0} publicaciones, ${pub.views || 0} visualizaciones, ${pub.likes || 0} likes.`;
   const kpi = (label, val, color) => `<div class="card pad" style="flex:1;text-align:center;min-width:96px"><div style="font-size:20px;font-weight:700;color:${color || 'var(--navy)'}">${val ?? 0}</div><div class="muted" style="font-size:11px">${label}</div></div>`;
-  const STLAB = { idea: 'Idea', guion: 'Guion', pend_grabar: 'Pend. grabar', grabado: 'Grabado', editando: 'Editando', revision: 'Revision', programado: 'Programado', publicado: 'Publicado', pendiente_metricas: 'Pend. metricas' };
+  const STLAB = { idea: 'Idea', guion: 'Guión', pend_grabar: 'Pend. grabar', grabado: 'Grabado', editando: 'Editando', revision: 'Revisión', programado: 'Programado', publicado: 'Publicado', pendiente_metricas: 'Pend. métricas' };
   const contentRows = Object.keys(cmap).map((k) => `<span class="badge gray" style="margin:2px">${STLAB[k] || k}: ${cmap[k]}</span>`).join('') || '<span class="muted">Sin contenido</span>';
   const tl = (d.timeline || []).map((e) => `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><span class="muted" style="font-size:11px">${fmtDateTime(e.created_at)}</span> &middot; ${esc(e.user_name || 'Sistema')} &middot; <b>${esc(e.action)}</b>${e.detail ? ' &mdash; ' + esc(e.detail) : ''}</div>`).join('') || '<div class="muted">Sin actividad registrada</div>';
   const html = `
@@ -141,7 +144,7 @@ export async function renderCampaignDetail(id) {
     </div>
     <div class="card pad" style="margin-bottom:14px" id="aiCard">
       <div class="row between wrap" style="gap:8px">
-        <h3 style="font-size:14px">Analisis con IA</h3>
+        <h3 style="font-size:14px">Análisis con IA</h3>
         <button class="btn outline sm" id="aiBtn">Analizar con IA</button>
       </div>
       <div id="aiOut" class="muted" style="font-size:13px;margin-top:8px">Genera un analisis automatico de esta campaña: resumen, riesgos y recomendaciones.</div>
@@ -212,7 +215,7 @@ function objForm(o) {
         <label class="muted" style="font-size:12px;font-weight:600;text-transform:uppercase">Areas que participan</label>
         <div class="row wrap" style="gap:16px;margin-top:6px;font-size:13.5px">
           <label><input type="checkbox" id="aMkt" ${e.part_marketing ? 'checked' : ''}> Marketing (Juliana)</label>
-          <label><input type="checkbox" id="aAdm" ${e.part_admin ? 'checked' : ''}> Administracion (Natalia)</label>
+          <label><input type="checkbox" id="aAdm" ${e.part_admin ? 'checked' : ''}> Administración (Natalia)</label>
         </div>
       </div>
       <div id="mktBox" style="margin-top:12px;display:none">
@@ -226,7 +229,7 @@ function objForm(o) {
         </div>
       </div>
       <div id="admBox" style="margin-top:12px;display:none">
-        <label class="muted" style="font-size:12px;font-weight:600;text-transform:uppercase">Tareas para Administracion (Natalia)</label>
+        <label class="muted" style="font-size:12px;font-weight:600;text-transform:uppercase">Tareas para Administración (Natalia)</label>
         <div class="row wrap" style="gap:12px;margin-top:6px;font-size:13.5px">
           ${ADMIN_TASKS.map((t) => `<label><input type="checkbox" class="admT" value="${esc(t)}"> ${esc(t)}</label>`).join('')}
         </div>
@@ -282,7 +285,7 @@ export async function renderCampaigns() {
   const html = `
     <div class="card pad" style="margin-bottom:16px"><h3 style="font-size:14px;margin-bottom:8px">Oportunidades detectadas (CRM)</h3>
       <div class="muted" style="font-size:13px;margin-bottom:8px">Clientes con productos faltantes:</div>${oppList || '<span class="muted">Sin oportunidades</span>'}</div>
-    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Campanas</h3><button class="btn" id="newCamp">${icons.plus} Nueva campana</button></div>
+    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Campañas</h3><button class="btn" id="newCamp">${icons.plus} Nueva campaña</button></div>
       <table><thead><tr><th>Nombre</th><th>Producto</th><th>Meta</th><th>Potencial</th><th></th></tr></thead>
       <tbody>${rows || '<tr><td colspan="5"><div class="empty">Sin campanas</div></td></tr>'}</tbody></table></div>`;
   return {
@@ -324,11 +327,11 @@ export async function renderUsers() {
       <td>${esc(u.username || '-')}</td><td><span class="badge navy">${esc(u.role)}</span></td>
       <td>${u.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
       <td class="muted">${u.last_login ? fmtDateTime(u.last_login) : 'nunca'}</td>
-      <td><button class="btn outline sm" data-reset="${u.id}">Reset pass</button> <button class="btn outline sm" data-toggle="${u.id}" data-active="${u.active}">${u.active ? 'Desactivar' : 'Activar'}</button> <button class="btn outline sm red" data-reset-score="${u.id}" data-name="${esc(u.name)}">Reset puntos</button></td></tr>`).join('');
+      <td><button class="btn outline sm" data-reset="${u.id}" data-name="${esc(u.name)}" aria-label="Resetear contraseña de ${esc(u.name)}">Reset pass</button> <button class="btn outline sm" data-toggle="${u.id}" data-active="${u.active}" data-name="${esc(u.name)}" aria-label="${u.active ? 'Desactivar' : 'Activar'} a ${esc(u.name)}">${u.active ? 'Desactivar' : 'Activar'}</button> <button class="btn outline sm red" data-reset-score="${u.id}" data-name="${esc(u.name)}" aria-label="Resetear puntos de ${esc(u.name)}">Reset puntos</button></td></tr>`).join('');
   const html = `
     <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Usuarios del sistema</h3><button class="btn" id="newUser">${icons.plus} Nuevo usuario</button></div>
-      <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Ultimo ingreso</th><th></th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`;
+      <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Último ingreso</th><th></th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="6"><div class="empty">Todavía no hay usuarios.</div></td></tr>`}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
@@ -339,20 +342,65 @@ export async function renderUsers() {
           <div class="field"><label>Usuario *</label><input name="username" placeholder="ej. mariap" required /></div>
           <div class="field"><label>Rol *</label><select name="role"><option value="comercial">Comercial</option><option value="siniestros">Siniestros</option><option value="marketing">Marketing</option><option value="admin">Administrador</option></select></div>
           <div class="field"><label>Email (opcional)</label><input name="email" type="email" /></div>
-          <div class="field"><label>Contrasena temporal</label><input name="password" value="Digiano2026" /></div>
-        </div><div class="muted" style="font-size:12px">Debera cambiarla en el primer ingreso.</div></form>`,
+          <div class="field"><label>Contraseña temporal *</label><input name="password" type="password" autocomplete="new-password" required minlength="8" /></div>
+          <div class="field"><label>Repetir contraseña *</label><input name="password2" type="password" autocomplete="new-password" required /></div>
+        </div><div class="muted" style="font-size:12px">Mínimo 8 caracteres, con letras y números. El usuario deberá cambiarla en su primer ingreso. Comunicásela por un canal seguro.</div></form>`,
         footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="s">Crear usuario</button>',
         onMount: (modal, close) => modal.querySelector('#s').onclick = async () => {
           const f = Object.fromEntries(new FormData(modal.querySelector('#uForm')).entries());
-          try { const r = await api.post('/users', f); toast('Usuario creado. Pass: ' + r.tempPassword, 'green'); close(); refresh(); }
+          if (!f.name || !f.username || !f.role) return toast('Completá nombre, usuario y rol.', 'red');
+          if (!f.password || f.password.length < 8) return toast('La contraseña temporal debe tener al menos 8 caracteres.', 'red');
+          if (!/[A-Za-z]/.test(f.password) || !/[0-9]/.test(f.password)) return toast('La contraseña debe incluir letras y números.', 'red');
+          if (f.password !== f.password2) return toast('Las contraseñas no coinciden.', 'red');
+          delete f.password2;
+          try { await api.post('/users', f); toast('Usuario creado. Comunicale la contraseña temporal; deberá cambiarla al ingresar.', 'green'); close(); refresh(); }
           catch (e) { toast(e.message, 'red'); }
         },
       });
-      root.querySelectorAll('[data-reset]').forEach((b) => b.onclick = async () => { const r = await api.post('/users/' + b.dataset.reset + '/reset-password', {}); toast('Pass reseteada: ' + r.tempPassword, 'green'); });
-      root.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = async () => { await api.put('/users/' + b.dataset.toggle, { active: b.dataset.active === '1' ? 0 : 1 }); toast('Usuario actualizado'); refresh(); });
-      root.querySelectorAll('[data-reset-score]').forEach((b) => b.onclick = async () => { if (confirm('Resetear todos los puntos de ' + b.dataset.name + '?')) { await api.post('/score/reset-user/' + b.dataset.resetScore); toast('Puntos reseteados', 'green'); refresh(); } });
+      root.querySelectorAll('[data-reset]').forEach((b) => b.onclick = () => resetPasswordModal(b.dataset.reset, b.dataset.name, refresh));
+      root.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = async () => {
+        const desactivar = b.dataset.active === '1';
+        const msg = desactivar
+          ? `¿Seguro que querés desactivar a ${b.dataset.name}? No podrá iniciar sesión hasta reactivarlo.`
+          : `¿Reactivar a ${b.dataset.name}? Volverá a poder iniciar sesión.`;
+        if (!confirm(msg)) return;
+        try { await api.put('/users/' + b.dataset.toggle, { active: desactivar ? 0 : 1 }); toast('Usuario actualizado'); refresh(); }
+        catch (e) { toast(e.message, 'red'); }
+      });
+      root.querySelectorAll('[data-reset-score]').forEach((b) => b.onclick = async () => {
+        if (!confirm('¿Resetear todos los puntos de ' + b.dataset.name + '? Esta acción no se puede deshacer.')) return;
+        try { await api.post('/score/reset-user/' + b.dataset.resetScore); toast('Puntos reseteados', 'green'); refresh(); }
+        catch (e) { toast(e.message, 'red'); }
+      });
     },
   };
+}
+
+// Reset de contraseña: el admin define una contraseña temporal. El sistema NO
+// muestra contraseñas en pantalla ni usa valores fijos. El usuario debe
+// cambiarla en su proximo ingreso (must_change_password = 1).
+function resetPasswordModal(userId, userName, refresh) {
+  openModal({
+    title: 'Resetear contraseña',
+    body: `<form id="rpForm">
+      <div class="muted" style="font-size:13px;margin-bottom:10px">Vas a resetear la contraseña de <b>${esc(userName)}</b>. Definí una contraseña temporal; ${esc(userName)} deberá cambiarla en su próximo ingreso. Comunicásela por un canal seguro.</div>
+      <div class="form-grid">
+        <div class="field"><label>Contraseña temporal *</label><input name="password" type="password" autocomplete="new-password" required minlength="8" /></div>
+        <div class="field"><label>Repetir contraseña *</label><input name="password2" type="password" autocomplete="new-password" required /></div>
+      </div></form>`,
+    footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="rps">Resetear contraseña</button>',
+    onMount: (modal, close) => modal.querySelector('#rps').onclick = async () => {
+      const f = Object.fromEntries(new FormData(modal.querySelector('#rpForm')).entries());
+      if (!f.password || f.password.length < 8) return toast('La contraseña debe tener al menos 8 caracteres.', 'red');
+      if (!/[A-Za-z]/.test(f.password) || !/[0-9]/.test(f.password)) return toast('La contraseña debe incluir letras y números.', 'red');
+      if (f.password !== f.password2) return toast('Las contraseñas no coinciden.', 'red');
+      try {
+        await api.post('/users/' + userId + '/reset-password', { password: f.password });
+        toast('Contraseña reseteada. El usuario deberá cambiarla en su próximo ingreso.', 'green');
+        close(); if (refresh) refresh();
+      } catch (e) { toast(e.message, 'red'); }
+    },
+  });
 }
 
 /* ============ AUDITORIA ============ */
@@ -370,28 +418,46 @@ export async function renderAudit() {
 /* ============ RANKING ============ */
 export async function renderRanking() {
   const d = await api.get('/dashboard');
+  const periodLabel = d.period ? new Date(d.period + '-01T00:00:00').toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }) : '';
   const medal = (p) => p === 1 ? 'gold' : p === 2 ? 'silver' : p === 3 ? 'bronze' : '';
-  const items = d.ranking.map((r) => `
-    <div class="rank-item"><div class="rank-pos ${medal(r.position)}">${r.position}</div>
+  const items = d.ranking.map((r) => {
+    const a = r.activity || {};
+    const tareasLine = r.assigned > 0
+      ? `${r.completed}/${r.assigned} tareas · ${r.progress}%`
+      : 'Sin tareas asignadas en el período';
+    const chips = [`Contactos ${a.contactos || 0}`, `Cotizaciones ${a.cotizaciones || 0}`, `Ventas ${a.ventas || 0}`, `Inviables ${a.inviables || 0}`, `Completadas ${a.completadas || 0}`]
+      .map((t) => `<span class="chip">${t}</span>`).join('');
+    const bd = (r.breakdown && r.breakdown.length)
+      ? r.breakdown.map((b) => `<span class="chip">${esc(b.reason || 'Otros')}: ${b.points} pts</span>`).join('')
+      : (r.score > 0 ? '<span class="muted" style="font-size:12px">Puntos cargados manualmente o de un período anterior.</span>' : '<span class="muted" style="font-size:12px">Sin puntos en el período.</span>');
+    return `<div class="rank-item" style="flex-wrap:wrap">
+      <div class="rank-pos ${medal(r.position)}">${r.position}</div>
       <div class="avatar" style="background:${r.role === 'admin' ? 'var(--navy)' : r.role === 'siniestros' ? 'var(--purple)' : 'var(--blue)'}">${initials(r.name)}</div>
-      <div class="rank-meta"><b>${esc(r.name)}</b><div class="sub">${r.completed}/${r.assigned} tareas &middot; ${r.progress}% &middot; ${r.role}</div>
-      <div class="progress" style="margin-top:6px;max-width:280px"><span style="width:${r.progress}%"></span></div></div>
-      <div class="rank-score"><b>${r.score}</b><span>puntos</span></div></div>`).join('');
-  return { html: `<div class="card pad"><div class="row" style="gap:8px;margin-bottom:12px">${icons.trophy}<h3 style="font-size:16px">Ranking del equipo</h3></div><div class="rank-list">${items}</div></div>` };
+      <div class="rank-meta" style="flex:1;min-width:180px"><b>${esc(r.name)}</b>
+        <div class="sub">${tareasLine} &middot; ${esc(r.role)}</div>
+        <div class="row wrap" style="gap:4px;margin-top:6px">${chips}</div>
+        <div class="row wrap" style="gap:4px;margin-top:4px"><span class="muted" style="font-size:11px;align-self:center">Puntos:</span> ${bd}</div>
+      </div>
+      <div class="rank-score"><b>${r.score}</b><span>puntos</span></div></div>`;
+  }).join('');
+  return { html: `<div class="card pad">
+    <div class="row between wrap" style="margin-bottom:10px"><div class="row" style="gap:8px">${icons.trophy}<h3 style="font-size:16px">Ranking del equipo</h3></div><span class="muted" style="font-size:12px">Período: ${esc(periodLabel)}</span></div>
+    <div class="muted" style="font-size:12.5px;margin-bottom:10px">El puntaje refleja la actividad del mes (ventas, cotizaciones, tareas). El desglose muestra de dónde sale cada punto; si alguien tiene puntos sin tareas asignadas, es porque provienen de cargas previas o manuales.</div>
+    <div class="rank-list">${items || emptyState('Sin datos de ranking en el período.')}</div></div>` };
 }
 
-/* ============ PAPELERA ============ */
 export async function renderTrash() {
   const d = await api.get('/trash');
   const sect = (title, items) => `
     <div class="card table-card" style="margin-bottom:16px"><div class="table-head"><h3 style="font-size:15px">${title}</h3></div>
       <table><thead><tr><th>Nombre</th><th>Eliminado por</th><th>Fecha</th><th></th></tr></thead>
       <tbody>${items.length ? items.map((i) => `<tr><td><b>${esc(i.nombre || '-')}</b></td><td>${esc(i.deleted_name || '-')}</td><td class="muted">${fmtDateTime(i.deleted_at)}</td>
-        <td><button class="btn green sm" data-restore="${i.tipo}:${i.id}">Restaurar</button></td></tr>`).join('') : '<tr><td colspan="4"><div class="empty">Vacio</div></td></tr>'}</tbody></table></div>`;
-  const html = sect('Tareas eliminadas', d.tasks) + sect('Campanas eliminadas', d.campaigns) + sect('Objetivos eliminados', d.objectives);
+        <td><button class="btn green sm" data-restore="${i.tipo}:${i.id}" aria-label="Restaurar elemento">Restaurar</button></td></tr>`).join('') : '<tr><td colspan="4"><div class="empty">La papelera está vacía.</div></td></tr>'}</tbody></table></div>`;
+  const html = sect('Tareas eliminadas', d.tasks) + sect('Campañas eliminadas', d.campaigns) + sect('Objetivos eliminados', d.objectives);
   return {
     html,
     mount: (root) => root.querySelectorAll('[data-restore]').forEach((b) => b.onclick = async () => {
+      if (!confirm('¿Restaurar este elemento? Volverá a estar activo en el sistema.')) return;
       const [type, id] = b.dataset.restore.split(':');
       await api.post('/trash/restore', { type, id: Number(id) }); toast('Restaurado', 'green'); refresh();
     }),
@@ -440,7 +506,7 @@ export async function renderMetrics() {
 export async function renderAvisosAdmin() {
   const { avisos } = await api.get('/avisos/manage');
   let users = [];
-  try { users = (await api.get('/users')).users.filter((u) => u.active); } catch (e) {}
+  try { users = (await api.get('/users')).users.filter((u) => u.active); } catch (e) { console.warn('users (combo)', e); }
   const rows = avisos.map((a) => `
     <tr><td>${a.pinned ? 'ðŸ“Œ ' : ''}<b>${esc(a.title)}</b></td><td><span class="badge ${a.priority === 'alta' ? 'red' : 'gray'}">${esc(a.priority)}</span></td>
       <td>${esc(a.audience)}</td><td>${a.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
@@ -448,7 +514,7 @@ export async function renderAvisosAdmin() {
   const html = `
     <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Avisos / circulares</h3><button class="btn" id="newAviso">${icons.plus} Nuevo aviso</button></div>
       <table><thead><tr><th>Titulo</th><th>Prioridad</th><th>Destinatarios</th><th>Estado</th><th></th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="5"><div class="empty">Sin avisos</div></td></tr>'}</tbody></table></div>`;
+      <tbody>${rows || '<tr><td colspan="5"><div class="empty">No hay avisos publicados.</div></td></tr>'}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
@@ -463,9 +529,9 @@ function avisoForm(a, users) {
   openModal({
     title: a ? 'Editar aviso' : 'Nuevo aviso', wide: true,
     body: `<form id="f"><div class="form-grid">
-      <div class="field full"><label>Titulo *</label><input name="title" value="${esc(e.title || '')}" required /></div>
+      <div class="field full"><label>Título *</label><input name="title" value="${esc(e.title || '')}" required /></div>
       <div class="field"><label>Prioridad</label><select name="priority"><option value="normal" ${e.priority === 'normal' ? 'selected' : ''}>Normal</option><option value="alta" ${e.priority === 'alta' ? 'selected' : ''}>Alta</option><option value="baja" ${e.priority === 'baja' ? 'selected' : ''}>Baja</option></select></div>
-      <div class="field"><label>Destinatarios</label><select name="audience" id="aud"><option value="todos" ${e.audience === 'todos' ? 'selected' : ''}>Todos</option><option value="comercial" ${e.audience === 'comercial' ? 'selected' : ''}>Comercial</option><option value="siniestros" ${e.audience === 'siniestros' ? 'selected' : ''}>Siniestros</option><option value="marketing" ${e.audience === 'marketing' ? 'selected' : ''}>Marketing</option><option value="user" ${e.audience === 'user' ? 'selected' : ''}>Usuario especifico</option></select></div>
+      <div class="field"><label>Destinatarios</label><select name="audience" id="aud"><option value="todos" ${e.audience === 'todos' ? 'selected' : ''}>Todos</option><option value="comercial" ${e.audience === 'comercial' ? 'selected' : ''}>Comercial</option><option value="siniestros" ${e.audience === 'siniestros' ? 'selected' : ''}>Siniestros</option><option value="marketing" ${e.audience === 'marketing' ? 'selected' : ''}>Marketing</option><option value="user" ${e.audience === 'user' ? 'selected' : ''}>Usuario específico</option></select></div>
       <div class="field" id="userWrap" style="display:${e.audience === 'user' ? 'block' : 'none'}"><label>Usuario</label><select name="target_user_id">${users.map((u) => `<option value="${u.id}" ${u.id == e.target_user_id ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}</select></div>
       <div class="field full"><label>Texto</label><textarea name="body" rows="4">${esc(e.body || '')}</textarea></div>
       <div class="field full"><label><input type="checkbox" name="pinned" ${e.pinned ? 'checked' : ''}> Fijar arriba</label></div>
@@ -476,6 +542,8 @@ function avisoForm(a, users) {
       modal.querySelector('#s').onclick = async () => {
         const fd = new FormData(modal.querySelector('#f'));
         const o = Object.fromEntries(fd.entries());
+        if (!o.title || !o.title.trim()) return toast('El aviso necesita un título.', 'red');
+        if (!o.body || !o.body.trim()) return toast('El aviso necesita un texto.', 'red');
         o.pinned = fd.get('pinned') ? 1 : 0;
         try { if (a) await api.put('/avisos/' + a.id, o); else await api.post('/avisos', o); toast('Guardado', 'green'); close(); refresh(); }
         catch (er) { toast(er.message, 'red'); }
@@ -528,7 +596,7 @@ export async function renderSupervision() {
           <div><b style="font-size:15px">${esc(u.name)}</b><br><span class="muted" style="font-size:12px">${esc(u.role)}</span></div>
         </div>
         <div class="muted" style="font-size:12px;text-align:right">
-          Ultima sesion<br><b>${tiempoRelativo(u.ultima_sesion)}</b>
+          Última sesión<br><b>${tiempoRelativo(u.ultima_sesion)}</b>
         </div>
       </div>
       <div class="row" style="gap:10px;margin-bottom:14px">
@@ -537,7 +605,7 @@ export async function renderSupervision() {
           <div class="muted" style="font-size:11px">Pendientes</div>
         </div>
         <div class="card pad" style="flex:1;text-align:center;padding:8px 12px">
-          <div style="font-size:22px;font-weight:700;color:var(--accent)">${u.counts.en_progreso}</div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">${u.counts.en_proceso}</div>
           <div class="muted" style="font-size:11px">En progreso</div>
         </div>
         <div class="card pad" style="flex:1;text-align:center;padding:8px 12px">
@@ -555,7 +623,7 @@ export async function renderSupervision() {
 
   const html = `
     <div class="row between" style="margin-bottom:16px;align-items:center">
-      <div class="muted" style="font-size:13px">Se actualiza automaticamente cada 30 segundos.</div>
+      <div class="muted" style="font-size:13px">Se actualiza automáticamente cada 30 segundos.</div>
     </div>
     ${users.length ? cards : '<div class="empty">Sin usuarios activos</div>'}`;
 
@@ -566,7 +634,7 @@ export async function renderSupervision() {
         try {
           const v = await renderSupervision();
           root.innerHTML = v.html;
-        } catch (e) {}
+        } catch (e) { console.warn('supervision refresh', e); }
       }, 30000);
     },
   };
