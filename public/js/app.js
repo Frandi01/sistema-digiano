@@ -23,22 +23,22 @@ const NAV = {
   admin: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['seguimientos', 'Seguimientos', 'followups']]],
-    ['Gestion', [['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
-    ['Analisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Metricas', 'metrics']]],
-    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Campañas', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['marketing', 'Marketing', 'megaphone'], ['banco-ideas', 'Banco de Ideas', 'idea'], ['biblioteca', 'Biblioteca de Marca', 'idea'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
+    ['Gestión', [['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
+    ['Análisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Métricas', 'metrics']]],
+    ['Administración', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Campañas', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervisión', 'users'], ['marketing', 'Marketing', 'megaphone'], ['banco-ideas', 'Banco de Ideas', 'idea'], ['biblioteca', 'Biblioteca de Marca', 'idea'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoría', 'audit'], ['papelera', 'Papelera', 'trash']]],
   ],
   comercial: [
-    ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comision', 'money']]],
+    ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comisión', 'money']]],
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['tareas', 'Tareas operativas', 'tasks'], ['seguimientos', 'Seguimientos', 'followups'], ['siniestros', 'Siniestros', 'claims']]],
-    ['Gestion', [['clientes', 'Clientes', 'clients']]],
+    ['Gestión', [['clientes', 'Clientes', 'clients']]],
   ],
   siniestros: [
-    ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['mi-comision', 'Mi comision', 'money']]],
-    ['Gestion', [['siniestros', 'Siniestros', 'claims'], ['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks']]],
+    ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['mi-comision', 'Mi comisión', 'money']]],
+    ['Gestión', [['siniestros', 'Siniestros', 'claims'], ['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks']]],
   ],
   marketing: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
-    ['Gestion', [['clientes', 'Clientes', 'clients']]],
+    ['Gestión', [['clientes', 'Clientes', 'clients']]],
     ['Mi panel', [['marketing', 'Pipeline y calendario', 'megaphone'], ['banco-ideas', 'Banco de Ideas', 'idea'], ['biblioteca', 'Biblioteca de Marca', 'idea']]],
   ],
 };
@@ -47,13 +47,15 @@ const NAV = {
 const SEEN_SECTIONS = ['tareas-hoy', 'tareas', 'seguimientos', 'siniestros', 'aprobaciones', 'avisos'];
 
 init();
+// Si algun request recibe 403 por cambio obligatorio, mostrar la pantalla.
+window.addEventListener('must-change-password', () => { if (!document.getElementById('pwForm')) renderForcedPassword(); });
 async function init() {
   try {
     const { user } = await api.get('/auth/me');
     state.user = user;
+    if (user.must_change_password) return renderForcedPassword();
     const meta = await api.get('/meta');
     state.branches = meta.branches; state.labels = meta.labels;
-    if (user.must_change_password) return renderForcedPassword();
     renderApp();
   } catch (e) { renderLogin(); }
 }
@@ -64,10 +66,10 @@ function renderLogin(errMsg) {
     <div class="login-wrap">
       <div class="login-card">
         <img class="logo" src="/assets/logo-negro.png" alt="Digiano" />
-        <div class="sub">Sistema de gestion interna</div>
+        <div class="sub">Sistema de gestión interna</div>
         <form id="loginForm">
           <div class="field"><label>Usuario</label><input name="username" autocomplete="username" placeholder="tu usuario" required /></div>
-          <div class="field"><label>Contrasena</label><input name="password" type="password" autocomplete="current-password" required /></div>
+          <div class="field"><label>Contraseña</label><input name="password" type="password" autocomplete="current-password" required /></div>
           <button class="btn block" type="submit">Ingresar</button>
           <div class="err">${errMsg ? esc(errMsg) : ''}</div>
         </form>
@@ -79,8 +81,8 @@ function renderLogin(errMsg) {
     try {
       const { user } = await api.post('/auth/login', { username: f.get('username'), password: f.get('password') });
       state.user = user;
-      const meta = await api.get('/meta'); state.branches = meta.branches; state.labels = meta.labels;
       if (user.must_change_password) return renderForcedPassword();
+      const meta = await api.get('/meta'); state.branches = meta.branches; state.labels = meta.labels;
       location.hash = '#/dashboard';
       renderApp();
     } catch (err) { renderLogin(err.message); }
@@ -90,25 +92,38 @@ function renderLogin(errMsg) {
 function renderForcedPassword() {
   document.getElementById('root').innerHTML = `
     <div class="login-wrap"><div class="login-card">
-      <img class="logo" src="/assets/logo-negro.png" />
-      <div class="sub">Primer ingreso: defini una nueva contrasena</div>
-      <form id="pwForm">
-        <div class="field"><label>Nueva contrasena</label><input name="next" type="password" required /></div>
-        <div class="field"><label>Repetir contrasena</label><input name="rep" type="password" required /></div>
-        <button class="btn block" type="submit">Guardar y continuar</button>
+      <img class="logo" src="/assets/logo-negro.png" alt="Digiano" />
+      <h2 style="font-size:18px;margin:8px 0 2px;color:var(--navy,#1f3864)">Cambio obligatorio de contraseña</h2>
+      <div class="sub">Por seguridad, tenés que cambiar tu contraseña antes de continuar.</div>
+      <form id="pwForm" autocomplete="off">
+        <div class="field"><label>Contraseña actual</label><input name="current" type="password" autocomplete="current-password" required /></div>
+        <div class="field"><label>Nueva contraseña</label><input name="next" type="password" autocomplete="new-password" required minlength="8" /></div>
+        <div class="field"><label>Confirmar nueva contraseña</label><input name="rep" type="password" autocomplete="new-password" required /></div>
+        <button class="btn block" type="submit">Actualizar contraseña</button>
         <div class="err" id="pwErr"></div>
       </form>
+      <button class="btn ghost block" id="pwLogout" style="margin-top:8px">Cerrar sesión</button>
     </div></div>`;
+  const setErr = (m) => { document.getElementById('pwErr').textContent = m; };
+  document.getElementById('pwLogout').addEventListener('click', async () => {
+    try { await api.post('/auth/logout'); } catch (e) { console.warn('logout', e); }
+    state.user = null; location.hash = ''; renderLogin();
+  });
   document.getElementById('pwForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
-    if (f.get('next') !== f.get('rep')) { document.getElementById('pwErr').textContent = 'Las contrasenas no coinciden.'; return; }
+    const current = f.get('current'), next = f.get('next'), rep = f.get('rep');
+    if (!current) return setErr('Ingresá tu contraseña actual.');
+    if (!next || next.length < 8) return setErr('La nueva contraseña debe tener al menos 8 caracteres.');
+    if (!/[A-Za-z]/.test(next) || !/[0-9]/.test(next)) return setErr('La nueva contraseña debe incluir letras y números.');
+    if (next !== rep) return setErr('La nueva contraseña y la confirmación no coinciden.');
     try {
-      await api.post('/auth/change-password', { next: f.get('next'), force: true });
-      state.user.must_change_password = false;
-      toast('Contrasena actualizada', 'green');
+      await api.post('/auth/change-password', { current, next });
+      const me = await api.get('/auth/me'); state.user = me.user;
+      const meta = await api.get('/meta'); state.branches = meta.branches; state.labels = meta.labels;
+      toast('Contraseña actualizada', 'green');
       location.hash = '#/dashboard'; renderApp();
-    } catch (err) { document.getElementById('pwErr').textContent = err.message; }
+    } catch (err) { setErr(err.message); }
   });
 }
 
@@ -131,21 +146,21 @@ function renderApp() {
         <div class="who">
           <div class="avatar">${initials(u.name)}</div>
           <div class="meta"><b>${esc(u.name)}</b><span>${u.role}</span></div>
-          <button class="icon-btn" id="logoutBtn" title="Salir" style="width:32px;height:32px;background:#ffffff14;color:#cdd7e6">
+          <button class="icon-btn" id="logoutBtn" title="Salir" aria-label="Cerrar sesión" style="width:32px;height:32px;background:#ffffff14;color:#cdd7e6">
             <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2v-2M9 12h11l-3-3M20 12l-3 3"/></svg>
           </button>
         </div>
       </aside>
       <div class="main">
         <header class="topbar">
-          <button class="menu-btn" id="menuBtn">${icons.menu}</button>
+          <button class="menu-btn" id="menuBtn" aria-label="Abrir menú">${icons.menu}</button>
           <h2 id="pageTitle">Dashboard</h2>
           <div class="spacer"></div>
           <div class="topsearch">
-            <div class="search">${icons.search}<input id="gsearch" placeholder="Buscar cliente o N. poliza..." autocomplete="off" /></div>
+            <div class="search">${icons.search}<input id="gsearch" placeholder="Buscar cliente o N° de póliza..." autocomplete="off" /></div>
             <div id="gresults"></div>
           </div>
-          <button class="icon-btn" id="bellBtn">${icons.bell}<span class="badge-dot hidden" id="notifDot">0</span></button>
+          <button class="icon-btn" id="bellBtn" aria-label="Notificaciones">${icons.bell}<span class="badge-dot hidden" id="notifDot">0</span></button>
         </header>
         <div class="content" id="content"></div>
       </div>
@@ -179,7 +194,7 @@ function setupGlobalSearch() {
           ? `<div class="search-results">${clients.map((c) => `<a href="#/clientes/${c.id}" data-go>${esc(c.name)}${c.phone ? ` <span class="muted">&middot; ${esc(c.phone)}</span>` : ''}</a>`).join('')}</div>`
           : `<div class="search-results"><a class="muted">Sin resultados</a></div>`;
         box.querySelectorAll('[data-go]').forEach((a) => a.onclick = () => { box.innerHTML = ''; input.value = ''; });
-      } catch (e) {}
+      } catch (e) { box.innerHTML = '<div class="search-results"><a class="muted">No se pudo buscar. Reintentá.</a></div>'; console.warn('search', e); }
     }, 250);
   };
   document.addEventListener('click', (e) => { if (!document.querySelector('.topsearch')?.contains(e.target)) box.innerHTML = ''; });
@@ -200,7 +215,7 @@ async function refreshDots() {
       dot.textContent = n > 1 ? (n > 99 ? '99' : n) : '';
       link.appendChild(dot);
     }
-  } catch (e) {}
+  } catch (e) { console.warn('refreshDots', e); }
 }
 
 // ---------- Notificaciones (campana) ----------
@@ -210,7 +225,7 @@ async function loadNotifs() {
     const dot = document.getElementById('notifDot');
     if (!dot) return;
     if (unread > 0) { dot.textContent = unread; dot.classList.remove('hidden'); } else dot.classList.add('hidden');
-  } catch (e) {}
+  } catch (e) { console.warn('loadNotifs', e); }
 }
 async function toggleNotifs() {
   const existing = document.getElementById('notifPanel');
@@ -221,7 +236,7 @@ async function toggleNotifs() {
   panel.innerHTML = `<div style="padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700">Notificaciones</div>
     ${notifications.length ? notifications.map((n) => `
       <div class="notif-item ${n.read ? '' : 'unread'}"><div>${esc(n.text)}</div>
-        <div class="muted" style="font-size:11px;margin-top:3px">${fmtDateTime(n.created_at)}</div></div>`).join('') : '<div class="empty">Sin notificaciones</div>'}`;
+        <div class="muted" style="font-size:11px;margin-top:3px">${fmtDateTime(n.created_at)}</div></div>`).join('') : '<div class="empty">No tenés notificaciones.</div>'}`;
   document.querySelector('.topbar').appendChild(panel);
   await api.post('/notifications/read');
   loadNotifs();
@@ -234,14 +249,33 @@ async function toggleNotifs() {
 const TITLES = {
   dashboard: 'Dashboard', clientes: 'Clientes', movimientos: 'Altas / Bajas', tareas: 'Tareas operativas',
   'tareas-hoy': 'Tareas de hoy', seguimientos: 'Bandeja de seguimientos', siniestros: 'Siniestros',
-  aprobaciones: 'Centro de aprobaciones', campanas: 'Campanas', objetivos: 'Campañas',
-  supervision: 'Supervision del equipo',
+  aprobaciones: 'Centro de aprobaciones', campanas: 'Campañas', objetivos: 'Campañas',
+  supervision: 'Supervisión del equipo',
   marketing: 'Marketing',
-  usuarios: 'Usuarios', auditoria: 'Auditoria', ranking: 'Ranking del equipo', rendimiento: 'Mi rendimiento',
-  comisiones: 'Liquidacion de comisiones', 'mi-comision': 'Mi comision', metricas: 'Metricas de conversion',
+  usuarios: 'Usuarios', auditoria: 'Auditoría', ranking: 'Ranking del equipo', rendimiento: 'Mi rendimiento',
+  comisiones: 'Liquidación de comisiones', 'mi-comision': 'Mi comisión', metricas: 'Métricas de conversión',
   avisos: 'Avisos y circulares', papelera: 'Papelera', marketing: 'Panel de Marketing', 'banco-ideas': 'Banco de Ideas',
   biblioteca: 'Biblioteca de Marca', 'campanas-archivadas': 'Campañas archivadas', campana: 'Detalle de campaña',
 };
+
+// Limpieza de estado transitorio al cambiar de ruta (modales, notificaciones, buscador).
+function cleanupTransient() {
+  document.querySelectorAll('#modal-root .modal-bg').forEach((m) => m.remove());
+  document.getElementById('notifPanel')?.remove();
+  const gs = document.getElementById('gsearch'); if (gs) gs.value = '';
+  const gr = document.getElementById('gresults'); if (gr) gr.innerHTML = '';
+}
+
+// Guard de rol en el frontend (defensa en profundidad; el backend valida con 403).
+// Un usuario solo accede a las secciones de su menu (mas sub-rutas derivadas).
+function pageAllowed(role, page) {
+  if (role === 'admin') return true;
+  const set = new Set(['dashboard']);
+  (NAV[role] || []).forEach(([, items]) => items.forEach(([r]) => set.add(r)));
+  if (set.has('clientes')) set.add('movimientos');
+  if (set.has('objetivos')) { set.add('campana'); set.add('campanas-archivadas'); }
+  return set.has(page);
+}
 
 export async function route() {
   const hash = location.hash.replace(/^#\//, '') || 'dashboard';
@@ -249,6 +283,20 @@ export async function route() {
   const page = parts[0];
   const content = document.getElementById('content');
   if (!content) return;
+
+  // Cambio de contraseña obligatorio: bloquea toda navegacion hasta resolverlo.
+  if (state.user && state.user.must_change_password) { renderForcedPassword(); return; }
+
+  // Limpieza al cambiar de ruta (cierra modales colgados, buscador, notificaciones).
+  cleanupTransient();
+
+  // Guard de rol: si la seccion no corresponde al rol, no renderiza ni pide datos.
+  if (state.user && !pageAllowed(state.user.role, page)) {
+    document.querySelectorAll('.nav a').forEach((a) => a.classList.remove('active'));
+    const t = document.getElementById('pageTitle'); if (t) t.textContent = 'No autorizado';
+    content.innerHTML = '<div class="empty">No tenés permiso para ver esta sección.<br><br><a class="btn outline sm" href="#/dashboard">Ir al inicio</a></div>';
+    return;
+  }
 
   document.querySelectorAll('.nav a').forEach((a) => a.classList.toggle('active', a.dataset.route === page));
   document.getElementById('pageTitle').textContent = TITLES[page] || 'Dashboard';
@@ -258,7 +306,7 @@ export async function route() {
 
   // marcar seccion como vista
   if (SEEN_SECTIONS.includes(page)) {
-    try { await api.post('/sections/seen', { section: page }); } catch (e) {}
+    try { await api.post('/sections/seen', { section: page }); } catch (e) { console.warn('sections/seen', e); }
   }
 
   try {
@@ -294,7 +342,7 @@ export async function route() {
     if (view.mount) view.mount(content);
     refreshDots();
   } catch (err) {
-    if (err.status === 401) { state.user = null; renderLogin('Sesion finalizada. Volve a ingresar.'); return; }
+    if (err.status === 401) { state.user = null; renderLogin('Sesión finalizada. Volvé a ingresar.'); return; }
     content.innerHTML = `<div class="empty">Error: ${esc(err.message)}</div>`;
   }
 }
