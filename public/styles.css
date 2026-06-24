@@ -445,3 +445,31 @@ td .chk, th .chk { width: 16px; height: 16px; cursor: pointer; }
   right: 6px;
 }
 .cal-cell:hover .cal-add-btn { display: block; }
+
+/* ===== Fase estabilización 2: responsive / no overflow horizontal ===== */
+html, body { overflow-x: hidden; max-width: 100%; }
+.app { max-width: 100%; overflow-x: hidden; }
+.main { max-width: 100%; }
+.content { min-width: 0; }
+.card, .table-card { max-width: 100%; }
+
+/* Tablas: scroll horizontal DENTRO del contenedor, sin ensanchar la página */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+
+/* Controles de filtro (Clientes) */
+.filter-ctl {
+  height: 34px; border: 1px solid var(--line, #e2e6ee); border-radius: 9px;
+  padding: 0 10px; font-size: 13px; background: #fff; color: var(--ink, #1f2733); max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  .table-card { overflow-x: auto; }
+  .table-card table, .table-scroll table { min-width: 560px; }
+  .kanban { overflow-x: auto; }
+  .content { padding: 16px 14px; }
+}
+@media (max-width: 560px) {
+  .filter-ctl, .search { width: 100%; }
+  .table-head.between { gap: 8px; }
+  .rank-item { gap: 8px; }
+}
