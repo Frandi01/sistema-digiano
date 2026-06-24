@@ -6,6 +6,7 @@ import api from './api.js';
 import api2 from './api2.js';
 import api3 from './api3.js';
 import apiMarketing from './api-marketing.js';
+import apiAi from './api-ai.js';
 import { ensureSeed } from './seed.js';
 import { checkTaskInactivity } from './business.js';
 
@@ -25,6 +26,7 @@ app.use('/api', api);
 app.use('/api', api2);
 app.use('/api', api3);
 app.use('/api', apiMarketing);
+app.use('/api', apiAi);
 
 // Frontend estatico
 const publicDir = path.join(__dirname, '..', 'public');
