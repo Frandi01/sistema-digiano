@@ -4,7 +4,7 @@ import express from './micro.js';
 import db from './db.js';
 import { requireAuth, requireRole } from './auth.js';
 import { addScore, audit, timeline, notify, notifyRole, LABELS } from './helpers.js';
-import { ensureDailyTasks, applyMovement } from './business.js';
+import { ensureDailyTasks, applyMovement, generateMarketingBatches } from './business.js';
 
 const router = express.Router();
 
@@ -245,18 +245,51 @@ router.post('/claims/:id/event', requireAuth, (req, res) => {
 
 /* =================== OBJETIVOS =================== */
 router.get('/objectives', requireAuth, (req, res) => {
-  res.json({ objectives: db.prepare('SELECT * FROM objectives WHERE COALESCE(deleted,0)=0 ORDER BY active DESC, id DESC').all() });
+  // Auto-archivado: las campañas vencidas (fin < hoy) que sigan activas pasan a archivadas.
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    db.prepare("UPDATE objectives SET archived=1, active=0 WHERE COALESCE(deleted,0)=0 AND COALESCE(archived,0)=0 AND end_date IS NOT NULL AND end_date < ?").run(today);
+  } catch (e) { /* noop */ }
+  const archived = String(req.query.archived || '') === '1' ? 1 : 0;
+  const rows = db.prepare('SELECT * FROM objectives WHERE COALESCE(deleted,0)=0 AND COALESCE(archived,0)=? ORDER BY active DESC, id DESC').all(archived);
+  res.json({ objectives: rows });
 });
 
 router.post('/objectives', requireAuth, requireRole('admin'), (req, res) => {
-  const { name, branch, target, avg_commission, priority, start_date, end_date } = req.body || {};
-  if (!name || !start_date || !end_date) return res.status(400).json({ error: 'Faltan datos del objetivo.' });
+  const b = req.body || {};
+  const { name, branch, target, priority, start_date, end_date, type,
+    part_marketing, part_admin, qty_reel, qty_carrusel, qty_historia, qty_linkedin, admin_tasks } = b;
+  if (!name || !start_date || !end_date) return res.status(400).json({ error: 'Faltan datos de la campaña.' });
+  const num = (v) => Number(v) || 0;
+  const campType = type === 'marketing' ? 'marketing' : 'comercial';
+  // Comercial SIEMPRE participa en campañas comerciales (Luciano y Franco), sin opcion.
+  const partCom = campType === 'comercial' ? 1 : 0;
+  const partMkt = campType === 'marketing' ? 1 : (part_marketing ? 1 : 0);
+  const partAdm = campType === 'comercial' && part_admin ? 1 : 0;
   const info = db.prepare(
-    `INSERT INTO objectives (name,branch,target,avg_commission,priority,start_date,end_date,active)
-     VALUES (?,?,?,?,?,?,?,1)`
-  ).run(name, branch || null, target || 0, avg_commission || 0, priority || 'media', start_date, end_date);
-  audit(req.user.id, 'crear_objetivo', 'objective', info.lastInsertRowid, name);
-  res.json({ id: info.lastInsertRowid });
+    `INSERT INTO objectives (name,branch,target,avg_commission,priority,start_date,end_date,active,
+       type,part_comercial,part_marketing,part_admin,qty_reel,qty_carrusel,qty_historia,qty_linkedin)
+     VALUES (?,?,?,?,?,?,?,1,?,?,?,?,?,?,?,?)`
+  ).run(name, branch || null, target || 0, 0, priority || 'media', start_date, end_date,
+    campType, partCom, partMkt, partAdm,
+    num(qty_reel), num(qty_carrusel), num(qty_historia), num(qty_linkedin));
+  const campId = info.lastInsertRowid;
+  audit(req.user.id, 'crear_campana', 'objective', campId, name);
+
+  // --- MARKETING (Juliana): tareas por CICLOS SEMANALES (genera la primer tanda ahora) ---
+  if (partMkt) {
+    try { generateMarketingBatches(); } catch (e) { /* noop */ }
+  }
+
+  // --- ADMINISTRACION (Natalia): genera tareas operativas seleccionadas (una vez) ---
+  if (partAdm && Array.isArray(admin_tasks) && admin_tasks.length) {
+    const nat = db.prepare("SELECT id FROM users WHERE role='siniestros' AND active=1 ORDER BY id LIMIT 1").get();
+    const it = db.prepare("INSERT INTO tasks (kind,title,assigned_to,created_by,status,active,campaign_id) VALUES ('operativa',?,?,?, 'pendiente', 0, ?)");
+    for (const t of admin_tasks) if (t) it.run(t, nat ? nat.id : null, req.user.id, campId);
+    if (nat) notify(nat.id, `La campaña "${name}" te genero ${admin_tasks.length} tarea(s) automaticamente`, '#/tareas');
+  }
+
+  res.json({ id: campId });
 });
 
 /* =================== CAMPANAS =================== */
