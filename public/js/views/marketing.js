@@ -149,7 +149,7 @@ export async function renderMarketing() {
 
   async function buildTasks(root) {
     const { tasks } = await api.get('/marketing/tasks');
-    const statusBadge = (s) => s === 'completado' ? '<span class="badge green">Completado</span>' : s === 'en_progreso' ? '<span class="badge orange">En progreso</span>' : '<span class="badge gray">Pendiente</span>';
+    const statusBadge = (s) => s === 'completada' ? '<span class="badge green">Completada</span>' : s === 'en_proceso' ? '<span class="badge orange">En proceso</span>' : '<span class="badge gray">Pendiente</span>';
     const rows = tasks.map((t) => `
       <tr>
         <td><b>${esc(t.type)}</b>${t.description ? `<br><span class="muted" style="font-size:12px">${esc(t.description)}</span>` : ''}</td>
@@ -157,7 +157,7 @@ export async function renderMarketing() {
         <td>${statusBadge(t.status)}</td>
         <td>${t.result_notes ? `<span class="muted" style="font-size:12px">${esc(t.result_notes)}</span>` : '<span class="muted">—</span>'}</td>
         <td class="row" style="gap:6px">
-          ${t.status !== 'completado' ? `<button class="btn outline sm" data-upd="${t.id}">Actualizar</button>` : ''}
+          ${t.status !== 'completada' ? `<button class="btn outline sm" data-upd="${t.id}">Actualizar</button>` : ''}
           ${state.user.role === 'admin' ? `<button class="btn outline sm red" data-del-task="${t.id}">Borrar</button>` : ''}
         </td>
       </tr>`).join('');
@@ -211,8 +211,8 @@ export async function renderMarketing() {
           <div class="field full"><label>Estado</label>
             <select name="status">
               <option value="pendiente" ${task.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-              <option value="en_progreso" ${task.status === 'en_progreso' ? 'selected' : ''}>En progreso</option>
-              <option value="completado" ${task.status === 'completado' ? 'selected' : ''}>Completado</option>
+              <option value="en_proceso" ${task.status === 'en_proceso' ? 'selected' : ''}>En proceso</option>
+              <option value="completada" ${task.status === 'completada' ? 'selected' : ''}>Completada</option>
             </select>
           </div>
           <div class="field full"><label>Notas de resultado</label><textarea name="result_notes" rows="3">${esc(task.result_notes || '')}</textarea></div>
@@ -232,7 +232,7 @@ export async function renderMarketing() {
   async function buildPipeline(root) {
     const { items } = await api.get('/marketing/content');
     let campaigns = [];
-    try { campaigns = (await api.get('/objectives')).objectives.filter((c) => c.active); } catch (e) {}
+    try { campaigns = (await api.get('/objectives')).objectives.filter((c) => c.active); } catch (e) { console.warn('objectives (combo)', e); }
     const byStatus = {}; PIPE.forEach(([k]) => (byStatus[k] = []));
     items.forEach((it) => (byStatus[it.status] || byStatus.idea).push(it));
     const card = (it) => `
@@ -348,7 +348,7 @@ export async function renderMarketing() {
           ${kpi('Alcance', t.reach, '#2e75b6')}
           ${kpi('Likes', t.likes, '#8e44ad')}
         </div>
-        ${camps ? `<table style="width:100%"><thead><tr><th>Campaña</th><th>Contenidos</th><th>Publicados</th><th>Vistas</th></tr></thead><tbody>${camps}</tbody></table>` : '<div class="muted" style="font-size:12.5px">Aun no hay contenido vinculado a campañas.</div>'}
+        ${camps ? `<table style="width:100%"><thead><tr><th>Campaña</th><th>Contenidos</th><th>Publicados</th><th>Vistas</th></tr></thead><tbody>${camps}</tbody></table>` : '<div class="muted" style="font-size:12.5px">Aún no hay contenido vinculado a campañas.</div>'}
       </div>`;
   }
 
