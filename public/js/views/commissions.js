@@ -12,8 +12,8 @@ export async function renderCommissionsAdmin() {
 
   const chart = series.length ? lineChart(series, {
     keys: [
-      { field: 'computable', color: '#2e75b6', label: 'Comision computable (sin aguinaldo)' },
-      { field: 'real_cobrada', color: '#27ae60', label: 'Comision real cobrada' },
+      { field: 'computable', color: '#2e75b6', label: 'Comisión computable (sin aguinaldo)' },
+      { field: 'real_cobrada', color: '#27ae60', label: 'Comisión real cobrada' },
     ],
   }) : '<div class="empty">Carga liquidaciones para ver la evolucion</div>';
 
@@ -28,7 +28,7 @@ export async function renderCommissionsAdmin() {
 
   const html = `
     <div class="card pad" style="margin-bottom:16px">
-      <div class="row between" style="margin-bottom:10px"><h3 style="font-size:15px">Evolucion de comisiones</h3>
+      <div class="row between" style="margin-bottom:10px"><h3 style="font-size:15px">Evolución de comisiones</h3>
         <button class="btn ghost sm no-print" onclick="window.print()">Exportar PDF</button></div>
       ${chart}
       <div class="muted" style="font-size:12px;margin-top:6px">La curva azul (computable) excluye aguinaldos / ingresos extraordinarios para ver el crecimiento real de cartera.</div>
@@ -132,7 +132,7 @@ export async function renderMyCommission() {
   const { items } = await api.get('/commissions/mine/list');
   const chrono = [...items].reverse();
   const total = items.reduce((s, i) => s + (i.amount || 0), 0);
-  const chart = chrono.length >= 2 ? lineChart(chrono, { keys: [{ field: 'amount', color: '#2e75b6', label: 'Mi comision' }] }) : '';
+  const chart = chrono.length >= 2 ? lineChart(chrono, { keys: [{ field: 'amount', color: '#2e75b6', label: 'Mi comisión' }] }) : '';
   const rows = items.map((i) => `
     <tr><td><b>${esc(i.period)}</b></td><td class="com-amt" style="font-size:14px">${fmtMoney(i.amount)}</td><td>${badge(i.status)}</td></tr>`).join('');
   const html = `
@@ -141,8 +141,8 @@ export async function renderMyCommission() {
       <h2 style="font-size:30px;color:#fff">${fmtMoney(total)}</h2>
     </div>
     ${chart ? `<div class="card pad" style="margin-bottom:16px"><h3 style="font-size:14px;margin-bottom:8px">Tu evolucion</h3>${chart}</div>` : ''}
-    <div class="card table-card"><div class="table-head"><h3 style="font-size:15px">Mis comisiones por periodo</h3></div>
+    <div class="card table-card"><div class="table-head"><h3 style="font-size:15px">Mis comisiones por período</h3></div>
       <table><thead><tr><th>Periodo</th><th>Monto</th><th>Estado</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="3"><div class="empty">Todavia no tenes comisiones liquidadas</div></td></tr>'}</tbody></table></div>`;
+      <tbody>${rows || '<tr><td colspan="3"><div class="empty">Todavía no tenés comisiones liquidadas</div></td></tr>'}</tbody></table></div>`;
   return { html };
 }
