@@ -85,14 +85,16 @@ export function openModal(opts) {
   const bg = document.createElement('div');
   bg.className = 'modal-bg';
   bg.innerHTML = `
-    <div class="modal ${opts.wide ? 'wide' : ''}" role="dialog">
-      <div class="modal-head"><h3>${esc(opts.title || '')}</h3><button class="close-x" data-close>&times;</button></div>
+    <div class="modal ${opts.wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(opts.title || 'Ventana')}">
+      <div class="modal-head"><h3>${esc(opts.title || '')}</h3><button class="close-x" data-close aria-label="Cerrar ventana" title="Cerrar">&times;</button></div>
       <div class="modal-body">${opts.body || ''}</div>
       ${opts.footer ? `<div class="modal-foot">${opts.footer}</div>` : ''}
     </div>`;
   root.appendChild(bg);
-  const close = () => bg.remove();
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  const close = () => { document.removeEventListener('keydown', onKey); bg.remove(); };
   bg.addEventListener('click', (e) => { if (e.target === bg || e.target.hasAttribute('data-close')) close(); });
+  document.addEventListener('keydown', onKey);
   if (opts.onMount) opts.onMount(bg.querySelector('.modal'), close);
   return { close, node: bg.querySelector('.modal') };
 }
@@ -105,8 +107,8 @@ const BADGE_MAP = {
   abierto: ['orange', 'Abierto'], documentacion_pendiente: ['orange', 'Doc. pendiente'],
   presentado: ['blue', 'Presentado'], en_analisis: ['purple', 'En analisis'],
   liquidado: ['green', 'Liquidado'], cerrado: ['gray', 'Cerrado'],
-  no_contactado: ['gray', 'No contactado'], no_respondio: ['orange', 'No respondio'],
-  contactado: ['blue', 'Contactado'], cotizacion_enviada: ['purple', 'Cotizacion enviada'],
+  no_contactado: ['gray', 'No contactado'], no_respondio: ['orange', 'No respondió'],
+  contactado: ['blue', 'Contactado'], cotizacion_enviada: ['purple', 'Cotización enviada'],
   venta_cerrada: ['green', 'Venta cerrada'], no_interesado: ['red', 'No interesado'],
   inviable: ['gray', 'Inviable'],
 };
@@ -114,4 +116,16 @@ export function badge(status, fallback) {
   const m = BADGE_MAP[status];
   if (!m) return `<span class="badge gray">${esc(fallback || status || '-')}</span>`;
   return `<span class="badge ${m[0]}">${m[1]}</span>`;
+}
+
+// Estados reutilizables de UI: vacio, error y carga. Mantienen un mensaje claro
+// (evitan que una pantalla parezca correcta cuando los datos no cargaron).
+export function emptyState(msg, actionHtml) {
+  return `<div class="empty">${esc(msg || 'No hay datos para mostrar.')}${actionHtml ? `<div style="margin-top:10px">${actionHtml}</div>` : ''}</div>`;
+}
+export function errorState(msg) {
+  return `<div class="empty" style="color:#c0392b">${esc(msg || 'No se pudieron cargar los datos. Reintentá en unos segundos.')}</div>`;
+}
+export function loadingState(msg) {
+  return `<div class="empty">${esc(msg || 'Cargando...')}</div>`;
 }
