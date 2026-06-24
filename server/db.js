@@ -304,7 +304,29 @@ for (const t of ['tasks', 'campaigns', 'objectives']) {
 }
 addColumn('campaigns', 'priority', "TEXT DEFAULT 'media'");
 addColumn('objectives', 'priority', "TEXT DEFAULT 'media'");
+// --- Modelo de Campañas (antes "Objetivos") ---
+addColumn('objectives', 'type', "TEXT DEFAULT 'comercial'");        // comercial | marketing
+addColumn('objectives', 'part_comercial', 'INTEGER DEFAULT 1');     // areas participantes
+addColumn('objectives', 'part_marketing', 'INTEGER DEFAULT 0');
+addColumn('objectives', 'part_admin', 'INTEGER DEFAULT 0');
+addColumn('objectives', 'qty_reel', 'INTEGER DEFAULT 0');           // cantidades de marketing
+addColumn('objectives', 'qty_carrusel', 'INTEGER DEFAULT 0');
+addColumn('objectives', 'qty_historia', 'INTEGER DEFAULT 0');
+addColumn('objectives', 'qty_linkedin', 'INTEGER DEFAULT 0');
+addColumn('marketing_tasks', 'campaign_id', 'INTEGER');             // vinculo tarea -> campaña
+addColumn('marketing_tasks', 'auto', 'INTEGER DEFAULT 0');          // generada por campaña
+addColumn('marketing_tasks', 'week_start', 'TEXT');                 // inicio del ciclo semanal de la tanda
 addColumn('tasks', 'updated_at', 'TEXT');
+
+// ---- Fase 3: metricas de contenido, archivado de campañas y biblioteca de marca ----
+addColumn('mkt_content', 'metrics_views', 'INTEGER');
+addColumn('mkt_content', 'metrics_reach', 'INTEGER');
+addColumn('mkt_content', 'metrics_likes', 'INTEGER');
+addColumn('mkt_content', 'metrics_comments', 'INTEGER');
+addColumn('mkt_content', 'published_at', 'TEXT');
+addColumn('mkt_content', 'pending_metrics', 'INTEGER DEFAULT 0');
+addColumn('objectives', 'archived', 'INTEGER DEFAULT 0');
+db.exec("CREATE TABLE IF NOT EXISTS mkt_brand (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, category TEXT, created_by INTEGER REFERENCES users(id), created_at TEXT NOT NULL DEFAULT (datetime('now')));");
 
 // ---- Tablas de marketing (idempotentes) ----
 db.exec(`
@@ -325,6 +347,33 @@ CREATE TABLE IF NOT EXISTS marketing_tasks (
   created_by INTEGER REFERENCES users(id),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   completed_at TEXT
+);
+
+-- ============ PIPELINE DE CONTENIDO (marketing) ============
+CREATE TABLE IF NOT EXISTS mkt_content (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  format TEXT,                  -- reel, carrusel, historia, post, video
+  status TEXT NOT NULL DEFAULT 'idea',  -- idea, guion, pend_grabar, grabado, editando, revision, programado, publicado
+  campaign_id INTEGER REFERENCES objectives(id),
+  archived INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT
+);
+
+-- ============ BANCO DE IDEAS (marketing) ============
+CREATE TABLE IF NOT EXISTS mkt_ideas (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  objective TEXT,
+  priority TEXT NOT NULL DEFAULT 'media',  -- alta, media, baja
+  tags TEXT,
+  archived INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `);
 
@@ -393,7 +442,6 @@ try {
     try {
       for (const t of broken) {
         const tmp = t.name + '__fix';
-        // Corrige las referencias y renombra la tabla del CREATE a una temporal.
         let createSql = t.sql.replace(/_users_old/g, 'users');
         createSql = createSql.replace(
           new RegExp('CREATE\\s+TABLE\\s+(IF\\s+NOT\\s+EXISTS\\s+)?["\'`]?' + t.name + '["\'`]?', 'i'),
