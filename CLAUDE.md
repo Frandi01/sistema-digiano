@@ -36,7 +36,7 @@ La base se crea sola en `data/digiano.db`. Para resetear: borrar la carpeta `dat
 | comercial | `luciano` | Tareas comerciales, cross-sell, seguimientos. |
 | siniestros | `natalia` | **Solo siniestros.** No hace tareas comerciales. |
 
-Contraseña inicial de todos: `Digiano2026`
+Contraseña inicial: se define por la variable de entorno `SEED_PASSWORD` (sin valor por defecto). Cambio obligatorio en el primer ingreso para todos.
 
 ---
 
