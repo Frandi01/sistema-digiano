@@ -52,6 +52,17 @@ export function importClients(createdBy) {
   return added;
 }
 
+// Contraseña inicial de bootstrap: se toma de la variable de entorno
+// SEED_PASSWORD; si no esta definida, se genera una aleatoria que se imprime
+// UNA sola vez en el log del servidor (no es accesible desde el navegador).
+// Nunca hay una contraseña fija en el codigo.
+function bootstrapPassword() {
+  if (process.env.SEED_PASSWORD && process.env.SEED_PASSWORD.length >= 8) return { pw: process.env.SEED_PASSWORD, generated: false };
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let pw = ''; for (let i = 0; i < 12; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+  return { pw: pw + '7a', generated: true };
+}
+
 export function ensureSeed() {
   // Config de score (siempre asegura claves).
   const scoreStmt = db.prepare('INSERT OR IGNORE INTO score_config (key,points,label) VALUES (?,?,?)');
@@ -66,7 +77,7 @@ export function ensureSeed() {
       try {
         db.prepare(
           `INSERT INTO users (name,username,email,password_hash,role,active,must_change_password) VALUES (?,?,?,?,?,1,1)`
-        ).run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword('Digiano2026'), 'marketing');
+        ).run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword(bootstrapPassword().pw), 'marketing');
         console.log('  Usuario Juliana (marketing) creado.');
       } catch (e) { console.warn('  No se pudo crear usuario Juliana:', e.message); }
     }
@@ -74,15 +85,17 @@ export function ensureSeed() {
   }
 
   console.log('Sembrando datos iniciales...');
+  const boot = bootstrapPassword();
 
-  // ---- Usuarios ---- (login por nombre de usuario)
+  // ---- Usuarios ---- (login por nombre de usuario). Todos deben cambiar la
+  // contraseña en el primer ingreso (must_change_password = 1).
   const insUser = db.prepare(
-    `INSERT INTO users (name,username,email,password_hash,role,active,must_change_password) VALUES (?,?,?,?,?,1,?)`
+    `INSERT INTO users (name,username,email,password_hash,role,active,must_change_password) VALUES (?,?,?,?,?,1,1)`
   );
-  const adminId = insUser.run('Franco Digiano', 'admin', 'admin@digiano.com', hashPassword('Digiano2026'), 'admin', 0).lastInsertRowid;
-  const lucianoId = insUser.run('Luciano', 'luciano', 'luciano@digiano.com', hashPassword('Digiano2026'), 'comercial', 1).lastInsertRowid;
-  const nataliaId = insUser.run('Natalia', 'natalia', 'natalia@digiano.com', hashPassword('Digiano2026'), 'siniestros', 1).lastInsertRowid;
-  insUser.run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword('Digiano2026'), 'marketing', 1).lastInsertRowid;
+  const adminId = insUser.run('Franco Digiano', 'admin', 'admin@digiano.com', hashPassword(boot.pw), 'admin').lastInsertRowid;
+  const lucianoId = insUser.run('Luciano', 'luciano', 'luciano@digiano.com', hashPassword(boot.pw), 'comercial').lastInsertRowid;
+  const nataliaId = insUser.run('Natalia', 'natalia', 'natalia@digiano.com', hashPassword(boot.pw), 'siniestros').lastInsertRowid;
+  insUser.run('Juliana', 'juliana', 'juliana@digiano.com', hashPassword(boot.pw), 'marketing').lastInsertRowid;
 
   // ---- Cartera real de clientes ----
   const n = importClients(adminId);
@@ -100,13 +113,15 @@ export function ensureSeed() {
      VALUES (?,?,?,?, date('now','start of month'), date('now','start of month','+1 month','-1 day'), 1)`
   ).run('Auto sin Hogar', 'Hogar', 'Hogar', 30);
 
-  // ---- Score inicial de ejemplo (para que el ranking no este vacio) ----
-  const insScore = db.prepare(`INSERT INTO score_events (user_id,points,reason,created_at) VALUES (?,?,?, datetime('now', ?))`);
-  insScore.run(lucianoId, 25, 'Venta cerrada / alta lograda', '-5 days');
-  insScore.run(lucianoId, 8, 'Cotizacion enviada', '-3 days');
-  insScore.run(nataliaId, 1, 'Tarea completada', '-2 days');
+  // (Sin score de ejemplo: el ranking refleja solo actividad real registrada.)
+  void lucianoId; void nataliaId;
 
-  console.log('Seed completo. Usuarios: admin@digiano.com / luciano@digiano.com / natalia@digiano.com  (pass: Digiano2026)');
+  if (boot.generated) {
+    console.log('Seed completo. Usuarios: admin, luciano, natalia, juliana.');
+    console.log('  CONTRASEÑA INICIAL (generada, anotala; cada usuario debera cambiarla al ingresar): ' + boot.pw);
+  } else {
+    console.log('Seed completo. Usuarios: admin, luciano, natalia, juliana. Contraseña inicial: la definida en SEED_PASSWORD (cambio obligatorio al ingresar).');
+  }
 }
 
 // Permite ejecutar `node server/seed.js` directamente.
