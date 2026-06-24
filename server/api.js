@@ -16,18 +16,34 @@ import { createChangeRequest } from './api3.js';
 
 const router = express.Router();
 
+// Genera una contraseña temporal aleatoria en el backend (cumple la politica
+// de fortaleza). Nunca se expone una contraseña fija ni se envia al cliente.
+function randomTempPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let out = '';
+  for (let i = 0; i < 12; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out + '7a'; // garantiza letra + numero
+}
+
 /* =================== AUTENTICACION =================== */
 router.post('/auth/login', (req, res) => {
   const { username, password } = req.body || {};
   const out = login(username, password, req.ip);
   if (out.error) return res.status(401).json({ error: out.error });
-  res.cookie('sid', out.token, { httpOnly: true, sameSite: 'lax', maxAge: 12 * 3600 * 1000 });
+  const secure = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https';
+  res.cookie('sid', out.token, { httpOnly: true, sameSite: 'lax', secure, maxAge: 12 * 3600 * 1000 });
   res.json({ user: out.user });
 });
 
 router.post('/auth/logout', (req, res) => {
-  logout(req.cookies?.sid);
-  res.clearCookie('sid');
+  const tok = req.cookies?.sid;
+  if (tok) {
+    const sess = db.prepare('SELECT user_id FROM sessions WHERE token=?').get(tok);
+    if (sess) audit(sess.user_id, 'logout', 'user', sess.user_id, null);
+  }
+  logout(tok);
+  const secure = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https';
+  res.clearCookie('sid', { secure });
   res.json({ ok: true });
 });
 
@@ -52,7 +68,9 @@ router.post('/users', requireAuth, requireRole('admin'), (req, res) => {
   const { name, username, email, role, password } = req.body || {};
   if (!name || !username || !role) return res.status(400).json({ error: 'Nombre, usuario y rol son obligatorios.' });
   if (!['admin', 'comercial', 'siniestros', 'marketing'].includes(role)) return res.status(400).json({ error: 'Rol invalido.' });
-  const pw = password || 'Digiano2026';
+  // La contraseña temporal la define el admin (se la comunica al usuario por un
+  // canal seguro). Si no la indica, se genera una aleatoria en el backend.
+  const pw = (password && password.trim()) ? password.trim() : randomTempPassword();
   const strErr = validatePasswordStrength(pw);
   if (strErr) return res.status(400).json({ error: strErr });
   try {
@@ -61,7 +79,8 @@ router.post('/users', requireAuth, requireRole('admin'), (req, res) => {
        VALUES (?,?,?,?,?,1,1)`
     ).run(name, username.toLowerCase().trim(), email ? email.toLowerCase().trim() : null, hashPassword(pw), role);
     audit(req.user.id, 'crear_usuario', 'user', info.lastInsertRowid, `${name} (${role})`);
-    res.json({ id: info.lastInsertRowid, tempPassword: pw });
+    // No se devuelve la contraseña al cliente. El admin ya la conoce (la tipeo).
+    res.json({ id: info.lastInsertRowid });
   } catch (e) {
     res.status(400).json({ error: 'El nombre de usuario ya existe.' });
   }
@@ -73,7 +92,13 @@ router.put('/users/:id', requireAuth, requireRole('admin'), (req, res) => {
   if (!u) return res.status(404).json({ error: 'No existe.' });
   db.prepare('UPDATE users SET name=COALESCE(?,name), role=COALESCE(?,role), active=COALESCE(?,active) WHERE id=?')
     .run(name ?? null, role ?? null, active === undefined ? null : (active ? 1 : 0), u.id);
-  audit(req.user.id, 'editar_usuario', 'user', u.id, `active=${active}`);
+  let accion = 'editar_usuario';
+  if (active !== undefined && !active) accion = 'desactivar_usuario';
+  else if (active !== undefined && active && !u.active) accion = 'activar_usuario';
+  else if (role && role !== u.role) accion = 'cambiar_rol';
+  const det = [name && name !== u.name ? `nombre: ${name}` : null, role && role !== u.role ? `rol: ${u.role} -> ${role}` : null,
+    active !== undefined ? `activo: ${active ? 1 : 0}` : null].filter(Boolean).join('; ') || 'sin cambios';
+  audit(req.user.id, accion, 'user', u.id, det);
   res.json({ ok: true });
 });
 
@@ -90,11 +115,15 @@ router.post('/score/reset-user/:id', requireAuth, requireRole('admin'), (req, re
 router.post('/users/:id/reset-password', requireAuth, requireRole('admin'), (req, res) => {
   const u = db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);
   if (!u) return res.status(404).json({ error: 'No existe.' });
-  const pw = req.body?.password || 'Digiano2026';
+  const provided = req.body?.password;
+  const pw = (provided && provided.trim()) ? provided.trim() : randomTempPassword();
+  const strErr = validatePasswordStrength(pw);
+  if (strErr) return res.status(400).json({ error: strErr });
   db.prepare('UPDATE users SET password_hash=?, must_change_password=1, failed_attempts=0, locked_until=NULL WHERE id=?')
     .run(hashPassword(pw), u.id);
-  audit(req.user.id, 'reset_password', 'user', u.id, null);
-  res.json({ ok: true, tempPassword: pw });
+  audit(req.user.id, 'reset_password', 'user', u.id, `Reset por ${req.user.name || req.user.username}`);
+  // No se devuelve la contraseña. El usuario debera cambiarla al ingresar.
+  res.json({ ok: true });
 });
 
 /* =================== DASHBOARD =================== */
@@ -145,13 +174,28 @@ router.get('/dashboard', requireAuth, (req, res) => {
   const ranking = users.map((u) => {
     const assigned = db.prepare(`SELECT COUNT(*) n FROM tasks WHERE assigned_to=? AND strftime('%Y-%m',created_at)=strftime('%Y-%m','now')`).get(u.id).n;
     const completed = db.prepare(`SELECT COUNT(*) n FROM tasks WHERE assigned_to=? AND status='completada' AND strftime('%Y-%m',created_at)=strftime('%Y-%m','now')`).get(u.id).n;
+    // Desglose de actividad comercial del período (mismo mes que el dashboard).
+    const act = db.prepare(`SELECT
+        SUM(CASE WHEN result IN ('contactado','cotizacion_enviada','venta_cerrada','no_interesado') THEN 1 ELSE 0 END) contactos,
+        SUM(CASE WHEN result IN ('cotizacion_enviada','venta_cerrada') THEN 1 ELSE 0 END) cotizaciones,
+        SUM(CASE WHEN result='venta_cerrada' THEN 1 ELSE 0 END) ventas,
+        SUM(CASE WHEN result='inviable' THEN 1 ELSE 0 END) inviables,
+        SUM(CASE WHEN status='completada' THEN 1 ELSE 0 END) completadas
+      FROM tasks WHERE assigned_to=? AND strftime('%Y-%m',created_at)=strftime('%Y-%m','now')`).get(u.id);
+    // De donde vienen los puntos (fuente real: score_events del período).
+    const breakdown = db.prepare(`SELECT reason, COALESCE(SUM(points),0) points, COUNT(*) count
+      FROM score_events WHERE user_id=? AND strftime('%Y-%m',created_at)=strftime('%Y-%m','now')
+      GROUP BY reason ORDER BY points DESC`).all(u.id);
     return {
       id: u.id, name: u.name, role: u.role,
       score: monthScore(u.id), assigned, completed,
       progress: assigned > 0 ? Math.round((completed / assigned) * 100) : 0,
+      activity: { contactos: act.contactos || 0, cotizaciones: act.cotizaciones || 0, ventas: act.ventas || 0, inviables: act.inviables || 0, completadas: act.completadas || 0 },
+      breakdown,
     };
   }).sort((a, b) => b.score - a.score);
   ranking.forEach((r, i) => (r.position = i + 1));
+  const period = new Date().toISOString().slice(0, 7);
 
   // KPIs rapidos del equipo
   const pendingTasks = db.prepare(
@@ -160,21 +204,38 @@ router.get('/dashboard', requireAuth, (req, res) => {
   const openClaims = db.prepare("SELECT COUNT(*) n FROM claims WHERE status != 'cerrado'").get().n;
   const activeObjectives = db.prepare("SELECT COUNT(*) n FROM objectives WHERE active=1 AND COALESCE(deleted,0)=0").get().n;
 
-  res.json({ objective, movement, ranking, kpis: { pendingTasks, openClaims }, activeObjectives });
+  res.json({ objective, movement, ranking, period, kpis: { pendingTasks, openClaims }, activeObjectives });
 });
 
 /* =================== CLIENTES =================== */
 router.get('/clients', requireAuth, (req, res) => {
   const q = (req.query.q || '').trim();
+  const policy = (req.query.policy || '').trim();
+  const product = (req.query.product || '').trim();
   const tag = (req.query.tag || '').trim();
-  let sql = `SELECT c.*, (SELECT COUNT(*) FROM policies p WHERE p.client_id=c.id AND p.status='vigente') AS products
-             FROM clients c WHERE 1=1`;
-  const args = [];
-  if (q) { sql += ` AND (c.name LIKE ? OR c.phone LIKE ? OR c.email LIKE ?)`; args.push(`%${q}%`, `%${q}%`, `%${q}%`); }
-  if (tag) { sql += ` AND c.tags LIKE ?`; args.push(`%${tag}%`); }
-  sql += ` ORDER BY c.name LIMIT 300`;
-  const clients = db.prepare(sql).all(...args);
-  res.json({ clients });
+  const all = String(req.query.all || '') === '1';
+  const sort = ['name', 'created', 'product'].includes(req.query.sort) ? req.query.sort : 'name';
+  const dir = String(req.query.dir || '').toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+  let page = parseInt(req.query.page, 10); if (!Number.isFinite(page) || page < 1) page = 1;
+  let pageSize = parseInt(req.query.pageSize, 10); if (![25, 50, 100].includes(pageSize)) pageSize = 25;
+
+  const where = ['1=1']; const args = [];
+  if (q) { where.push('(c.name LIKE ? OR c.phone LIKE ? OR c.email LIKE ?)'); args.push(`%${q}%`, `%${q}%`, `%${q}%`); }
+  if (policy) { where.push("EXISTS (SELECT 1 FROM policies p WHERE p.client_id=c.id AND p.policy_number LIKE ?)"); args.push(`%${policy}%`); }
+  if (product) { where.push('EXISTS (SELECT 1 FROM policies p WHERE p.client_id=c.id AND p.branch=?)'); args.push(product); }
+  if (tag) { where.push('c.tags LIKE ?'); args.push(`%${tag}%`); }
+  const W = where.join(' AND ');
+  const orderCol = sort === 'created' ? 'c.created_at' : sort === 'product' ? 'products' : 'c.name COLLATE NOCASE';
+  const base = `SELECT c.*, (SELECT COUNT(*) FROM policies p WHERE p.client_id=c.id AND p.status='vigente') AS products FROM clients c WHERE ${W}`;
+  const products = db.prepare("SELECT DISTINCT branch FROM policies WHERE branch IS NOT NULL AND branch != '' ORDER BY branch").all().map((r) => r.branch);
+
+  if (all) {
+    const clients = db.prepare(`${base} ORDER BY ${orderCol} ${dir}`).all(...args);
+    return res.json({ clients, total: clients.length, page: 1, pageSize: clients.length, products, sort, dir });
+  }
+  const total = db.prepare(`SELECT COUNT(*) n FROM clients c WHERE ${W}`).get(...args).n;
+  const clients = db.prepare(`${base} ORDER BY ${orderCol} ${dir} LIMIT ? OFFSET ?`).all(...args, pageSize, (page - 1) * pageSize);
+  res.json({ clients, total, page, pageSize, products, sort, dir });
 });
 
 router.get('/clients/:id', requireAuth, (req, res) => {
@@ -254,6 +315,9 @@ router.get('/movements', requireAuth, (req, res) => {
 });
 
 router.post('/movements', requireAuth, (req, res) => {
+  // RBAC: solo admin y comercial registran movimientos. Comercial queda pendiente
+  // de aprobacion; siniestros y marketing no pueden crear altas/bajas comerciales.
+  if (!['admin', 'comercial'].includes(req.user.role)) return res.status(403).json({ error: 'No tenés permiso para registrar movimientos.' });
   const { client_id, type, branch, company, policy_number, premium, commission, note } = req.body || {};
   if (!client_id || !type || !branch) return res.status(400).json({ error: 'Faltan datos del movimiento.' });
   if (!['alta', 'baja'].includes(type)) return res.status(400).json({ error: 'Tipo invalido.' });
