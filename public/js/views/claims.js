@@ -29,8 +29,8 @@ export async function renderClaims() {
       </div>
       <button class="btn" id="newClaim">${icons.plus} Nuevo siniestro</button>
     </div>
-    <div class="section-title">En gestion</div>
-    <div class="grid cols-3">${open.length ? open.map(card).join('') : '<div class="empty">Sin siniestros en gestion</div>'}</div>
+    <div class="section-title">En gestión</div>
+    <div class="grid cols-3">${open.length ? open.map(card).join('') : '<div class="empty">No hay siniestros en gestión.</div>'}</div>
     ${closed.length ? `<div class="section-title">Cerrados</div><div class="grid cols-3">${closed.map(card).join('')}</div>` : ''}`;
 
   return {
@@ -43,7 +43,7 @@ export async function renderClaims() {
 }
 
 export async function openClaimModal() {
-  const { clients } = await api.get('/clients');
+  const { clients } = await api.get('/clients?all=1');
   openModal({
     title: 'Nuevo siniestro',
     body: `<form id="claimForm"><div class="form-grid">
@@ -52,12 +52,15 @@ export async function openClaimModal() {
       <div class="field"><label>Compania</label><input name="company" /></div>
       <div class="field"><label>Fecha del siniestro</label><input name="incident_date" type="date" /></div>
       <div class="field full"><label>Descripcion</label><textarea name="description" rows="3"></textarea></div>
-    </div><div class="muted" style="font-size:12px;margin-top:6px">Se notificara automaticamente al area de Siniestros.</div></form>`,
+    </div><div class="muted" style="font-size:12px;margin-top:6px">Se notificará automáticamente al área de Siniestros.</div></form>`,
     footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="saveClaim">Crear siniestro</button>',
     wide: true,
     onMount: (modal, close) => modal.querySelector('#saveClaim').onclick = async () => {
       const f = new FormData(modal.querySelector('#claimForm'));
-      try { const r = await api.post('/claims', Object.fromEntries(f.entries())); toast('Siniestro creado y notificado', 'green'); close(); go('#/siniestros/' + r.id); }
+      const o = Object.fromEntries(f.entries());
+      if (!o.client_id) return toast('Elegí un cliente.', 'red');
+      if (!o.type && !o.branch) return toast('Indicá el tipo o ramo del siniestro.', 'red');
+      try { const r = await api.post('/claims', o); toast('Siniestro creado y notificado', 'green'); close(); go('#/siniestros/' + r.id); }
       catch (e) { toast(e.message, 'red'); }
     },
   });
@@ -89,7 +92,7 @@ export async function renderClaimDetail(id) {
             <div><div class="muted" style="font-size:11px">Tipo</div><b>${esc(c.type)}</b></div>
             <div><div class="muted" style="font-size:11px">Compania</div>${esc(c.company || '-')}</div>
             <div><div class="muted" style="font-size:11px">Fecha siniestro</div>${fmtDate(c.incident_date)}</div>
-            <div><div class="muted" style="font-size:11px">Telefono</div>${esc(c.phone || '-')}</div>
+            <div><div class="muted" style="font-size:11px">Teléfono</div>${esc(c.phone || '-')}</div>
             <div><div class="muted" style="font-size:11px">Gestiona</div>${esc(c.assigned_name || '-')}</div>
           </div>
           ${c.description ? `<div style="margin-top:12px;font-size:13px;background:#f7f9fc;padding:10px 12px;border-radius:10px">${esc(c.description)}</div>` : ''}
