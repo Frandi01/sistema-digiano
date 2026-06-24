@@ -98,6 +98,15 @@ export function requireAuth(req, res, next) {
   if (!user || !user.active) return res.status(401).json({ error: 'Usuario no disponible' });
   req.user = user;
   req.token = token;
+
+  // Bloqueo backend de cambio de contraseña obligatorio: si el usuario tiene
+  // must_change_password, solo puede usar /auth/me, /auth/change-password y
+  // /auth/logout. Cualquier otro endpoint responde 403 (aplica a todos los roles).
+  if (user.must_change_password) {
+    const path = req.path || '';
+    const allowed = path.endsWith('/auth/me') || path.endsWith('/auth/change-password') || path.endsWith('/auth/logout');
+    if (!allowed) return res.status(403).json({ error: 'Debe cambiar la contraseña antes de continuar.' });
+  }
   next();
 }
 
@@ -109,7 +118,6 @@ export function requireRole(...roles) {
     next();
   };
 }
-
 export function changePassword(user, currentPw, newPw, force) {
   // En el primer ingreso forzado no exige la actual.
   if (!force && !verifyPassword(currentPw || '', user.password_hash)) {
