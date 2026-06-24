@@ -109,11 +109,18 @@ function augment(res) {
   res.sendFile = (f) => { fs.readFile(f, (e, d) => { if (e) { res.status(404).end('Not found'); } else { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' }); res.end(d); } }); };
   res._cookies = [];
   res.cookie = (name, val, opts = {}) => {
-    let c = `${name}=${val}; Path=${opts.path || '/'}; HttpOnly; SameSite=Lax`;
-    if (opts.maxAge) c += `; Max-Age=${Math.round(opts.maxAge / 1000)}`;
-    res._cookies.push(c); applyCookies(res); return res;
+    const parts = [`${name}=${val}`, `Path=${opts.path || '/'}`];
+    if (opts.httpOnly !== false) parts.push('HttpOnly');
+    parts.push(`SameSite=${opts.sameSite || 'Lax'}`);
+    if (opts.secure) parts.push('Secure');
+    if (opts.maxAge) parts.push(`Max-Age=${Math.round(opts.maxAge / 1000)}`);
+    res._cookies.push(parts.join('; ')); applyCookies(res); return res;
   };
-  res.clearCookie = (name) => { res._cookies.push(`${name}=; Path=/; Max-Age=0`); applyCookies(res); return res; };
+  res.clearCookie = (name, opts = {}) => {
+    const parts = [`${name}=`, `Path=${opts.path || '/'}`, 'Max-Age=0', 'HttpOnly', `SameSite=${opts.sameSite || 'Lax'}`];
+    if (opts.secure) parts.push('Secure');
+    res._cookies.push(parts.join('; ')); applyCookies(res); return res;
+  };
   return res;
 }
 function applyCookies(res) { res.setHeader('Set-Cookie', res._cookies); }
