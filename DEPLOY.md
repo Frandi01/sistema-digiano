@@ -73,7 +73,7 @@ Listo: entrás desde `https://sistema.tudominio.com`.
 
 Vas a tener datos reales de clientes en internet, así que:
 
-- **Cambiá las contraseñas** de los tres usuarios apenas entres (el admin entra con `Digiano2026`; cambiala desde Usuarios o reseteá). Luciano y Natalia ya cambian la suya en el primer ingreso.
+- **Configurá la variable `SEED_PASSWORD`** antes del primer arranque: define la contraseña inicial de los usuarios sembrados. No hay contraseña por defecto. Todos los usuarios deben cambiarla en el primer ingreso (cambio obligatorio forzado por el backend).
 - Usá contraseñas largas y únicas.
 - **Backups:** descargá periódicamente el archivo de la base. Es `/data/digiano.db` en el volumen (Railway permite abrir una shell del servicio para copiarlo, o se puede automatizar más adelante).
 - Si querés que solo entre tu equipo, más adelante se puede sumar restricción por IP o un segundo factor (2FA) para el administrador.
