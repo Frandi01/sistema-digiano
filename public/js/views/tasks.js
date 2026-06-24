@@ -3,7 +3,7 @@ import { icons, esc, toast, openModal, badge, fmtDate } from '../ui.js';
 import { state, go } from '../app.js';
 
 const NO_INT_REASONS = ['Precio', 'Ya tiene productor', 'Ya tiene cobertura', 'No le interesa', 'Otro'];
-const INVIABLE_REASONS = ['Sin telefono', 'Telefono invalido', 'Sin datos suficientes', 'Cliente fallecido', 'Cliente no localizable', 'Dato duplicado', 'Otro'];
+const INVIABLE_REASONS = ['Sin teléfono', 'Teléfono inválido', 'Sin datos suficientes', 'Cliente fallecido', 'Cliente no localizable', 'Dato duplicado', 'Otro'];
 const STATE_OPTS = [
   ['no_contactado', 'No contactado'], ['no_respondio', 'No respondio'], ['contactado', 'Contactado'],
   ['cotizacion_enviada', 'Cotizacion enviada'], ['venta_cerrada', 'Venta cerrada'],
@@ -116,8 +116,8 @@ export async function renderFollowups() {
       <td><button class="btn sm" data-task="${t.id}">Registrar resultado</button></td></tr>`).join('');
   const html = `
     <div class="card table-card"><div class="table-head"><h3 style="font-size:15px">Cotizaciones enviadas esperando respuesta</h3></div>
-      <table><thead><tr><th>Cliente</th><th>Ofrecido</th><th>Telefono</th><th>Seguimiento</th><th></th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="5"><div class="empty">Sin seguimientos pendientes</div></td></tr>'}</tbody></table></div>`;
+      <table><thead><tr><th>Cliente</th><th>Ofrecido</th><th>Teléfono</th><th>Seguimiento</th><th></th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="5"><div class="empty">No hay seguimientos pendientes.</div></td></tr>'}</tbody></table></div>`;
   return { html, mount: (root) => root.querySelectorAll('[data-task]').forEach((b) => b.onclick = () => openResultModal(b.dataset.task, 'venta_cerrada')) };
 }
 
@@ -125,7 +125,7 @@ export async function renderOperativeTasks() {
   const { tasks } = await api.get('/tasks/operativas');
   const isAdmin = state.user.role === 'admin';
   let users = [];
-  if (isAdmin) { try { users = (await api.get('/users')).users.filter((u) => u.active); } catch (e) {} }
+  if (isAdmin) { try { users = (await api.get('/users')).users.filter((u) => u.active); } catch (e) { console.warn('users (combo)', e); } }
 
   const rows = tasks.map((t) => `
     <tr data-id="${t.id}">
@@ -146,7 +146,7 @@ export async function renderOperativeTasks() {
     <div class="card table-card">
       <div class="table-head between"><h3 style="font-size:15px">Tareas operativas</h3><button class="btn" id="newTask">${icons.plus} Nueva tarea</button></div>
       <table><thead><tr>${isAdmin ? '<th><input type="checkbox" class="chk" id="chkAll"></th>' : ''}<th>Tarea</th>${isAdmin ? '<th>Asignada a</th>' : ''}<th>Vence</th><th>Estado</th><th></th></tr></thead>
-      <tbody>${rows || `<tr><td colspan="${cols}"><div class="empty">Sin tareas operativas</div></td></tr>`}</tbody></table>
+      <tbody>${rows || `<tr><td colspan="${cols}"><div class="empty">No hay tareas operativas asignadas.</div></td></tr>`}</tbody></table>
     </div>`;
 
   return {
@@ -219,7 +219,7 @@ function openEditTask(id, t, users) {
 }
 
 async function openTaskModal(isAdmin, users) {
-  const { clients } = await api.get('/clients');
+  const { clients } = await api.get('/clients?all=1');
   openModal({
     title: 'Nueva tarea operativa',
     body: `<form id="taskForm"><div class="form-grid">
@@ -241,21 +241,22 @@ async function openTaskModal(isAdmin, users) {
 
 export async function renderMyPerformance() {
   const d = await api.get('/dashboard');
-  const me = d.ranking.find((r) => r.id === state.user.id) || { score: 0, position: '-', assigned: 0, completed: 0 };
+  const me = d.ranking.find((r) => r.id === state.user.id) || { score: 0, position: '-', assigned: 0, completed: 0, progress: 0 };
+  const sinTareas = !me.assigned;
   let followups = 0;
-  try { followups = (await api.get('/tasks/followups')).tasks.length; } catch (e) {}
+  try { followups = (await api.get('/tasks/followups')).tasks.length; } catch (e) { console.warn('followups count', e); }
   const kpi = (label, value, color) => `<div class="card kpi"><span class="label">${label}</span><div class="value" style="color:${color || 'var(--ink)'}">${value}</div></div>`;
   const html = `
     <div class="card pad" style="background:linear-gradient(120deg,#1f3864,#2e75b6);color:#fff;margin-bottom:16px">
       <div class="row between wrap">
-        <div><div style="opacity:.85;font-size:13px">Tu posicion en el ranking</div><h2 style="font-size:34px;color:#fff">#${me.position}</h2></div>
+        <div><div style="opacity:.85;font-size:13px">Tu posición en el ranking</div><h2 style="font-size:34px;color:#fff">#${me.position}</h2></div>
         <div style="text-align:center"><div style="font-size:34px;font-weight:800">${me.score}</div><div style="opacity:.85;font-size:12px">puntos del mes</div></div>
       </div>
     </div>
     <div class="grid kpis">
-      ${kpi('Tareas asignadas', me.assigned)}
-      ${kpi('Tareas completadas', me.completed, 'var(--green)')}
-      ${kpi('Avance', (me.progress || 0) + '%', 'var(--blue)')}
+      ${kpi('Tareas asignadas', sinTareas ? '—' : me.assigned)}
+      ${kpi('Tareas completadas', sinTareas ? '—' : me.completed, 'var(--green)')}
+      ${kpi('Avance', sinTareas ? 'Sin tareas' : (me.progress || 0) + '%', 'var(--blue)')}
       ${kpi('Seguimientos activos', followups, 'var(--orange)')}
     </div>`;
   return { html };
