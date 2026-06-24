@@ -23,14 +23,14 @@ export async function renderMovements() {
         <button class="btn" id="newMov">${icons.plus} Registrar movimiento</button>
       </div>
       <table><thead><tr><th>Tipo</th><th>Cliente</th><th>Ramo</th><th>Compania</th><th>Comision</th><th>Estado</th><th>Origen</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="7"><div class="empty">Sin movimientos</div></td></tr>'}</tbody></table>
+        <tbody>${rows || '<tr><td colspan="7"><div class="empty">Todavía no hay altas ni bajas registradas.</div></td></tr>'}</tbody></table>
     </div>`;
 
   return { html, mount: (root) => { root.querySelector('#newMov').onclick = () => openMovementModal(); } };
 }
 
 export async function openMovementModal(presetClientId) {
-  const { clients } = await api.get('/clients');
+  const { clients } = await api.get('/clients?all=1');
   const opts = clients.map((c) => `<option value="${c.id}" ${c.id == presetClientId ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
   openModal({
     title: 'Registrar movimiento',
@@ -38,22 +38,25 @@ export async function openMovementModal(presetClientId) {
       <div class="field full"><label>Cliente *</label><select name="client_id" required>${opts}</select></div>
       <div class="field"><label>Tipo *</label><select name="type"><option value="alta">Alta</option><option value="baja">Baja</option></select></div>
       <div class="field"><label>Ramo *</label><select name="branch">${state.branches.map((b) => `<option>${b}</option>`).join('')}</select></div>
-      <div class="field"><label>Compania</label><input name="company" /></div>
-      <div class="field"><label>N. Poliza</label><input name="policy_number" /></div>
+      <div class="field"><label>Compañía</label><input name="company" /></div>
+      <div class="field"><label>N° Póliza</label><input name="policy_number" /></div>
       <div class="field"><label>Prima mensual</label><input name="premium" type="number" value="0" /></div>
-      <div class="field"><label>Comision estimada</label><input name="commission" type="number" value="0" /></div>
+      <div class="field"><label>Comisión estimada</label><input name="commission" type="number" value="0" /></div>
       <div class="field full"><label>Nota</label><input name="note" /></div>
     </div>
-    <div class="muted" style="font-size:12px;margin-top:6px">El movimiento actualiza automaticamente el perfil del cliente${state.user.role !== 'admin' ? ' (queda pendiente de aprobacion del administrador)' : ''}.</div>
+    <div class="muted" style="font-size:12px;margin-top:6px">El movimiento actualiza automáticamente el perfil del cliente${state.user.role !== 'admin' ? ' (queda pendiente de aprobación del administrador)' : ''}.</div>
     </form>`,
     footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="saveMov">Registrar</button>',
     wide: true,
     onMount: (modal, close) => {
       modal.querySelector('#saveMov').onclick = async () => {
-        const f = new FormData(modal.querySelector('#movForm'));
+        const o = Object.fromEntries(new FormData(modal.querySelector('#movForm')).entries());
+        if (!o.client_id) return toast('Elegí un cliente.', 'red');
+        if (!o.type || !o.branch) return toast('Indicá tipo y ramo.', 'red');
+        if (Number(o.premium) < 0 || Number(o.commission) < 0) return toast('Prima y comisión no pueden ser negativas.', 'red');
         try {
-          const r = await api.post('/movements', Object.fromEntries(f.entries()));
-          toast(r.status === 'pendiente' ? 'Movimiento enviado a aprobacion' : 'Movimiento registrado y perfil actualizado', 'green');
+          const r = await api.post('/movements', o);
+          toast(r.status === 'pendiente' ? 'Movimiento enviado a aprobación' : 'Movimiento registrado y perfil actualizado', 'green');
           close(); window.dispatchEvent(new HashChangeEvent('hashchange'));
         } catch (e) { toast(e.message, 'red'); }
       };
