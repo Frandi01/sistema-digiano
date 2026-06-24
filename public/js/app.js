@@ -10,9 +10,12 @@ import { renderClaims, renderClaimDetail } from './views/claims.js';
 import {
   renderApprovals, renderObjectives, renderUsers, renderAudit, renderRanking,
   renderTrash, renderMetrics, renderAvisosAdmin, renderSupervision, clearSupervisionInterval,
+  renderObjectivesArchived, renderCampaignDetail,
 } from './views/admin.js';
 import { renderCommissionsAdmin, renderMyCommission } from './views/commissions.js';
 import { renderMarketing } from './views/marketing.js';
+import { renderBancoIdeas } from './views/bancoideas.js';
+import { renderBrandLibrary } from './views/biblioteca.js';
 
 export const state = { user: null, branches: [], labels: {} };
 
@@ -22,7 +25,7 @@ const NAV = {
     ['Mi trabajo', [['tareas-hoy', 'Tareas de hoy', 'today'], ['seguimientos', 'Seguimientos', 'followups']]],
     ['Gestion', [['clientes', 'Clientes', 'clients'], ['tareas', 'Tareas', 'tasks'], ['siniestros', 'Siniestros', 'claims']]],
     ['Analisis', [['comisiones', 'Comisiones', 'money'], ['metricas', 'Metricas', 'metrics']]],
-    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Objetivos', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['marketing', 'Marketing', 'megaphone'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
+    ['Administracion', [['aprobaciones', 'Aprobaciones', 'approvals'], ['objetivos', 'Campañas', 'objectives'], ['avisos', 'Avisos', 'bell'], ['supervision', 'Supervision', 'users'], ['marketing', 'Marketing', 'megaphone'], ['banco-ideas', 'Banco de Ideas', 'idea'], ['biblioteca', 'Biblioteca de Marca', 'idea'], ['usuarios', 'Usuarios', 'users'], ['auditoria', 'Auditoria', 'audit'], ['papelera', 'Papelera', 'trash']]],
   ],
   comercial: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard'], ['rendimiento', 'Mi rendimiento', 'ranking'], ['mi-comision', 'Mi comision', 'money']]],
@@ -36,7 +39,7 @@ const NAV = {
   marketing: [
     ['Principal', [['dashboard', 'Dashboard', 'dashboard']]],
     ['Gestion', [['clientes', 'Clientes', 'clients']]],
-    ['Mi panel', [['marketing', 'Calendario y tareas', 'megaphone']]],
+    ['Mi panel', [['marketing', 'Pipeline y calendario', 'megaphone'], ['banco-ideas', 'Banco de Ideas', 'idea'], ['biblioteca', 'Biblioteca de Marca', 'idea']]],
   ],
 };
 
@@ -231,12 +234,13 @@ async function toggleNotifs() {
 const TITLES = {
   dashboard: 'Dashboard', clientes: 'Clientes', movimientos: 'Altas / Bajas', tareas: 'Tareas operativas',
   'tareas-hoy': 'Tareas de hoy', seguimientos: 'Bandeja de seguimientos', siniestros: 'Siniestros',
-  aprobaciones: 'Centro de aprobaciones', campanas: 'Campanas', objetivos: 'Objetivos',
+  aprobaciones: 'Centro de aprobaciones', campanas: 'Campanas', objetivos: 'Campañas',
   supervision: 'Supervision del equipo',
   marketing: 'Marketing',
   usuarios: 'Usuarios', auditoria: 'Auditoria', ranking: 'Ranking del equipo', rendimiento: 'Mi rendimiento',
   comisiones: 'Liquidacion de comisiones', 'mi-comision': 'Mi comision', metricas: 'Metricas de conversion',
-  avisos: 'Avisos y circulares', papelera: 'Papelera',
+  avisos: 'Avisos y circulares', papelera: 'Papelera', marketing: 'Panel de Marketing', 'banco-ideas': 'Banco de Ideas',
+  biblioteca: 'Biblioteca de Marca', 'campanas-archivadas': 'Campañas archivadas', campana: 'Detalle de campaña',
 };
 
 export async function route() {
@@ -272,7 +276,11 @@ export async function route() {
       case 'aprobaciones': view = await renderApprovals(); break;
       case 'supervision': view = await renderSupervision(); break;
       case 'marketing': view = await renderMarketing(); break;
+      case 'banco-ideas': view = await renderBancoIdeas(); break;
+      case 'biblioteca': view = await renderBrandLibrary(); break;
       case 'objetivos': view = await renderObjectives(); break;
+      case 'campanas-archivadas': view = await renderObjectivesArchived(); break;
+      case 'campana': view = await renderCampaignDetail(parts[1]); break;
       case 'usuarios': view = await renderUsers(); break;
       case 'auditoria': view = await renderAudit(); break;
       case 'comisiones': view = await renderCommissionsAdmin(); break;
