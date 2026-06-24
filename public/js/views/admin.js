@@ -45,49 +45,224 @@ export async function renderApprovals() {
 }
 
 /* ============ OBJETIVOS ============ */
-export async function renderObjectives() {
-  const { objectives } = await api.get('/objectives');
-  const byBranch = {};
-  try { (await api.get('/opportunities')).opportunities.forEach((o) => byBranch[o.offer] = (byBranch[o.offer] || 0) + 1); } catch (e) {}
+const ADMIN_TASKS = ['Disenar folleto', 'Preparar material grafico', 'Imprimir folleteria', 'Comprar insumos', 'Preparar stand', 'Coordinar material de campaña'];
+
+export async function renderObjectives(archived = false) {
+  const { objectives } = await api.get('/objectives' + (archived ? '?archived=1' : ''));
   const prio = (p) => `<span class="badge ${p === 'alta' ? 'red' : p === 'baja' ? 'gray' : 'orange'}">${esc(p || 'media')}</span>`;
+  const areas = (o) => [o.part_comercial ? '<span class="badge blue">Comercial</span>' : '', o.part_marketing ? '<span class="badge purple">Marketing</span>' : '', o.part_admin ? '<span class="badge navy">Admin</span>' : ''].filter(Boolean).join(' ') || '<span class="muted">-</span>';
   const rows = objectives.map((o) => `
-    <tr><td><b>${esc(o.name)}</b> ${o.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
-      <td>${esc(o.branch || 'Todos')}</td><td>${o.target}</td><td>${prio(o.priority)}</td>
-      <td>${o.branch ? `<span class="badge orange">${byBranch[o.branch] || 0} clientes</span>` : '<span class="muted">-</span>'}</td>
+    <tr><td style="text-align:center"><input type="checkbox" class="cmpChk" value="${o.id}"></td>
+      <td><a href="#/campana/${o.id}" style="font-weight:600">${esc(o.name)}</a> ${o.active ? '<span class="badge green">Activa</span>' : '<span class="badge gray">Inactiva</span>'}</td>
+      <td>${o.type === 'marketing' ? '<span class="badge purple">Marketing</span>' : '<span class="badge blue">Comercial</span>'}</td>
+      <td>${areas(o)}</td>
+      <td>${esc(o.branch || '-')}</td><td>${prio(o.priority)}</td>
       <td>${fmtDate(o.start_date)} - ${fmtDate(o.end_date)}</td>
-      <td class="row" style="gap:6px"><button class="btn outline sm" data-edit="${o.id}">Editar</button><button class="btn outline sm" data-del="${o.id}">Borrar</button></td></tr>`).join('');
+      <td class="row" style="gap:5px;flex-wrap:wrap">
+        <button class="btn outline sm" data-view="${o.id}">Ver</button>
+        <button class="btn outline sm" data-edit="${o.id}">Editar</button>
+        <button class="btn outline sm" data-dup="${o.id}">Duplicar</button>
+        ${archived ? `<button class="btn outline sm" data-restore="${o.id}">Restaurar</button>` : `<button class="btn outline sm" data-arch="${o.id}">Archivar</button>`}
+        <button class="btn outline sm" data-del="${o.id}">Borrar</button>
+      </td></tr>`).join('');
   const html = `
-    <div class="card pad" style="margin-bottom:14px"><div class="muted" style="font-size:13px">Los objetivos <b>miden</b> el avance del mes y ademas <b>dirigen</b> las tareas comerciales: el sistema prioriza contactar clientes que pueden comprar el ramo del objetivo, segun su prioridad. Un objetivo de ramo "Todos" solo mide (no dirige tareas).</div></div>
-    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Objetivos</h3><button class="btn" id="newObj">${icons.plus} Nuevo objetivo</button></div>
-      <table><thead><tr><th>Nombre</th><th>Ramo</th><th>Meta</th><th>Prioridad</th><th>Potencial</th><th>Periodo</th><th></th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="7"><div class="empty">Sin objetivos</div></td></tr>'}</tbody></table></div>`;
+    <div class="card pad" style="margin-bottom:14px"><div class="muted" style="font-size:13px">Las <b>campañas</b> son el motor del sistema: conectan Comercial, Marketing y Administracion. Tocá el nombre para ver el detalle unificado (comercial + marketing + timeline).</div></div>
+    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">${archived ? 'Campañas archivadas' : 'Campañas'}</h3>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn outline" id="cmpBtn">Comparar seleccionadas</button>
+        <a class="btn outline" href="#/${archived ? 'objetivos' : 'campanas-archivadas'}">${archived ? 'Ver activas' : 'Ver archivadas'}</a>
+        ${archived ? '' : `<button class="btn" id="newObj">${icons.plus} Nueva campaña</button>`}
+      </div></div>
+      <table><thead><tr><th></th><th>Nombre</th><th>Tipo</th><th>Areas</th><th>Ramo</th><th>Prioridad</th><th>Periodo</th><th></th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="8"><div class="empty">Sin campañas</div></td></tr>'}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
-      root.querySelector('#newObj').onclick = () => objForm();
+      const nb = root.querySelector('#newObj'); if (nb) nb.onclick = () => objForm();
+      root.querySelectorAll('[data-view]').forEach((b) => b.onclick = () => { location.hash = '#/campana/' + b.dataset.view; });
       root.querySelectorAll('[data-edit]').forEach((b) => b.onclick = () => objForm(objectives.find((o) => o.id == b.dataset.edit)));
-      root.querySelectorAll('[data-del]').forEach((b) => b.onclick = async () => { if (confirm('Mover objetivo a la papelera?')) { await api.del('/objectives/' + b.dataset.del); toast('A la papelera'); refresh(); } });
+      root.querySelectorAll('[data-dup]').forEach((b) => b.onclick = async () => { try { await api.post('/objectives/' + b.dataset.dup + '/duplicate'); toast('Campaña duplicada', 'green'); refresh(); } catch (e) { toast(e.message, 'red'); } });
+      root.querySelectorAll('[data-arch]').forEach((b) => b.onclick = async () => { if (confirm('Archivar esta campaña?')) { await api.post('/objectives/' + b.dataset.arch + '/archive'); toast('Archivada'); refresh(); } });
+      root.querySelectorAll('[data-restore]').forEach((b) => b.onclick = async () => { await api.post('/objectives/' + b.dataset.restore + '/restore'); toast('Restaurada', 'green'); refresh(); });
+      root.querySelectorAll('[data-del]').forEach((b) => b.onclick = async () => { if (confirm('Mover campaña a la papelera?')) { await api.del('/objectives/' + b.dataset.del); toast('A la papelera'); refresh(); } });
+      root.querySelector('#cmpBtn').onclick = () => {
+        const ids = Array.from(root.querySelectorAll('.cmpChk:checked')).map((c) => c.value);
+        if (ids.length < 2) return toast('Elegi al menos 2 campañas para comparar', 'red');
+        openCompare(ids);
+      };
     },
   };
 }
+
+export async function renderObjectivesArchived() { return renderObjectives(true); }
+
+async function openCompare(ids) {
+  let d; try { d = await api.get('/objectives/compare?ids=' + ids.join(',')); } catch (e) { return toast(e.message, 'red'); }
+  const cols = d.campaigns.map((c) => `<th>${esc(c.name)}</th>`).join('');
+  const row = (label, key) => `<tr><td><b>${label}</b></td>${d.campaigns.map((c) => `<td>${c[key] ?? 0}</td>`).join('')}</tr>`;
+  openModal({
+    title: 'Comparador de campañas', wide: true,
+    body: `<div style="overflow:auto"><table style="width:100%"><thead><tr><th>Metrica</th>${cols}</tr></thead><tbody>
+      ${row('Tipo', 'type')}
+      ${row('Meta', 'target')}
+      ${row('Ventas (comercial)', 'ventas')}
+      ${row('Tareas comerciales', 'tareas_com')}
+      ${row('Contenidos', 'contenidos')}
+      ${row('Publicados', 'publicados')}
+      ${row('Visualizaciones', 'views')}
+      ${row('Alcance', 'reach')}
+    </tbody></table></div>`,
+    footer: '<button class="btn" data-close>Cerrar</button>',
+  });
+}
+
+export async function renderCampaignDetail(id) {
+  let d; try { d = await api.get('/objectives/' + id + '/detail'); } catch (e) { return { html: `<div class="empty">${esc(e.message)}</div>` }; }
+  const o = d.objective, com = d.comercial || {}, pub = d.published || {};
+  const pct = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+  const cmap = {}; (d.content || []).forEach((c) => cmap[c.status] = c.n);
+  const ventas = com.ventas || 0, totalT = com.total || 0;
+  const resumen = `Campaña "${o.name}" (${o.type === 'marketing' ? 'Marketing' : 'Comercial'}). ` +
+    `Comercial: ${ventas} ventas sobre ${totalT} tareas` + (o.target ? `, ${pct(ventas, o.target)}% de la meta (${o.target})` : '') + `. ` +
+    `Marketing: ${pub.n || 0} publicaciones, ${pub.views || 0} visualizaciones, ${pub.likes || 0} likes.`;
+  const kpi = (label, val, color) => `<div class="card pad" style="flex:1;text-align:center;min-width:96px"><div style="font-size:20px;font-weight:700;color:${color || 'var(--navy)'}">${val ?? 0}</div><div class="muted" style="font-size:11px">${label}</div></div>`;
+  const STLAB = { idea: 'Idea', guion: 'Guion', pend_grabar: 'Pend. grabar', grabado: 'Grabado', editando: 'Editando', revision: 'Revision', programado: 'Programado', publicado: 'Publicado', pendiente_metricas: 'Pend. metricas' };
+  const contentRows = Object.keys(cmap).map((k) => `<span class="badge gray" style="margin:2px">${STLAB[k] || k}: ${cmap[k]}</span>`).join('') || '<span class="muted">Sin contenido</span>';
+  const tl = (d.timeline || []).map((e) => `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><span class="muted" style="font-size:11px">${fmtDateTime(e.created_at)}</span> &middot; ${esc(e.user_name || 'Sistema')} &middot; <b>${esc(e.action)}</b>${e.detail ? ' &mdash; ' + esc(e.detail) : ''}</div>`).join('') || '<div class="muted">Sin actividad registrada</div>';
+  const html = `
+    <div class="row between wrap" style="margin-bottom:12px">
+      <a class="btn outline sm" href="#/objetivos">&larr; Campañas</a>
+      ${o.active ? '<span class="badge green">Activa</span>' : '<span class="badge gray">Inactiva</span>'}
+    </div>
+    <div class="card pad" style="margin-bottom:14px">
+      <h2 style="font-size:18px;margin-bottom:4px">${esc(o.name)}</h2>
+      <div class="muted" style="font-size:13px">${o.type === 'marketing' ? 'Marketing' : 'Comercial'} &middot; Ramo: ${esc(o.branch || '-')} &middot; ${fmtDate(o.start_date)} a ${fmtDate(o.end_date)}</div>
+      <div style="margin-top:10px;padding:10px;background:var(--bg, #f5f7fa);border-radius:8px;font-size:13.5px">${esc(resumen)}</div>
+    </div>
+    <div class="card pad" style="margin-bottom:14px" id="aiCard">
+      <div class="row between wrap" style="gap:8px">
+        <h3 style="font-size:14px">Analisis con IA</h3>
+        <button class="btn outline sm" id="aiBtn">Analizar con IA</button>
+      </div>
+      <div id="aiOut" class="muted" style="font-size:13px;margin-top:8px">Genera un analisis automatico de esta campaña: resumen, riesgos y recomendaciones.</div>
+    </div>
+    <div class="card pad" style="margin-bottom:14px">
+      <h3 style="font-size:14px;margin-bottom:8px">Comercial</h3>
+      <div class="row wrap" style="gap:10px">
+        ${kpi('Meta', o.target, '#1f3864')}
+        ${kpi('Ventas', ventas, '#27ae60')}
+        ${kpi('Cotizaciones', com.cotizaciones, '#2e75b6')}
+        ${kpi('Contactados', com.contactados, '#2e75b6')}
+        ${kpi('Tareas', totalT)}
+      </div>
+    </div>
+    <div class="card pad" style="margin-bottom:14px">
+      <h3 style="font-size:14px;margin-bottom:8px">Marketing</h3>
+      <div class="row wrap" style="gap:10px;margin-bottom:10px">
+        ${kpi('Publicados', pub.n, '#27ae60')}
+        ${kpi('Visualizaciones', pub.views, '#2e75b6')}
+        ${kpi('Alcance', pub.reach, '#2e75b6')}
+        ${kpi('Likes', pub.likes, '#8e44ad')}
+        ${kpi('Comentarios', pub.comments, '#8e44ad')}
+      </div>
+      <div>${contentRows}</div>
+    </div>
+    <div class="card pad">
+      <h3 style="font-size:14px;margin-bottom:8px">Timeline de la campaña</h3>
+      ${tl}
+    </div>`;
+  return {
+    html,
+    mount: (root) => {
+      const btn = root.querySelector('#aiBtn'), out = root.querySelector('#aiOut');
+      if (!btn) return;
+      btn.onclick = async () => {
+        btn.disabled = true; out.textContent = 'Analizando...';
+        try {
+          const r = await api.post('/ai/campaign-summary/' + id);
+          if (r.ok) out.innerHTML = '<div style="color:var(--text);white-space:pre-wrap">' + esc(r.analysis) + '</div>';
+          else out.innerHTML = '<span style="color:#c0392b">' + esc(r.message) + '</span>';
+        } catch (e) { out.innerHTML = '<span style="color:#c0392b">' + esc(e.message) + '</span>'; }
+        btn.disabled = false;
+      };
+    },
+  };
+}
+
 function objForm(o) {
   const e = o || {};
+  const isMkt = e.type === 'marketing';
   openModal({
-    title: o ? 'Editar objetivo' : 'Nuevo objetivo',
-    body: `<form id="f"><div class="form-grid">
-      <div class="field full"><label>Nombre *</label><input name="name" value="${esc(e.name || '')}" required /></div>
-      <div class="field"><label>Ramo objetivo</label><select name="branch"><option value="">Todos (solo medir)</option>${state.branches.map((b) => `<option ${b === e.branch ? 'selected' : ''}>${b}</option>`).join('')}</select></div>
-      <div class="field"><label>Meta (altas)</label><input name="target" type="number" value="${e.target ?? 10}" /></div>
-      <div class="field"><label>Prioridad (dirige tareas)</label><select name="priority"><option value="alta" ${e.priority === 'alta' ? 'selected' : ''}>Alta</option><option value="media" ${(e.priority || 'media') === 'media' ? 'selected' : ''}>Media</option><option value="baja" ${e.priority === 'baja' ? 'selected' : ''}>Baja</option></select></div>
-      <div class="field"><label>Comision promedio</label><input name="avg_commission" type="number" value="${e.avg_commission ?? 0}" /></div>
-      <div class="field"><label>Inicio</label><input name="start_date" type="date" value="${e.start_date || ''}" /></div>
-      <div class="field"><label>Fin</label><input name="end_date" type="date" value="${e.end_date || ''}" /></div>
-    </div></form>`,
-    footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="s">Guardar</button>',
-    onMount: (modal, close) => modal.querySelector('#s').onclick = async () => {
-      const f = Object.fromEntries(new FormData(modal.querySelector('#f')).entries());
-      try { if (o) await api.put('/objectives/' + o.id, f); else await api.post('/objectives', f); toast('Guardado', 'green'); close(); refresh(); }
-      catch (er) { toast(er.message, 'red'); }
+    title: o ? 'Editar campaña' : 'Nueva campaña', wide: true,
+    body: `<form id="f">
+      <div class="form-grid">
+        <div class="field full"><label>Nombre de la campaña *</label><input name="name" value="${esc(e.name || '')}" required /></div>
+        <div class="field"><label>Tipo de campaña</label><select id="cType"><option value="comercial" ${!isMkt ? 'selected' : ''}>Comercial</option><option value="marketing" ${isMkt ? 'selected' : ''}>Marketing</option></select></div>
+      </div>
+      <div id="comBox"><div class="form-grid">
+        <div class="field"><label>Ramo objetivo</label><select name="branch"><option value="">Todos (solo medir)</option>${state.branches.map((b) => `<option ${b === e.branch ? 'selected' : ''}>${b}</option>`).join('')}</select></div>
+        <div class="field"><label>Meta de altas</label><input name="target" type="number" value="${e.target ?? 10}" /></div>
+        <div class="field"><label>Prioridad</label><select name="priority"><option value="alta" ${e.priority === 'alta' ? 'selected' : ''}>Alta</option><option value="media" ${(e.priority || 'media') === 'media' ? 'selected' : ''}>Media</option><option value="baja" ${e.priority === 'baja' ? 'selected' : ''}>Baja</option></select></div>
+      </div></div>
+      <div class="form-grid">
+        <div class="field"><label>Inicio *</label><input name="start_date" type="date" value="${e.start_date || ''}" /></div>
+        <div class="field"><label>Fin *</label><input name="end_date" type="date" value="${e.end_date || ''}" /></div>
+      </div>
+      <div id="areasBox" style="margin-top:12px">
+        <label class="muted" style="font-size:12px;font-weight:600;text-transform:uppercase">Areas que participan</label>
+        <div class="row wrap" style="gap:16px;margin-top:6px;font-size:13.5px">
+          <label><input type="checkbox" id="aMkt" ${e.part_marketing ? 'checked' : ''}> Marketing (Juliana)</label>
+          <label><input type="checkbox" id="aAdm" ${e.part_admin ? 'checked' : ''}> Administracion (Natalia)</label>
+        </div>
+      </div>
+      <div id="mktBox" style="margin-top:12px;display:none">
+        <label class="muted" style="font-size:12px;font-weight:600;text-transform:uppercase">Contenido semanal (tareas de Juliana)</label>
+        <div class="muted" style="font-size:12px;margin:2px 0 6px">Se generan cada semana mientras la campaña este activa.</div>
+        <div class="form-grid">
+          <div class="field"><label>Reels</label><input name="qty_reel" type="number" min="0" value="${e.qty_reel ?? 0}" /></div>
+          <div class="field"><label>Carruseles</label><input name="qty_carrusel" type="number" min="0" value="${e.qty_carrusel ?? 0}" /></div>
+          <div class="field"><label>Historias</label><input name="qty_historia" type="number" min="0" value="${e.qty_historia ?? 0}" /></div>
+          <div class="field"><label>Posts LinkedIn</label><input name="qty_linkedin" type="number" min="0" value="${e.qty_linkedin ?? 0}" /></div>
+        </div>
+      </div>
+      <div id="admBox" style="margin-top:12px;display:none">
+        <label class="muted" style="font-size:12px;font-weight:600;text-transform:uppercase">Tareas para Administracion (Natalia)</label>
+        <div class="row wrap" style="gap:12px;margin-top:6px;font-size:13.5px">
+          ${ADMIN_TASKS.map((t) => `<label><input type="checkbox" class="admT" value="${esc(t)}"> ${esc(t)}</label>`).join('')}
+        </div>
+      </div>
+    </form>`,
+    footer: '<button class="btn ghost" data-close>Cancelar</button><button class="btn" id="s">Guardar campaña</button>',
+    onMount: (modal, close) => {
+      const type = modal.querySelector('#cType');
+      const aMkt = modal.querySelector('#aMkt'), aAdm = modal.querySelector('#aAdm');
+      const sync = () => {
+        const mkt = type.value === 'marketing';
+        modal.querySelector('#comBox').style.display = mkt ? 'none' : 'block';
+        modal.querySelector('#areasBox').style.display = mkt ? 'none' : 'block';
+        modal.querySelector('#mktBox').style.display = (mkt || aMkt.checked) ? 'block' : 'none';
+        modal.querySelector('#admBox').style.display = (!mkt && aAdm.checked) ? 'block' : 'none';
+      };
+      [type, aMkt, aAdm].forEach((el) => el.addEventListener('change', sync));
+      sync();
+      modal.querySelector('#s').addEventListener('click', async () => {
+        const g = (n) => modal.querySelector(`[name="${n}"]`) ? modal.querySelector(`[name="${n}"]`).value : '';
+        const mkt = type.value === 'marketing';
+        const body = {
+          name: g('name'), type: type.value, start_date: g('start_date'), end_date: g('end_date'),
+          branch: g('branch') || null, target: g('target'), priority: g('priority'),
+          part_marketing: mkt ? 1 : (aMkt.checked ? 1 : 0),
+          part_admin: mkt ? 0 : (aAdm.checked ? 1 : 0),
+          qty_reel: g('qty_reel'), qty_carrusel: g('qty_carrusel'), qty_historia: g('qty_historia'), qty_linkedin: g('qty_linkedin'),
+          admin_tasks: Array.from(modal.querySelectorAll('.admT:checked')).map((c) => c.value),
+        };
+        if (!body.name) return toast('Falta el nombre', 'red');
+        if (!body.start_date || !body.end_date) return toast('Indica inicio y fin', 'red');
+        try {
+          if (o) await api.put('/objectives/' + o.id, body); else await api.post('/objectives', body);
+          toast('Campaña guardada', 'green'); close(); refresh();
+        } catch (er) { toast(er.message, 'red'); }
+      });
     },
   });
 }
@@ -337,7 +512,7 @@ export async function renderSupervision() {
       const estado = RESULT_LABEL[t.result] || 'Sin contactar';
       const completada = FINAL.includes(t.result);
       const estadoClass = completada ? 'gray' : t.atrasada ? 'red' : t.result === 'cotizacion_enviada' ? 'orange' : 'blue';
-      const mod = t.last_activity ? tiempoRelativo(t.last_activity) : '—';
+      const mod = t.last_activity ? tiempoRelativo(t.last_activity) : '-';
       return `<tr>
         <td><b>${esc(t.client_name || '-')}</b></td>
         <td>${esc(t.offer || '-')}</td>
@@ -380,7 +555,7 @@ export async function renderSupervision() {
 
   const html = `
     <div class="row between" style="margin-bottom:16px;align-items:center">
-      <div class="muted" style="font-size:13px">Se actualiza automÃ¡ticamente cada 30 segundos.</div>
+      <div class="muted" style="font-size:13px">Se actualiza automaticamente cada 30 segundos.</div>
     </div>
     ${users.length ? cards : '<div class="empty">Sin usuarios activos</div>'}`;
 
@@ -396,4 +571,3 @@ export async function renderSupervision() {
     },
   };
 }
-
