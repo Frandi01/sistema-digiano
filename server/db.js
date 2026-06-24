@@ -318,15 +318,7 @@ addColumn('marketing_tasks', 'auto', 'INTEGER DEFAULT 0');          // generada 
 addColumn('marketing_tasks', 'week_start', 'TEXT');                 // inicio del ciclo semanal de la tanda
 addColumn('tasks', 'updated_at', 'TEXT');
 
-// ---- Fase 3: metricas de contenido, archivado de campañas y biblioteca de marca ----
-addColumn('mkt_content', 'metrics_views', 'INTEGER');
-addColumn('mkt_content', 'metrics_reach', 'INTEGER');
-addColumn('mkt_content', 'metrics_likes', 'INTEGER');
-addColumn('mkt_content', 'metrics_comments', 'INTEGER');
-addColumn('mkt_content', 'published_at', 'TEXT');
-addColumn('mkt_content', 'pending_metrics', 'INTEGER DEFAULT 0');
-addColumn('objectives', 'archived', 'INTEGER DEFAULT 0');
-db.exec("CREATE TABLE IF NOT EXISTS mkt_brand (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, category TEXT, created_by INTEGER REFERENCES users(id), created_at TEXT NOT NULL DEFAULT (datetime('now')));");
+
 
 // ---- Tablas de marketing (idempotentes) ----
 db.exec(`
@@ -342,11 +334,14 @@ CREATE TABLE IF NOT EXISTS marketing_tasks (
   type TEXT NOT NULL,
   description TEXT,
   due_date TEXT,
-  status TEXT NOT NULL DEFAULT 'pendiente' CHECK(status IN ('pendiente','en_progreso','completado')),
+  status TEXT NOT NULL DEFAULT 'pendiente',
   result_notes TEXT,
   created_by INTEGER REFERENCES users(id),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  completed_at TEXT
+  completed_at TEXT,
+  campaign_id INTEGER,
+  auto INTEGER DEFAULT 0,
+  week_start TEXT
 );
 
 -- ============ PIPELINE DE CONTENIDO (marketing) ============
@@ -376,6 +371,16 @@ CREATE TABLE IF NOT EXISTS mkt_ideas (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `);
+
+// ---- Fase 3: metricas de contenido, archivado de campañas y biblioteca de marca ----
+addColumn('mkt_content', 'metrics_views', 'INTEGER');
+addColumn('mkt_content', 'metrics_reach', 'INTEGER');
+addColumn('mkt_content', 'metrics_likes', 'INTEGER');
+addColumn('mkt_content', 'metrics_comments', 'INTEGER');
+addColumn('mkt_content', 'published_at', 'TEXT');
+addColumn('mkt_content', 'pending_metrics', 'INTEGER DEFAULT 0');
+addColumn('objectives', 'archived', 'INTEGER DEFAULT 0');
+db.exec("CREATE TABLE IF NOT EXISTS mkt_brand (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, category TEXT, created_by INTEGER REFERENCES users(id), created_at TEXT NOT NULL DEFAULT (datetime('now')));");
 
 // Migración: quitar el CHECK del campo role (los roles se validan en la capa de
 // aplicacion, ver api.js). Asi agregar roles nuevos no requiere recrear la tabla.
@@ -468,5 +473,66 @@ try {
   db.exec("UPDATE users SET username = lower(substr(email,1,instr(email,'@')-1)) WHERE (username IS NULL OR username='') AND email LIKE '%@%'");
 } catch (e) { /* noop */ }
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)');
+
+// ---- Unificacion de estados: marketing_tasks usaba 'en_progreso'/'completado'.
+// Se estandariza a 'en_proceso'/'completada' (igual que las tareas comerciales) y
+// se elimina el CHECK que impedia esos valores. Idempotente.
+try {
+  const mt = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='marketing_tasks'").get();
+  if (mt && /en_progreso/.test(mt.sql || '')) {
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('BEGIN');
+    try {
+      db.exec(`CREATE TABLE marketing_tasks__new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        description TEXT,
+        due_date TEXT,
+        status TEXT NOT NULL DEFAULT 'pendiente',
+        result_notes TEXT,
+        created_by INTEGER REFERENCES users(id),
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        completed_at TEXT,
+        campaign_id INTEGER,
+        auto INTEGER DEFAULT 0,
+        week_start TEXT
+      )`);
+      const cols = db.prepare("PRAGMA table_info('marketing_tasks')").all().map((c) => c.name);
+      const common = ['id','type','description','due_date','status','result_notes','created_by','created_at','completed_at','campaign_id','auto','week_start'].filter((c) => cols.includes(c));
+      db.exec(`INSERT INTO marketing_tasks__new (${common.join(',')}) SELECT ${common.join(',')} FROM marketing_tasks`);
+      db.exec('DROP TABLE marketing_tasks');
+      db.exec('ALTER TABLE marketing_tasks__new RENAME TO marketing_tasks');
+      db.exec("UPDATE marketing_tasks SET status='en_proceso' WHERE status='en_progreso'");
+      db.exec("UPDATE marketing_tasks SET status='completada' WHERE status='completado'");
+      db.exec('COMMIT');
+      console.log('  Migracion: estados de marketing_tasks unificados (en_proceso/completada).');
+    } catch (inner) { db.exec('ROLLBACK'); throw inner; }
+    finally { db.exec('PRAGMA foreign_keys = ON'); }
+  }
+} catch (e) { console.warn('  Migracion estados marketing_tasks:', e.message); }
+
+// ---- Tabla de metadatos de la app (marcadores de migraciones de una sola vez) ----
+db.exec("CREATE TABLE IF NOT EXISTS app_meta (key TEXT PRIMARY KEY, value TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))");
+
+// ---- Rotacion de seguridad (una sola vez por base) ----
+// Invalida cualquier contraseña temporal conocida previa: fuerza cambio de
+// contraseña a TODOS los usuarios, cierra todas las sesiones activas y elimina
+// los puntos de score sin referencia real (datos demo). Idempotente: corre una
+// unica vez, controlada por un marcador en app_meta.
+try {
+  const done = db.prepare("SELECT 1 FROM app_meta WHERE key='security_rotation_v1'").get();
+  if (!done) {
+    db.exec('BEGIN');
+    try {
+      db.exec('UPDATE users SET must_change_password=1');
+      db.exec('DELETE FROM sessions');
+      // Quita puntos demo/importados sin referencia (no representan actividad real).
+      try { db.exec('DELETE FROM score_events WHERE ref_type IS NULL AND ref_id IS NULL'); } catch (e) { /* tabla puede no existir aun */ }
+      db.prepare("INSERT INTO app_meta (key,value) VALUES ('security_rotation_v1', datetime('now'))").run();
+      db.exec('COMMIT');
+      console.log('  Rotacion de seguridad aplicada: cambio de contraseña forzado, sesiones invalidadas, score demo depurado.');
+    } catch (inner) { db.exec('ROLLBACK'); throw inner; }
+  }
+} catch (e) { console.warn('  Rotacion de seguridad:', e.message); }
 
 export default db;
