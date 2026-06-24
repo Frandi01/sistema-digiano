@@ -30,7 +30,9 @@ node server/import-clientes.js
 
 Esto borra los clientes de demostración, importa los 270 reales (sin duplicar) y deja el sistema listo.
 
-### Usuarios de ejemplo (el login es por **nombre de usuario**, contraseña `Digiano2026`)
+### Usuarios de ejemplo (el login es por **nombre de usuario**)
+
+La contraseña inicial se define con la variable de entorno **`SEED_PASSWORD`** al desplegar. No hay ninguna contraseña por defecto en el código ni en esta documentación. Todos los usuarios deben cambiarla en el primer ingreso.
 
 | Rol | Usuario | Para qué |
 |---|---|---|
@@ -38,7 +40,7 @@ Esto borra los clientes de demostración, importa los 270 reales (sin duplicar) 
 | Comercial (Luciano) | `luciano` | Tareas de hoy, seguimientos, siniestros, su comisión |
 | Siniestros (Natalia) | `natalia` | Siniestros, clientes, altas/bajas, su comisión |
 
-El email queda como dato secundario del usuario (ya no se usa para entrar). Luciano y Natalia tienen **cambio de contraseña obligatorio** en el primer ingreso. El admin entra directo.
+El email queda como dato secundario del usuario (ya no se usa para entrar). **Todos los usuarios tienen cambio de contraseña obligatorio en el primer ingreso** (incluido el admin).
 
 > Si ya tenías una base creada de una versión anterior, al iniciar se migra sola: agrega las columnas y tablas nuevas y deriva el nombre de usuario desde el email (admin, luciano, natalia). No perdés datos.
 
