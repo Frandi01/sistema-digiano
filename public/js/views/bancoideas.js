@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { esc, fmtDate, toast, openModal, icons } from '../ui.js';
+import { esc, fmtDate, toast, openModal, icons, pageHeader, emptyState } from '../ui.js';
 
 const refresh = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
 
@@ -21,19 +21,13 @@ export async function renderBancoIdeas() {
     </div>`).join('');
 
   const html = `
-    <div class="card pad" style="margin-bottom:14px">
-      <div class="row between wrap">
-        <div><h3 style="font-size:15px">Banco de Ideas</h3>
-          <div class="muted" style="font-size:13px">Guarda ideas de contenido. Convertilas al Pipeline cuando quieras producirlas.</div></div>
-        <button class="btn" id="newIdea">${icons.plus} Nueva idea</button>
-      </div>
-    </div>
-    <div class="grid cols-3">${cards || '<div class="empty">Todavía no hay ideas. Creá la primera.</div>'}</div>`;
+    ${pageHeader('Banco de Ideas', 'Guardá ideas de contenido y convertilas al pipeline cuando quieras producirlas.', `<button class="btn js-new-idea" id="newIdea">${icons.plus} Nueva idea</button>`)}
+    ${cards ? `<div class="grid cols-3">${cards}</div>` : `<div class="card">${emptyState('No hay ideas cargadas', 'Agregá una idea para alimentar el pipeline de contenido. Después podés convertirla en una pieza producible.', `<button class="btn js-new-idea">${icons.plus} Agregar idea</button>`, 'idea')}</div>`}`;
 
   return {
     html,
     mount: (root) => {
-      root.querySelector('#newIdea').addEventListener('click', () => ideaForm());
+      root.querySelectorAll('.js-new-idea').forEach((b) => b.addEventListener('click', () => ideaForm()));
       root.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => ideaForm(ideas.find((i) => i.id == b.dataset.edit))));
       root.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => {
         if (!confirm('Borrar esta idea?')) return;
