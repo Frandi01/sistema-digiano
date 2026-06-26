@@ -1,5 +1,5 @@
 ﻿import { api } from '../api.js';
-import { icons, esc, fmtMoney, fmtDate, fmtDateTime, toast, openModal, badge, initials, printPDF, printHeader, emptyState } from '../ui.js';
+import { icons, esc, fmtMoney, fmtDate, fmtDateTime, toast, openModal, badge, initials, printPDF, printHeader, emptyState, pageHeader, actionMenu } from '../ui.js';
 import { state } from '../app.js';
 
 const refresh = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -27,6 +27,7 @@ export async function renderApprovals() {
       <tbody>${rows || `<tr><td colspan="${cols}"><div class="empty">No hay nada pendiente.</div></td></tr>`}</tbody></table></div>`;
 
   const html =
+    pageHeader('Centro de aprobaciones', 'Revisá y resolvé movimientos, cambios de datos y clientes nuevos pendientes.') +
     block('Movimientos pendientes', ['Tipo', 'Cliente', 'Ramo', 'Cargado por', 'Comisión', ''], movRows, 6) +
     block('Cambios de datos pendientes', ['Cambio', 'Cliente', 'Solicitado por', ''], chRows, 4) +
     block('Clientes nuevos por aprobar', ['Cliente', 'Teléfono', 'Creado por', ''], cliRows, 4);
@@ -61,23 +62,15 @@ export async function renderObjectives(archived = false) {
       <td>${areas(o)}</td>
       <td>${esc(o.branch || '-')}</td><td>${prio(o.priority)}</td>
       <td>${fmtDate(o.start_date)} - ${fmtDate(o.end_date)}</td>
-      <td class="row" style="gap:5px;flex-wrap:wrap">
+      <td><div class="row" style="gap:6px;justify-content:flex-end;flex-wrap:nowrap">
         <button class="btn outline sm" data-view="${o.id}">Ver</button>
-        <button class="btn outline sm" data-edit="${o.id}">Editar</button>
-        <button class="btn outline sm" data-dup="${o.id}">Duplicar</button>
-        ${archived ? `<button class="btn outline sm" data-restore="${o.id}">Restaurar</button>` : `<button class="btn outline sm" data-arch="${o.id}">Archivar</button>`}
-        <button class="btn outline sm" data-del="${o.id}">Borrar</button>
-      </td></tr>`).join('');
+        ${actionMenu(`<button data-edit="${o.id}">Editar</button><button data-dup="${o.id}">Duplicar</button>${archived ? `<button data-restore="${o.id}">Restaurar</button>` : `<button data-arch="${o.id}">Archivar</button>`}<div class="sep"></div><button class="danger" data-del="${o.id}">Borrar</button>`, 'Acciones de ' + esc(o.name))}
+      </div></td></tr>`).join('');
   const html = `
-    <div class="card pad" style="margin-bottom:14px"><div class="muted" style="font-size:13px">Las <b>campañas</b> son el motor del sistema: conectan Comercial, Marketing y Administración. Tocá el nombre para ver el detalle unificado (comercial + marketing + timeline).</div></div>
-    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">${archived ? 'Campañas archivadas' : 'Campañas'}</h3>
-      <div class="row" style="gap:8px;flex-wrap:wrap">
-        <button class="btn outline" id="cmpBtn">Comparar seleccionadas</button>
-        <a class="btn outline" href="#/${archived ? 'objetivos' : 'campanas-archivadas'}">${archived ? 'Ver activas' : 'Ver archivadas'}</a>
-        ${archived ? '' : `<button class="btn" id="newObj">${icons.plus} Nueva campaña</button>`}
-      </div></div>
-      <table><thead><tr><th></th><th>Nombre</th><th>Tipo</th><th>Areas</th><th>Ramo</th><th>Prioridad</th><th>Periodo</th><th></th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="8"><div class="empty">Todavía no hay campañas creadas.</div></td></tr>'}</tbody></table></div>`;
+    ${pageHeader(archived ? 'Campañas archivadas' : 'Campañas', 'El motor del sistema: conectan Comercial, Marketing y Administración. Tocá el nombre para ver el detalle unificado.', `<button class="btn outline" id="cmpBtn">Comparar</button><a class="btn outline" href="#/${archived ? 'objetivos' : 'campanas-archivadas'}">${archived ? 'Ver activas' : 'Ver archivadas'}</a>${archived ? '' : `<button class="btn" id="newObj">${icons.plus} Nueva campaña</button>`}`)}
+    <div class="card table-card">
+      <table><thead><tr><th></th><th>Nombre</th><th>Tipo</th><th>Áreas</th><th>Ramo</th><th>Prioridad</th><th>Período</th><th></th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="8">${emptyState('Todavía no hay campañas', archived ? 'Las campañas archivadas aparecerán acá.' : 'Creá una campaña para coordinar Comercial, Marketing y Administración.', '', 'inbox')}</td></tr>`}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
@@ -327,11 +320,12 @@ export async function renderUsers() {
       <td>${esc(u.username || '-')}</td><td><span class="badge navy">${esc(u.role)}</span></td>
       <td>${u.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
       <td class="muted">${u.last_login ? fmtDateTime(u.last_login) : 'nunca'}</td>
-      <td><button class="btn outline sm" data-reset="${u.id}" data-name="${esc(u.name)}" aria-label="Resetear contraseña de ${esc(u.name)}">Reset pass</button> <button class="btn outline sm" data-toggle="${u.id}" data-active="${u.active}" data-name="${esc(u.name)}" aria-label="${u.active ? 'Desactivar' : 'Activar'} a ${esc(u.name)}">${u.active ? 'Desactivar' : 'Activar'}</button> <button class="btn outline sm red" data-reset-score="${u.id}" data-name="${esc(u.name)}" aria-label="Resetear puntos de ${esc(u.name)}">Reset puntos</button></td></tr>`).join('');
+      <td style="text-align:right">${actionMenu(`<button data-reset="${u.id}" data-name="${esc(u.name)}">Resetear contraseña</button><button data-toggle="${u.id}" data-active="${u.active}" data-name="${esc(u.name)}">${u.active ? 'Desactivar usuario' : 'Activar usuario'}</button><div class="sep"></div><button class="danger" data-reset-score="${u.id}" data-name="${esc(u.name)}">Resetear puntos</button>`, 'Acciones de ' + esc(u.name))}</td></tr>`).join('');
   const html = `
-    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Usuarios del sistema</h3><button class="btn" id="newUser">${icons.plus} Nuevo usuario</button></div>
+    ${pageHeader('Usuarios', 'Gestioná los accesos y roles del equipo.', `<button class="btn" id="newUser">${icons.plus} Nuevo usuario</button>`)}
+    <div class="card table-card">
       <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Último ingreso</th><th></th></tr></thead>
-      <tbody>${rows || `<tr><td colspan="6"><div class="empty">Todavía no hay usuarios.</div></td></tr>`}</tbody></table></div>`;
+      <tbody>${rows || `<tr><td colspan="6">${emptyState('Todavía no hay usuarios', 'Creá el primer usuario para dar acceso al equipo.', '', 'inbox')}</td></tr>`}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
@@ -409,7 +403,7 @@ export async function renderAudit() {
   const rows = audit.map((a) => `
     <tr><td class="muted">${fmtDateTime(a.created_at)}</td><td><b>${esc(a.user_name || 'Sistema')}</b></td>
     <td><span class="badge gray">${esc(a.action)}</span></td><td>${esc(a.entity_type || '-')}${a.entity_id ? ' #' + a.entity_id : ''}</td><td class="muted">${esc(a.detail || '-')}</td></tr>`).join('');
-  const html = `<div class="card table-card"><div class="table-head"><h3 style="font-size:15px">Registro de auditoria</h3></div>
+  const html = `${pageHeader('Auditoría', 'Registro de acciones sensibles del sistema: ingresos, cambios, aprobaciones y más.')}<div class="card table-card">
     <table><thead><tr><th>Fecha</th><th>Usuario</th><th>Accion</th><th>Entidad</th><th>Detalle</th></tr></thead>
     <tbody>${rows || '<tr><td colspan="5"><div class="empty">Sin registros</div></td></tr>'}</tbody></table></div>`;
   return { html };
@@ -452,8 +446,8 @@ export async function renderTrash() {
     <div class="card table-card" style="margin-bottom:16px"><div class="table-head"><h3 style="font-size:15px">${title}</h3></div>
       <table><thead><tr><th>Nombre</th><th>Eliminado por</th><th>Fecha</th><th></th></tr></thead>
       <tbody>${items.length ? items.map((i) => `<tr><td><b>${esc(i.nombre || '-')}</b></td><td>${esc(i.deleted_name || '-')}</td><td class="muted">${fmtDateTime(i.deleted_at)}</td>
-        <td><button class="btn green sm" data-restore="${i.tipo}:${i.id}" aria-label="Restaurar elemento">Restaurar</button></td></tr>`).join('') : '<tr><td colspan="4"><div class="empty">La papelera está vacía.</div></td></tr>'}</tbody></table></div>`;
-  const html = sect('Tareas eliminadas', d.tasks) + sect('Campañas eliminadas', d.campaigns) + sect('Objetivos eliminados', d.objectives);
+        <td><button class="btn green sm" data-restore="${i.tipo}:${i.id}" aria-label="Restaurar elemento">Restaurar</button></td></tr>`).join('') : `<tr><td colspan="4">${emptyState('Sin elementos eliminados', 'Cuando elimines tareas, campañas u objetivos, vas a poder restaurarlos desde acá.', '', 'trash')}</td></tr>`}</tbody></table></div>`;
+  const html = pageHeader('Papelera', 'Elementos eliminados. Podés restaurarlos cuando quieras.') + sect('Tareas eliminadas', d.tasks) + sect('Campañas eliminadas', d.campaigns) + sect('Objetivos eliminados', d.objectives);
   return {
     html,
     mount: (root) => root.querySelectorAll('[data-restore]').forEach((b) => b.onclick = async () => {
@@ -471,14 +465,13 @@ export async function renderMetrics() {
   const bar = (label, value, max, color) => `
     <div style="margin-bottom:8px"><div class="row between" style="font-size:13px"><span>${esc(label)}</span><b>${value}</b></div>
       <div class="progress"><span style="width:${max > 0 ? Math.round((value / max) * 100) : 0}%;background:${color}"></span></div></div>`;
-  const reasons = (arr) => arr.length ? arr.map((r) => `<div class="row between" style="padding:6px 0;border-bottom:1px solid #f0f2f6"><span>${esc(r.reason)}</span><b>${r.n}</b></div>`).join('') : '<div class="empty">Sin datos</div>';
+  const reasons = (arr) => arr.length ? arr.map((r) => `<div class="row between" style="padding:6px 0;border-bottom:1px solid #f0f2f6"><span>${esc(r.reason)}</span><b>${r.n}</b></div>`).join('') : '<div class="empty">Sin datos en el período.</div>';
   const ramoRows = m.por_ramo.map((r) => `<tr><td><b>${esc(r.ramo)}</b></td><td>${r.tot}</td><td>${r.ventas}</td><td><span class="badge ${r.conv >= 20 ? 'green' : 'gray'}">${r.conv}%</span></td></tr>`).join('');
   const empRows = m.por_empleado.map((e) => `<tr><td><b>${esc(e.name)}</b></td><td>${e.asign}</td><td>${e.contactados}</td><td>${e.ventas}</td><td><span class="badge ${e.conv >= 10 ? 'green' : 'gray'}">${e.conv}%</span></td></tr>`).join('');
   const max = Math.max(f.asignadas, 1);
   const html = `
-    ${printHeader('Metricas de conversion comercial')}
-    <div class="row between" style="margin-bottom:14px"><h3 style="font-size:15px">Embudo comercial</h3>
-      <button class="btn ghost sm no-print" id="pdf">Exportar PDF</button></div>
+    ${printHeader('Métricas de conversión comercial')}
+    ${pageHeader('Métricas de conversión', 'Embudo comercial y conversión por ramo y por empleado.', `<button class="btn ghost sm no-print" id="pdf">Exportar PDF</button>`)}
     <div class="grid cols-2">
       <div class="card pad">
         <h3 style="font-size:14px;margin-bottom:12px">Embudo</h3>
@@ -494,10 +487,10 @@ export async function renderMetrics() {
       </div>
       <div class="card pad"><h3 style="font-size:14px;margin-bottom:8px">No interesados por motivo</h3>${reasons(m.no_interesado)}
         <h3 style="font-size:14px;margin:14px 0 8px">Inviables por motivo</h3>${reasons(m.inviable)}</div>
-      <div class="card table-card"><div class="table-head"><h3 style="font-size:14px">Conversion por ramo ofrecido</h3></div>
-        <table><thead><tr><th>Ramo</th><th>Tareas</th><th>Ventas</th><th>Conv.</th></tr></thead><tbody>${ramoRows || '<tr><td colspan="4"><div class="empty">Sin datos</div></td></tr>'}</tbody></table></div>
-      <div class="card table-card"><div class="table-head"><h3 style="font-size:14px">Conversion por empleado</h3></div>
-        <table><thead><tr><th>Empleado</th><th>Asign.</th><th>Contact.</th><th>Ventas</th><th>Conv.</th></tr></thead><tbody>${empRows || '<tr><td colspan="5"><div class="empty">Sin datos</div></td></tr>'}</tbody></table></div>
+      <div class="card table-card"><div class="table-head"><h3 style="font-size:14px">Conversión por ramo ofrecido</h3></div>
+        <table><thead><tr><th>Ramo</th><th>Tareas</th><th>Ventas</th><th>Conv.</th></tr></thead><tbody>${ramoRows || '<tr><td colspan="4"><div class="empty">Sin datos en el período.</div></td></tr>'}</tbody></table></div>
+      <div class="card table-card"><div class="table-head"><h3 style="font-size:14px">Conversión por empleado</h3></div>
+        <table><thead><tr><th>Empleado</th><th>Asign.</th><th>Contact.</th><th>Ventas</th><th>Conv.</th></tr></thead><tbody>${empRows || '<tr><td colspan="5"><div class="empty">Sin datos en el período.</div></td></tr>'}</tbody></table></div>
     </div>`;
   return { html, mount: (root) => { const p = root.querySelector('#pdf'); if (p) p.onclick = () => printPDF('Reporte_Metricas_Conversion_Digiano_Asesores'); } };
 }
@@ -508,17 +501,18 @@ export async function renderAvisosAdmin() {
   let users = [];
   try { users = (await api.get('/users')).users.filter((u) => u.active); } catch (e) { console.warn('users (combo)', e); }
   const rows = avisos.map((a) => `
-    <tr><td>${a.pinned ? 'ðŸ“Œ ' : ''}<b>${esc(a.title)}</b></td><td><span class="badge ${a.priority === 'alta' ? 'red' : 'gray'}">${esc(a.priority)}</span></td>
+    <tr><td>${a.pinned ? '<span class="badge orange" style="margin-right:6px">Fijado</span>' : ''}<b>${esc(a.title)}</b></td><td><span class="badge ${a.priority === 'alta' ? 'red' : 'gray'}">${esc(a.priority)}</span></td>
       <td>${esc(a.audience)}</td><td>${a.active ? '<span class="badge green">Activo</span>' : '<span class="badge gray">Inactivo</span>'}</td>
       <td class="row" style="gap:6px"><button class="btn outline sm" data-edit="${a.id}">Editar</button><button class="btn outline sm" data-toggle="${a.id}" data-active="${a.active}">${a.active ? 'Desactivar' : 'Activar'}</button></td></tr>`).join('');
   const html = `
-    <div class="card table-card"><div class="table-head between"><h3 style="font-size:15px">Avisos / circulares</h3><button class="btn" id="newAviso">${icons.plus} Nuevo aviso</button></div>
-      <table><thead><tr><th>Titulo</th><th>Prioridad</th><th>Destinatarios</th><th>Estado</th><th></th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="5"><div class="empty">No hay avisos publicados.</div></td></tr>'}</tbody></table></div>`;
+    ${pageHeader('Avisos y circulares', 'Comunicá novedades, recordatorios y circulares al equipo.', `<button class="btn" id="newAviso">${icons.plus} Nuevo aviso</button>`)}
+    <div class="card table-card">
+      <table><thead><tr><th>Título</th><th>Prioridad</th><th>Destinatarios</th><th>Estado</th><th></th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="5">${emptyState('No hay avisos creados todavía', 'Creá un aviso para comunicar novedades al equipo. Aparecerá en el dashboard de los destinatarios.', `<button class="btn" id="newAviso">${icons.plus} Crear aviso</button>`, 'bell')}</td></tr>`}</tbody></table></div>`;
   return {
     html,
     mount: (root) => {
-      root.querySelector('#newAviso').onclick = () => avisoForm(null, users);
+      root.querySelectorAll('#newAviso').forEach((b) => b.onclick = () => avisoForm(null, users));
       root.querySelectorAll('[data-edit]').forEach((b) => b.onclick = () => avisoForm(avisos.find((a) => a.id == b.dataset.edit), users));
       root.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = async () => { await api.put('/avisos/' + b.dataset.toggle, { active: b.dataset.active === '1' ? 0 : 1 }); toast('Actualizado'); refresh(); });
     },
@@ -622,8 +616,8 @@ export async function renderSupervision() {
   }).join('');
 
   const html = `
+    ${pageHeader('Supervisión del equipo', 'Actividad y tareas de cada integrante. Se actualiza automáticamente cada 30 segundos.')}
     <div class="row between" style="margin-bottom:16px;align-items:center">
-      <div class="muted" style="font-size:13px">Se actualiza automáticamente cada 30 segundos.</div>
     </div>
     ${users.length ? cards : '<div class="empty">Sin usuarios activos</div>'}`;
 
