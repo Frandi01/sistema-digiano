@@ -120,8 +120,24 @@ export function badge(status, fallback) {
 
 // Estados reutilizables de UI: vacio, error y carga. Mantienen un mensaje claro
 // (evitan que una pantalla parezca correcta cuando los datos no cargaron).
-export function emptyState(msg, actionHtml) {
-  return `<div class="empty">${esc(msg || 'No hay datos para mostrar.')}${actionHtml ? `<div style="margin-top:10px">${actionHtml}</div>` : ''}</div>`;
+export function emptyState(title, desc, actionHtml, iconKey) {
+  // Compat: con un solo argumento se comporta como un vacio simple.
+  if (desc === undefined && actionHtml === undefined && iconKey === undefined) {
+    return `<div class="empty">${esc(title || 'No hay datos para mostrar.')}</div>`;
+  }
+  const ic = (iconKey && icons[iconKey]) || icons.inbox || '';
+  return `<div class="empty empty-rich">${ic ? `<div class="empty-ico">${ic}</div>` : ''}<h4>${esc(title || '')}</h4>${desc ? `<p>${esc(desc)}</p>` : ''}${actionHtml || ''}</div>`;
+}
+
+// Header de pagina estandar (titulo + subtitulo + accion primaria a la derecha).
+export function pageHeader(title, subtitle, actionHtml) {
+  return `<div class="page-header"><div class="ph-text"><h2>${esc(title)}</h2>${subtitle ? `<div class="ph-sub">${esc(subtitle)}</div>` : ''}</div>${actionHtml ? `<div class="ph-actions">${actionHtml}</div>` : ''}</div>`;
+}
+
+// Menu compacto de acciones (kebab). innerHtml son los <button> de accion, que
+// conservan sus data-* y se cablean normalmente desde la vista.
+export function actionMenu(innerHtml, label) {
+  return `<div class="act-wrap"><button type="button" class="icon-action act-toggle" aria-haspopup="true" aria-expanded="false" aria-label="${esc(label || 'Más acciones')}">${icons.kebab}</button><div class="act-pop" hidden>${innerHtml}</div></div>`;
 }
 export function errorState(msg) {
   return `<div class="empty" style="color:#c0392b">${esc(msg || 'No se pudieron cargar los datos. Reintentá en unos segundos.')}</div>`;
@@ -129,3 +145,6 @@ export function errorState(msg) {
 export function loadingState(msg) {
   return `<div class="empty">${esc(msg || 'Cargando...')}</div>`;
 }
+
+icons.kebab = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+icons.inbox = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>';
