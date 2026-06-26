@@ -49,6 +49,18 @@ const SEEN_SECTIONS = ['tareas-hoy', 'tareas', 'seguimientos', 'siniestros', 'ap
 init();
 // Si algun request recibe 403 por cambio obligatorio, mostrar la pantalla.
 window.addEventListener('must-change-password', () => { if (!document.getElementById('pwForm')) renderForcedPassword(); });
+// Menu compacto de acciones (kebab): abrir/cerrar popovers.
+document.addEventListener('click', (e) => {
+  const tog = e.target.closest('.act-toggle');
+  document.querySelectorAll('.act-pop').forEach((pop) => {
+    const wrap = pop.closest('.act-wrap');
+    if (tog && wrap && wrap.contains(tog)) {
+      const willOpen = pop.hidden; pop.hidden = !willOpen;
+      tog.setAttribute('aria-expanded', String(willOpen));
+    } else { pop.hidden = true; wrap?.querySelector('.act-toggle')?.setAttribute('aria-expanded', 'false'); }
+  });
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.act-pop').forEach((p) => (p.hidden = true)); });
 async function init() {
   try {
     const { user } = await api.get('/auth/me');
@@ -73,6 +85,7 @@ function renderLogin(errMsg) {
           <button class="btn block" type="submit">Ingresar</button>
           <div class="err">${errMsg ? esc(errMsg) : ''}</div>
         </form>
+        <div class="login-foot">Digiano Asesores · Acceso interno</div>
       </div>
     </div>`;
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
